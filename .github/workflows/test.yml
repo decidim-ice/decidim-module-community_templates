@@ -1,0 +1,80 @@
+name: "[CI] Test"
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+
+env:
+  RUBY_VERSION: 3.3.4
+  NODE_VERSION: 22.14.0
+  SHAKAPACKER_RUNTIME_COMPILE: "false"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          POSTGRES_PASSWORD: postgres
+    env:
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_HOST: localhost
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - uses: nanasess/setup-chromedriver@v2
+        with:
+          chromedriver-version: 136.0.7103.92
+
+      - name: List Chrome
+        run: apt list --installed | grep chrome
+
+      - name: Remove Chrome
+        run: sudo apt remove google-chrome-stable
+
+      - uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 136.0.7103.92
+
+      - name: Setup Database
+        run: bundle exec rake test_app
+
+      - name: Run RSpec
+        run: bundle exec rspec
+        env:
+          SIMPLECOV: 1
+          CODECOV: 1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots
+          path: ./spec/decidim_dummy_app/tmp/screenshots
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ env.CODECOV_TOKEN }}
