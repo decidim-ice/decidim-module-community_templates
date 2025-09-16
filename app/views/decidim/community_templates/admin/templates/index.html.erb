@@ -1,3 +1,20 @@
-<h1 class="h1"><%= t("decidim.community_templates.admin.templates.index.title") %></h1>
+<% add_decidim_page_title(t("decidim.community_templates.admin.templates.index.title")) %>
 
-<%= link_to t("decidim.community_templates.admin.templates.index.new"), new_template_path, class: "button button__secondary button__sm" %>
+<div class="item_show__header">
+  <h1 class="item_show__header-title">
+    <%= t "decidim.community_templates.admin.templates.index.title" %>
+  </h1>
+</div>
+
+<div class="item__edit-form">
+    <div class="card">
+      <div class="card-section">
+        <%= render partial: "new_template_form" %>
+      </div>
+    </div>
+    <div class="card mt-4">
+      <div class="card-section">
+        <%= render partial: "apply_template_form" %>
+      </div>
+    </div>
+</div>

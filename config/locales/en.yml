@@ -3,9 +3,13 @@ en:
   decidim:
     community_templates:
       admin:
+        menu:
+          community_templates: Community templates
         templates:
           index:
-            title: "Community Templates"
-            new: "New Template"
-        menu:
-          community_templates: "Community templates"
+            apply_template: Apply a template
+            create_template: Create the new template
+            new_from_space: Create a new template from a participatory space
+            select_participatory_space: Select the participatory space you want to
+              use as a template
+            title: Community Templates
