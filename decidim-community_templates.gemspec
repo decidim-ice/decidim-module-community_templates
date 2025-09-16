@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
   spec.description = "A template for the Decidim Newsletter focused on an agenda"
   spec.license = "AGPL-3.0"
   spec.homepage = "https://github.com/openpoke/decidim-module-community_templates"
-  spec.required_ruby_version = ">= 2.7"
+  spec.required_ruby_version = ">= 3.3"
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
@@ -23,8 +23,8 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "decidim-core", Decidim::CommunityTemplates::COMPAT_DECIDIM_VERSION
   spec.add_dependency "decidim-admin", Decidim::CommunityTemplates::COMPAT_DECIDIM_VERSION
+  spec.add_dependency "decidim-core", Decidim::CommunityTemplates::COMPAT_DECIDIM_VERSION
 
   spec.add_development_dependency "decidim-dev", Decidim::CommunityTemplates::COMPAT_DECIDIM_VERSION
   spec.add_development_dependency "decidim-participatory_processes", Decidim::CommunityTemplates::COMPAT_DECIDIM_VERSION
