@@ -1,2 +1,11 @@
 ---
 en:
+  decidim:
+    community_templates:
+      admin:
+        templates:
+          index:
+            title: "Community Templates"
+            new: "New Template"
+        menu:
+          community_templates: "Community templates"

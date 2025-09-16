@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "decidim/community_templates/admin"
+require "decidim/community_templates/admin_engine"
 require "decidim/community_templates/engine"
 
 module Decidim
