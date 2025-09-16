@@ -2,8 +2,8 @@
 
 [![[CI] Lint](https://github.com/decidim-ice/decidim-module-community_templates/actions/workflows/lint.yml/badge.svg)](https://github.com/decidim-ice/decidim-module-community_templates/actions/workflows/lint.yml)
 [![[CI] Test](https://github.com/decidim-ice/decidim-module-community_templates/actions/workflows/test.yml/badge.svg)](https://github.com/decidim-ice/decidim-module-community_templates/actions/workflows/test.yml)
-[![Maintainability](https://api.codeclimate.com/v1/badges/7d9a138a045b30851a33/maintainability)](https://codeclimate.com/github/decidim-ice/decidim-module-community_templates/maintainability)
-[![codecov](https://codecov.io/gh/decidim-ice/decidim-module-community_templates/branch/main/graph/badge.svg?token=V3KR51DGFN)](https://codecov.io/gh/decidim-ice/decidim-module-community_templates)
+[![Maintainability](https://qlty.sh/gh/decidim-ice/projects/decidim-module-community_templates/maintainability.svg)](https://qlty.sh/gh/decidim-ice/projects/decidim-module-community_templates)
+[![codecov](https://codecov.io/gh/decidim-ice/decidim-module-community_templates/graph/badge.svg?token=zDjnsb0GGe)](https://codecov.io/gh/decidim-ice/decidim-module-community_templates)
 [![Gem Version](https://badge.fury.io/rb/decidim-community_templates.svg)](https://badge.fury.io/rb/decidim-community_templates)
 
 A template for the Decidim Newsletter focused on an agenda
