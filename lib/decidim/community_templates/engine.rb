@@ -9,6 +9,15 @@ module Decidim
       initializer "decidim-community_templates.assets_path" do
         Decidim.register_assets_path File.expand_path("app/packs", root)
       end
+
+      initializer "decidim-community_templates.catalog_adapters" do |_app|
+        Decidim::CommunityTemplates.catalog_sources.each do |key, config|
+          Decidim::CommunityTemplates.catalog_registry.register(key) do |manifest|
+            manifest.adapter = config[:adapter]
+            manifest.options = config[:options] || {}
+          end
+        end
+      end
     end
   end
 end

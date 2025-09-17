@@ -9,12 +9,17 @@ module Decidim
   module CommunityTemplates
     include ActiveSupport::Configurable
 
+    autoload :CatalogManifest, "decidim/community_templates/catalog_manifest"
+
     # Path where the module's built-in templates are stored.
     config_accessor :catalog_sources do
       {
         default: {
-          path: Decidim::CommunityTemplates::Engine.root.join("catalog"),
-          label: "decidim.community_templates.catalog_sources.default"
+          adapter: :local_filesystem,
+          options: {
+            path: Decidim::CommunityTemplates::Engine.root.join("catalog"),
+            label: "Demo templates"
+          }
         }
       }
     end
@@ -26,6 +31,18 @@ module Decidim
     # Unless starting with "/", this path is relative to Rails.root.
     config_accessor :local_templates_path do
       "community_templates"
+    end
+
+    def self.local_path
+      if Decidim::CommunityTemplates.local_templates_path.start_with?("/")
+        Pathname.new(Decidim::CommunityTemplates.local_templates_path)
+      else
+        Rails.root
+      end.join(Decidim::CommunityTemplates.local_templates_path)
+    end
+
+    def self.catalog_registry
+      @catalog_registry ||= ManifestRegistry.new("community_templates/catalogs")
     end
   end
 end

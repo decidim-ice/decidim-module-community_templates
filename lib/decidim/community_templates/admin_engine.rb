@@ -10,6 +10,7 @@ module Decidim
 
       routes do
         resources :templates
+        resources :catalogs
 
         root to: "templates#index"
       end

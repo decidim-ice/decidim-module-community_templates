@@ -10,6 +10,10 @@ module Decidim
           end
         end
 
+        def catalogs_list
+          Decidim::CommunityTemplates.catalog_registry.manifests
+        end
+
         def participatory_spaces
           spaces = {}
           Decidim.participatory_space_manifests.each do |manifest|
