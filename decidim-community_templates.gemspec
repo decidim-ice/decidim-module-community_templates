@@ -7,13 +7,13 @@ require "decidim/community_templates/version"
 Gem::Specification.new do |spec|
   spec.name = "decidim-community_templates"
   spec.version = Decidim::CommunityTemplates::VERSION
-  spec.authors = ["Ivan Vergés"]
-  spec.email = ["ivan@pokecode.net"]
+  spec.authors = ["Ivan Vergés", "Hadrien Froger"]
+  spec.email = ["ivan@pokecode.net", "hadrien@octree.ch"]
 
-  spec.summary = "A template for the Decidim Newsletter focused on an agenda"
-  spec.description = "A template for the Decidim Newsletter focused on an agenda"
+  spec.summary = "Create and distribute templates from your participatory spaces"
+  spec.description = "Create and distribute templates from your participatory spaces"
   spec.license = "AGPL-3.0"
-  spec.homepage = "https://github.com/openpoke/decidim-module-community_templates"
+  spec.homepage = "https://github.com/octree-ch/decidim-module-community_templates"
   spec.required_ruby_version = ">= 3.3"
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
