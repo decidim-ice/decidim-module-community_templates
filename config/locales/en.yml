@@ -25,5 +25,3 @@ en:
           template:
             apply: Apply in a new participatory space
           title: Available templates
-      catalog_sources:
-        default: Built-in demo templates

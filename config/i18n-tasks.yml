@@ -8,5 +8,6 @@ data:
     - "<%= %x[bundle info decidim-core --path].chomp %>/config/locales/%{locale}.yml"
 
 ignore_unused:
+  - decidim.community_templates.admin.menu.community_templates
 
 ignore_missing:
