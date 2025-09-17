@@ -7,9 +7,14 @@ en:
           community_templates: Community templates
         templates:
           index:
-            apply_template: Apply a template
             create_template: Create the new template
             new_from_space: Create a new template from a participatory space
             select_participatory_space: Select the participatory space you want to
               use as a template
             title: Community Templates
+        templates_list:
+          manage_catalogs: Manage catalogs
+          no_templates: There are no templates. Please download some from a catalog.
+          template:
+            apply: Apply a template in a new participatory space
+          title: Available templates
