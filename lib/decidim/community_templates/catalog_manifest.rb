@@ -22,7 +22,7 @@ module Decidim
       delegate :description, :version, to: :instance
 
       def import!
-        instance.import!("#{CommunityTemplates.local_path}/#{name}")
+        instance.import!("#{CommunityTemplates.local_path}/external/#{name}")
       end
 
       def instance

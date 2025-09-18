@@ -1,0 +1,12 @@
+<% add_decidim_page_title(t("decidim.community_templates.admin.templates.index.title")) %>
+
+<div class="card">
+  <div class="card-section form__wrapper">
+    <div class="row column">
+      <div class="columns p-4">
+        <%= render partial: "decidim/community_templates/admin/templates/template", collection: templates %>
+        <%= t("decidim.community_templates.admin.templates.no_#{tab}_templates") if templates.empty? %>
+      </div>
+    </div>
+  </div>
+</div>
