@@ -24,7 +24,6 @@ RSpec.describe Decidim::CommunityTemplates::Zipper do
       entries = zip_file.map(&:name)
     end
     expect(entries).to include(
-      "zipper_test/manifest.json",
       "zipper_test/data.json",
       "zipper_test/demo.json",
       "zipper_test/assets/city.jpeg"
@@ -34,7 +33,6 @@ RSpec.describe Decidim::CommunityTemplates::Zipper do
   it "preserves the directory structure inside the zip" do
     zipper.zip!
     Zip::File.open(zipper.zipfile.path) do |zip_file|
-      expect(zip_file.find_entry("zipper_test/manifest.json")).not_to be_nil
       expect(zip_file.find_entry("zipper_test/data.json")).not_to be_nil
       expect(zip_file.find_entry("zipper_test/demo.json")).not_to be_nil
       expect(zip_file.find_entry("zipper_test/assets/city.jpeg")).not_to be_nil
@@ -51,7 +49,6 @@ RSpec.describe Decidim::CommunityTemplates::Zipper do
     it "extracts the zip contents to the given directory" do
       zipper.zip!
       described_class.extract_to(zipper.zipfile.path, destination)
-      expect(File).to exist(File.join(destination, "zipper_test/manifest.json"))
       expect(File).to exist(File.join(destination, "zipper_test/data.json"))
       expect(File).to exist(File.join(destination, "zipper_test/demo.json"))
       expect(File).to exist(File.join(destination, "zipper_test/assets/city.jpeg"))

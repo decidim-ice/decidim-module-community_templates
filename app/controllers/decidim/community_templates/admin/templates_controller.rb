@@ -62,7 +62,7 @@ module Decidim
         end
 
         def templates
-          Dir.glob("#{Decidim::CommunityTemplates.local_path}/#{tab_path}/*/manifest.json").map do |template_file|
+          Dir.glob("#{Decidim::CommunityTemplates.local_path}/#{tab_path}/*/data.json").map do |template_file|
             JSON.parse(File.read(template_file)).merge("id" => File.basename(File.dirname(template_file)))
           end
         end

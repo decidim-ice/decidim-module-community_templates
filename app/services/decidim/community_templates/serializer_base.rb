@@ -5,25 +5,31 @@ module Decidim
     class SerializerBase
       def initialize(model)
         @model = model
+        @translations = {}
       end
+
+      attr_reader :model, :translations
 
       # A unique random identifier for the serialized object
       def id
-        SecureRandom.uuid
+        @id ||= [
+          Time.now.to_i.to_s(36)[-4..].rjust(4, "0"),
+          Time.now.usec.to_s(36)[-4..].rjust(4, "0"),
+          rand(36**4).to_s(36).rjust(4, "0"),
+          rand(36**4).to_s(36).rjust(4, "0")
+        ].join("-")
       end
 
-      attr_reader :model
-
-      def manifest
-        raise NotImplementedError, "You must implement the manifest method"
-      end
-
+      # only common model fields, extend in subclasses using super
       def data
-        raise NotImplementedError, "You must implement the data method"
+        {
+          id:,
+          class: model.class.name
+        }
       end
 
       def demo
-        raise NotImplementedError, "You must implement the demo method"
+        []
       end
 
       # implement if necessary to include assets (e.g., images)
@@ -31,9 +37,8 @@ module Decidim
         []
       end
 
-      def json_files
+      def serialize
         {
-          manifest:,
           data:,
           demo:
         }
@@ -43,7 +48,7 @@ module Decidim
       def save!(destination_path)
         path = File.join(destination_path, id)
 
-        json_files.each do |key, content|
+        serialize.each do |key, content|
           FileUtils.mkdir_p(path)
           file_path = File.join(path, "#{key}.json")
           File.write(file_path, JSON.pretty_generate(content))
@@ -55,6 +60,30 @@ module Decidim
           FileUtils.mkdir_p(File.dirname(dest_path))
           FileUtils.cp(asset_path, dest_path)
         end
+      end
+
+      private
+
+      def i18n_field(field)
+        translations.deep_merge!(hash_to_i18n_yaml(field))
+
+        "#{id}.#{field}"
+      end
+
+      def hash_to_i18n_yaml(field)
+        hash = model.send(field)
+        raise "Fields #{field} is not a Hash" unless hash.is_a?(Hash)
+
+        hash.filter_map do |lang, text|
+          next if text.to_s.strip.blank?
+          next if text.is_a?(Hash)
+
+          [lang, {
+            id => {
+              field.to_s => text
+            }
+          }]
+        end.to_h
       end
     end
   end

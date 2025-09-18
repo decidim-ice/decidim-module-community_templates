@@ -4,28 +4,11 @@ module Decidim
   module CommunityTemplates
     module Serializers
       class ParticipatoryProcess < SerializerBase
-        def manifest
-          {
-            name: "Participatory Process"
-          }
-        end
-
         def data
-          {
-            title: model.title,
-            description: model.description
-          }
-        end
-
-        def demo
-          {
-            title: {
-              en: "Participatory Process Example"
-            },
-            description: {
-              en: "This is an example of a participatory process."
-            }
-          }
+          super.merge(
+            title: i18n_field(:title),
+            description: i18n_field(:description)
+          )
         end
       end
     end

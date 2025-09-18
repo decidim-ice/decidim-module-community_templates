@@ -3,7 +3,7 @@
 module Decidim
   module CommunityTemplates
     module CatalogAdapters
-      class LocalFilesystem < Decidim::CommunityTemplates::CatalogAdapterBase
+      class LocalFilesystem < Decidim::CommunityTemplates::CatalogAdapter
         def base_path
           options[:path]
         end
