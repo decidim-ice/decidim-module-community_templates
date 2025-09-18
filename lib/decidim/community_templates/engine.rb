@@ -18,6 +18,16 @@ module Decidim
           end
         end
       end
+
+      initializer "decidim-community_templates.serializers" do |_app|
+        Decidim::CommunityTemplates.serializers.each do |config|
+          Decidim::CommunityTemplates.serializer_registry.register(config[:model]) do |manifest|
+            manifest.serializer = config[:serializer]
+            manifest.model = config[:model]
+            manifest.options = config[:options] || {}
+          end
+        end
+      end
     end
   end
 end

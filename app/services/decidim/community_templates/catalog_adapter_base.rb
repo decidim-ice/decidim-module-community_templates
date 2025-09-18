@@ -2,7 +2,7 @@
 
 module Decidim
   module CommunityTemplates
-    class CatalogAdapter
+    class CatalogAdapterBase
       def initialize(options = {})
         @options = options
       end

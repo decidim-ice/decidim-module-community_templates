@@ -10,6 +10,7 @@ module Decidim
     include ActiveSupport::Configurable
 
     autoload :CatalogManifest, "decidim/community_templates/catalog_manifest"
+    autoload :SerializerManifest, "decidim/community_templates/serializer_manifest"
 
     # Path where the module's built-in templates are stored.
     config_accessor :catalog_sources do
@@ -22,6 +23,15 @@ module Decidim
           }
         }
       }
+    end
+
+    config_accessor :serializers do
+      [
+        {
+          model: "Decidim::ParticipatoryProcess",
+          serializer: "Decidim::CommunityTemplates::Serializers::ParticipatoryProcess"
+        }
+      ]
     end
 
     # Path where local templates are stored.
@@ -43,6 +53,10 @@ module Decidim
 
     def self.catalog_registry
       @catalog_registry ||= ManifestRegistry.new("community_templates/catalogs")
+    end
+
+    def self.serializer_registry
+      @serializer_registry ||= ManifestRegistry.new("community_templates/serializers")
     end
   end
 end

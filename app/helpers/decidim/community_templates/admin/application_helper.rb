@@ -4,16 +4,6 @@ module Decidim
   module CommunityTemplates
     module Admin
       module ApplicationHelper
-        def templates_list
-          Dir.glob("#{Decidim::CommunityTemplates.local_path}/*/*/template.json").map do |template_file|
-            JSON.parse(File.read(template_file))
-          end
-        end
-
-        def catalogs_list
-          Decidim::CommunityTemplates.catalog_registry.manifests
-        end
-
         def participatory_spaces
           spaces = {}
           Decidim.participatory_space_manifests.each do |manifest|
