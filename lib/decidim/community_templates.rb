@@ -37,8 +37,8 @@ module Decidim
       if Decidim::CommunityTemplates.local_templates_path.start_with?("/")
         Pathname.new(Decidim::CommunityTemplates.local_templates_path)
       else
-        Rails.root
-      end.join(Decidim::CommunityTemplates.local_templates_path)
+        Rails.root.join(Decidim::CommunityTemplates.local_templates_path)
+      end
     end
 
     def self.catalog_registry

@@ -19,13 +19,7 @@ module Decidim
 
       def import!(path)
         collection.each do |zip_file|
-          Zip::File.open(zip_file) do |zip|
-            zip.each do |entry|
-              dest_file = File.join(path, entry.name)
-              FileUtils.mkdir_p(File.dirname(dest_file))
-              zip.extract(entry, dest_file) { true }
-            end
-          end
+          Zipper.extract_to(zip_file, path)
         end
       end
 
