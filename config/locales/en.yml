@@ -35,6 +35,19 @@ en:
             select_participatory_space: Select the participatory space you want to
               use as a template
             title: Community Templates
+          new:
+            metadata:
+              description: Description
+              description_placeholder: A brief description of the template
+              name: Name
+              title: Template Metadata
+              version: Version
+              version_placeholder: e.g. 1.0.0
+            participatory_space_not_found: The selected participatory space could
+              not be found.
+            serializer_not_found: There is no serializer for the selected participatory
+              space.
+            title: Create a new template
           no_external_templates: There are no templates. Please download some from
             a catalog.
           no_local_templates: There are no local templates. All newly created templates
