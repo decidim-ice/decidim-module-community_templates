@@ -10,7 +10,7 @@ module Decidim
         end
         attr_reader :form, :errors
 
-        delegate :participatory_space, to: :form
+        delegate :participatory_space, :metadata, to: :form
 
         def call
           return broadcast(:invalid, form.errors.full_messages.to_sentence) if form.invalid?
@@ -24,7 +24,7 @@ module Decidim
         private
 
         def serializer
-          @serializer ||= form.serializer.new(participatory_space)
+          @serializer ||= form.serializer.new(model: participatory_space, metadata:, locales: current_organization.available_locales)
         end
 
         def create_template!

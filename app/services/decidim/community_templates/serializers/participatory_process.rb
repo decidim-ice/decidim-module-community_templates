@@ -4,11 +4,11 @@ module Decidim
   module CommunityTemplates
     module Serializers
       class ParticipatoryProcess < SerializerBase
-        def data
-          super.merge(
+        def attributes
+          {
             title: i18n_field(:title),
             description: i18n_field(:description)
-          )
+          }
         end
       end
     end
