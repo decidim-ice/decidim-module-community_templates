@@ -4,6 +4,7 @@ PATH
     decidim-community_templates (0.0.1)
       decidim-admin (>= 0.30.0, < 0.31.0)
       decidim-core (>= 0.30.0, < 0.31.0)
+      git (= 4.0.5)
 
 GEM
   remote: https://rubygems.org/
@@ -396,6 +397,11 @@ GEM
       base64 (>= 0.1.0)
       csv (>= 3.0.0)
     geom2d (0.4.1)
+    git (4.0.5)
+      activesupport (>= 5.0)
+      addressable (~> 2.8)
+      process_executer (~> 4.0)
+      rchardet (~> 1.9)
     globalid (1.2.1)
       activesupport (>= 6.1)
     google-protobuf (4.32.1)
@@ -616,6 +622,8 @@ GEM
       net-smtp
       premailer (~> 1.7, >= 1.7.9)
     prism (1.5.1)
+    process_executer (4.0.0)
+      track_open_instances (~> 0.1)
     public_suffix (6.0.2)
     puma (6.6.1)
       nio4r (~> 2.0)
@@ -676,6 +684,7 @@ GEM
     rb-fsevent (0.11.2)
     rb-inotify (0.11.1)
       ffi (~> 1.0)
+    rchardet (1.10.0)
     redcarpet (3.6.1)
     redis (4.8.1)
     regexp_parser (2.11.3)
@@ -815,6 +824,7 @@ GEM
     thor (1.4.0)
     tilt (2.6.1)
     timeout (0.4.3)
+    track_open_instances (0.1.15)
     trailblazer-option (0.1.2)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -891,4 +901,4 @@ RUBY VERSION
    ruby 3.3.4p94
 
 BUNDLED WITH
-   2.6.6
+   2.4.20

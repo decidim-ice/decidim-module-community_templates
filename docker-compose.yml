@@ -3,18 +3,10 @@ services:
     image: hfroger/decidim:0.30
     command: ""
     working_dir: /home/module
-    entrypoint: |
-      bash -c "
-        cd /home/decidim && \
-        git config --global --add safe.directory /home/module && \
-        bundle config unset frozen && \
-        bundle config unset deployment && \
-        bundle config set without '' && \
-        bundle add decidim-community_templates --path /home/module && \
-        bundle install && \
-        sleep infinity"
+    entrypoint: "/home/decidim/bin/entrypoint.sh"
     volumes:
       - .:/home/module
+      - .docker/entrypoint.sh:/home/decidim/bin/entrypoint.sh
       - bundle:/home/decidim/vendor
       - node_modules:/home/decidim/node_modules
     user: root

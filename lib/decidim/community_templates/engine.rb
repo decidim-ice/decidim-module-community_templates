@@ -9,6 +9,10 @@ module Decidim
       initializer "decidim-community_templates.assets_path" do
         Decidim.register_assets_path File.expand_path("app/packs", root)
       end
+
+      # Configure autoloading paths for the engine
+      config.autoload_paths += %W(#{config.root}/app)
+      config.eager_load_paths += %W(#{config.root}/app)
     end
   end
 end
