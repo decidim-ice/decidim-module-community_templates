@@ -29,16 +29,7 @@ module Decidim
           return redirect_to templates_path, alert: t(".serializer_not_found") if @form.serializer.blank?
         end
 
-        def download
-          zipfile = Decidim::CommunityTemplates::Zipper.new(path: template_full_path)
-          zipfile.zip!
-          send_file zipfile.zipfile.path, filename: "#{template_id}.zip", type: "application/zip"
-        rescue StandardError
-          redirect_back fallback_location: template_path(tab), alert: I18n.t("decidim.community_templates.admin.templates.download.error")
-        ensure
-          zipfile&.zipfile&.close
-        end
-
+        # creates a new template from a participatory space and passed metadata
         def create
           @form = form(TemplateForm).from_params(params)
 
@@ -52,6 +43,17 @@ module Decidim
               render :new
             end
           end
+        end
+
+        # downloads a template as a zip file
+        def download
+          zipfile = Decidim::CommunityTemplates::Zipper.new(path: template_full_path)
+          zipfile.zip!
+          send_file zipfile.zipfile.path, filename: "#{template_id}.zip", type: "application/zip"
+        rescue StandardError
+          redirect_back fallback_location: template_path(tab), alert: I18n.t("decidim.community_templates.admin.templates.download.error")
+        ensure
+          zipfile&.zipfile&.close
         end
 
         private

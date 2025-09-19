@@ -47,8 +47,11 @@ module Decidim
         {
           id:,
           class: model.class.name,
+          original_id: model.id,
           name: "#{id}.metadata.name",
           description: "#{id}.metadata.description",
+          decidim_version: Decidim.version,
+          community_templates_version: Decidim::CommunityTemplates::VERSION,
           version: metadata[:version] || "0.0.1",
           attributes:
         }
