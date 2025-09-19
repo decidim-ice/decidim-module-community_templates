@@ -100,7 +100,7 @@ module Decidim
 
       def hash_to_i18n(field)
         hash = model.send(field)
-        raise "Fields #{field} is not a Hash" unless hash.is_a?(Hash)
+        raise "Field #{field} is not a Hash" unless hash.is_a?(Hash)
 
         locales.index_with do |lang|
           {
