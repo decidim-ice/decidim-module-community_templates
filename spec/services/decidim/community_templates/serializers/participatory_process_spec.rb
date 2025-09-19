@@ -50,12 +50,21 @@ module Decidim
         end
 
         it "generates translations" do
-          ca = serializer.translations["ca"][serializer.id]["attributes"]
-          en = serializer.translations["en"][serializer.id]["attributes"]
-          expect(ca["title"]).to eq(model.title["ca"])
-          expect(en["title"]).to eq(model.title["en"])
-          expect(ca["description"]).to eq(model.description["ca"])
-          expect(en["description"]).to eq(model.description["en"])
+          metadata_ca = serializer.translations["ca"][serializer.id]["metadata"]
+          metadata_en = serializer.translations["en"][serializer.id]["metadata"]
+          expect(metadata_ca["name"]).to eq(name["ca"])
+          expect(metadata_en["name"]).to eq(name["en"])
+          expect(metadata_ca["description"]).to eq(description["ca"])
+          expect(metadata_en["description"]).to eq(description["en"])
+
+          attributes_ca = serializer.translations["ca"][serializer.id]["attributes"]
+          attributes_en = serializer.translations["en"][serializer.id]["attributes"]
+          expect(attributes_ca["title"]).to eq(model.title["ca"])
+          expect(attributes_en["title"]).to eq(model.title["en"])
+          expect(attributes_ca["description"]).to eq(model.description["ca"])
+          expect(attributes_en["description"]).to eq(model.description["en"])
+          expect(attributes_ca["components"][component.id.to_s]["attributes"]["name"]).to eq(component.name["ca"])
+          expect(attributes_en["components"][component.id.to_s]["attributes"]["name"]).to eq(component.name["en"])
         end
 
         it "includes components" do
