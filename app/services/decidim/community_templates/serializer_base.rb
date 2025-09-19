@@ -3,30 +3,43 @@
 module Decidim
   module CommunityTemplates
     class SerializerBase
-      def initialize(model:, metadata: {}, locales: Decidim.available_locales)
+      def initialize(model:, metadata: {}, locales: Decidim.available_locales, with_manifest: false)
         @model = model
         @metadata = metadata.with_indifferent_access
         @locales = locales
+        @with_manifest = with_manifest
         # Hash: structure to hold all translations for the serialized object
-        @translations = locales.to_h do |lang|
-          [lang.to_s, {
-            id => {
-              "metadata" => {
-                "name" => @metadata[:name][lang],
-                "description" => @metadata[:description][lang]
-              }
-            }
-          }]
-        end
+        @translations = {}
+        # Hash: structure to hold the final serialized data
+        @data = {}
         # Hash: model-specific attributes
         @attributes = {}
-        # Array: demo data to be included in demo.json
+        # Array: implement if necessary to include demo data
         @demo = []
         # Array: implement if necessary to include assets (e.g., images)
         @assets = []
       end
 
-      attr_reader :model, :translations, :attributes, :demo, :assets, :metadata, :locales
+      attr_reader :model, :translations, :attributes, :assets, :metadata, :locales, :with_manifest, :data, :demo
+
+      def self.init(**args)
+        serializer = new(**args)
+        serializer.metadata_translations!
+        serializer.data!
+        serializer.demo!
+        serializer.assets!
+        serializer
+      end
+
+      # For the moment, name and description are the only translatable metadata fields
+      def metadata_translations!
+        %w(name description).each do |field|
+          next unless metadata[field].is_a?(Hash)
+
+          translations.deep_merge!(hash_to_i18n(metadata[field], field, "metadata"))
+        end
+        translations
+      end
 
       # A unique random identifier for the serialized object
       def id
@@ -43,21 +56,29 @@ module Decidim
       # metadata for the serialized object, extend in subclasses using super
       # Other possible future fields here could define rules for generating the final object
       # (e.g. how to generate the slug, or publication status)
-      def data
-        {
-          id:,
-          class: model.class.name,
-          original_id: model.id,
-          name: "#{id}.metadata.name",
-          description: "#{id}.metadata.description",
-          decidim_version: Decidim.version,
-          community_templates_version: Decidim::CommunityTemplates::VERSION,
-          version: metadata[:version] || "0.0.1",
-          attributes:
-        }
+      def data!
+        data[:id] = id
+        data[:class] = model.class.name
+        data[:original_id] = model.id
+        data[:attributes] = attributes
+        if with_manifest
+          data[:name] = "#{id}.metadata.name" if metadata[:name].present?
+          data[:description] = "#{id}.metadata.description" if metadata[:description].present?
+          data[:decidim_version] = Decidim.version
+          data[:community_templates_version] = Decidim::CommunityTemplates::VERSION
+          data[:version] = metadata[:version] || "0.0.1"
+        end
       end
 
-      def serialize
+      def demo!
+        # TODO
+      end
+
+      def assets!
+        # TODO
+      end
+
+      def json_files
         {
           data:,
           demo:
@@ -68,7 +89,7 @@ module Decidim
       def save!(destination_path)
         path = File.join(destination_path, id)
 
-        serialize.each do |key, content|
+        json_files.each do |key, content|
           FileUtils.mkdir_p(path)
           file_path = File.join(path, "#{key}.json")
           File.write(file_path, JSON.pretty_generate(content))
@@ -92,25 +113,28 @@ module Decidim
 
       private
 
+      def id_parts
+        id.split(".")
+      end
+
       def i18n_field(field)
-        translations.deep_merge!(hash_to_i18n(field))
+        translations.deep_merge!(hash_to_i18n(model.send(field), field))
 
         "#{id}.attributes.#{field}"
       end
 
-      def hash_to_i18n(field)
-        hash = model.send(field)
-        raise "Field #{field} is not a Hash" unless hash.is_a?(Hash)
+      def hash_to_i18n(hash, field, prefix = "attributes")
+        return {} unless hash.is_a?(Hash)
 
         locales.index_with do |lang|
-          {
-            id => {
-              "attributes" => {
-                field.to_s => hash[lang]
-              }
-            }
-          }
+          (id_parts + [prefix, field.to_s]).reverse.inject(hash[lang]) { |value, key| { key => value } }
         end
+      end
+
+      def append_serializer(serializer_class, model, prefix)
+        serializer = serializer_class.init(model:, metadata: { id: "#{id}.attributes.#{prefix}" }, locales:)
+        translations.deep_merge!(serializer.translations)
+        serializer.data
       end
     end
   end

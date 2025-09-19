@@ -7,8 +7,10 @@ module Decidim
     module Serializers
       describe ParticipatoryProcess do
         let(:model) { create(:participatory_process, :with_steps) }
-        let(:serializer) { described_class.new(model:, metadata:, locales:) }
+        let!(:component) { create(:proposal_component, participatory_space: model) }
+        let(:serializer) { described_class.init(model:, metadata:, locales:, with_manifest:) }
         let(:metadata) { { name:, description:, version: "1.2.3" } }
+        let(:with_manifest) { true }
         let(:name) do
           {
             "en" => "Participatory process example",
@@ -22,9 +24,8 @@ module Decidim
           }
         end
         let(:locales) { %w(en ca) }
-        let(:serialized_data) { serializer.serialize }
-        let(:data) { serialized_data[:data] }
-        let(:demo) { serialized_data[:demo] }
+        let(:data) { serializer.data }
+        let(:demo) { serializer.demo }
         let(:attributes) { data[:attributes] }
         let(:assets) { serializer.assets }
 
@@ -49,13 +50,22 @@ module Decidim
         end
 
         it "generates translations" do
-          serializer.serialize
           ca = serializer.translations["ca"][serializer.id]["attributes"]
           en = serializer.translations["en"][serializer.id]["attributes"]
           expect(ca["title"]).to eq(model.title["ca"])
           expect(en["title"]).to eq(model.title["en"])
           expect(ca["description"]).to eq(model.description["ca"])
           expect(en["description"]).to eq(model.description["en"])
+        end
+
+        it "includes components" do
+          expect(attributes[:components]).to be_an(Array)
+          expect(attributes[:components].size).to eq(1)
+          component_data = attributes[:components].first
+          expect(component_data[:id]).to eq("#{serializer.id}.attributes.components.#{component.id}")
+          expect(component_data[:class]).to eq("Decidim::Component")
+          expect(component_data[:original_id]).to eq(component.id)
+          expect(component_data[:attributes][:name]).to eq("#{serializer.id}.attributes.components.#{component.id}.attributes.name")
         end
 
         it "saves the serialized data to disk" do

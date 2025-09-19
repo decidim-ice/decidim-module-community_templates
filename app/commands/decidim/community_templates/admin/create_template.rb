@@ -24,7 +24,12 @@ module Decidim
         private
 
         def serializer
-          @serializer ||= form.serializer.new(model: participatory_space, metadata:, locales: current_organization.available_locales)
+          @serializer ||= form.serializer.init(
+            model: participatory_space,
+            metadata:,
+            locales: current_organization.available_locales,
+            with_manifest: true
+          )
         end
 
         def create_template!
