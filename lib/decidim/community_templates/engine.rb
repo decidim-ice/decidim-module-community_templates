@@ -21,6 +21,7 @@ module Decidim
             repo_author_name: Decidim::CommunityTemplates.git_settings[:author_name],
             repo_author_email: Decidim::CommunityTemplates.git_settings[:author_email]
           )
+          GitCatalogNormalizer.call
           mirror.validate!
         end
       end

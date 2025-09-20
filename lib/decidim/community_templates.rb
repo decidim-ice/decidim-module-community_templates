@@ -17,7 +17,7 @@ module Decidim
 
     config_accessor :git_settings do
       {
-        url: ENV.fetch("TEMPLATE_GIT_URL", "https://example.org/repo/my-template.git"),
+        url: ENV.fetch("TEMPLATE_GIT_URL", ""),
         branch: ENV.fetch("TEMPLATE_GIT_BRANCH", "main"),
         username: ENV.fetch("TEMPLATE_GIT_USERNAME", ""),
         password: ENV.fetch("TEMPLATE_GIT_PASSWORD", ""),
