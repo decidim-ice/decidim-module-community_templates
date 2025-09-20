@@ -73,7 +73,7 @@ module Decidim
       # Clone the repository at catalog_path.
       def clone_repository
         Git.clone(repo_url, path: catalog_path.to_s, branch: repo_branch)
-      rescue Git::GitExecuteError => e
+      rescue Git::Error => e
         Rails.logger.error("Error cloning repository: #{e.message}")
         raise e
       end

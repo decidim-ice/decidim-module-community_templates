@@ -5,8 +5,17 @@ module Decidim
     class GitMirror
       include Singleton
 
-      attr_reader :repo_url, :repo_branch, :repo_username, :repo_password, :repo_author_name, :repo_author_email, :errors
+      delegate :repo_url, 
+                :repo_branch, 
+                :repo_username, 
+                :repo_password, 
+                :repo_author_name, 
+                :repo_author_email, 
+                to: :settings
+
       attr_accessor :catalog_path
+      attr_accessor :settings
+      attr_reader :errors
 
       def push!
         validate!
@@ -36,41 +45,32 @@ module Decidim
       end
 
       def initialize
+        @settings = GitSettings.new
         @errors = ActiveModel::Errors.new(self)
         @catalog_path = Rails.public_path.join("catalog")
       end
 
       def configure(options)
-        @repo_url = options[:repo_url]
-        @repo_branch = options[:repo_branch]
-        @repo_username = options[:repo_username]
-        @repo_password = options[:repo_password] || ""
-        @repo_author_name = options[:repo_author_name]
-        @repo_author_email = options[:repo_author_email]
+        settings.assign_attributes(options)
         self
       end
 
       def valid?
         validate
-        errors.empty?
+        errors.empty? && settings.valid?
       end
 
       def validate!
-        validate
-        raise errors.full_messages.join(", ") unless errors.empty?
+        settings.validate && validate
+        messages = errors.full_messages + settings.errors.full_messages
+        raise messages.join(", ") unless messages.empty?
       end
+
 
       def validate
         errors.clear
-        # Validate configuration
-        validate_repository_url
-        validate_repository_password
-        validate_repository_username
-        validate_repository_author_name
-        validate_repository_author_email
-
-        # Validate catalog paths and normalization
         return errors.add(:base, "Repository catalog path does not exist. Check #{catalog_path}.") unless catalog_path.exist?
+        return errors.add(:base, "Repository catalog path is not a git repository. Check #{catalog_path}.") unless catalog_path.join(".git").exist?
         return errors.add(:base, "Repository is empty") if empty?
         return errors.add(:base, "Repository is not readable") unless git.index.readable?
       end
@@ -86,34 +86,21 @@ module Decidim
 
       def git
         Git.open(catalog_path, :log => Rails.logger)
+      rescue ArgumentError => e
+        raise e unless catalog_path.join(".git").exist?
+        status_output = %x(cd #{catalog_path} && git status 2>&1)
+        byebug
+        if status_output.include?("dubious ownership")
+          Rails.logger.error("Git repository has ownership issues. Run: git config --global --add safe.directory #{catalog_path}")
+        elsif status_output.include?("not a git repository") || status_output.include?("not in a git working tree")
+          Rails.logger.error("Directory is not a valid git repository. Status: #{status_output}")
+        else
+          Rails.logger.error("Git error: #{e.message}. Status: #{status_output}")
+        end
+        raise e
       end
 
       private
-
-      def validate_repository_url
-        return errors.add(:base, "Repository URL is not set") unless repo_url
-        return errors.add(:base, "Repository URL is not a valid https url") unless repo_url.match?(%r{\Ahttps://})
-      end
-
-      def validate_repository_password
-        return if repo_username.nil? || repo_username.blank?
-        return errors.add(:base, "Repository password is not set") if repo_password.blank?
-      end
-
-      def validate_repository_username
-        return if repo_password.nil? || repo_password.blank?
-        return errors.add(:base, "Repository username is not set") if repo_username.blank?
-      end
-
-      def validate_repository_author_name
-        return errors.add(:base, "Repository author name is not set") unless repo_author_name
-        return errors.add(:base, "Repository author name is not at least 3 characters") unless repo_author_name.length >= 3
-      end
-
-      def validate_repository_author_email
-        return errors.add(:base, "Repository author email is not set") unless repo_author_email
-        return errors.add(:base, "Repository author email is not a valid email") unless repo_author_email.match?(URI::MailTo::EMAIL_REGEXP)
-      end
 
       def with_git_credentials
         ENV["GIT_USERNAME"] = repo_username

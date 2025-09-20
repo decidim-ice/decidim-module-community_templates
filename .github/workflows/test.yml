@@ -59,6 +59,9 @@ jobs:
         with:
           chrome-version: 136.0.7103.92
 
+      - run: |
+          sudo apt install wkhtmltopdf imagemagick 7zip
+
       - name: Setup Database
         run: bundle exec rake test_app
 

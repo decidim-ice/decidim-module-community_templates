@@ -18,6 +18,8 @@ gem "decidim-community_templates", path: "."
 gem "bootsnap", "~> 1.4"
 
 gem "puma", ">= 6.3.1"
+# temporary fix for simplecov
+gem "rexml", "3.4.0"
 
 group :development, :test do
   gem "byebug", "~> 11.0", platform: :mri

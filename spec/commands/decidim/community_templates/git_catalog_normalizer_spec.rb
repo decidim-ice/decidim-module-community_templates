@@ -49,7 +49,7 @@ module Decidim
 
         described_class.call
         expect(git_mirror).not_to be_empty
-        expect(git_mirror.git.log(1).first.message).to eq(":tada: Add empty manifest.json")
+        expect(git_mirror.git.log(1).execute.first.message).to eq(":tada: Add empty manifest.json")
         expect(git_mirror.catalog_path.join("manifest.json")).to exist
       end
     end

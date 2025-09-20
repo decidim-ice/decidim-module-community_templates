@@ -5,7 +5,7 @@ require "spec_helper"
 module Decidim
   module CommunityTemplates
     describe GitMirror do
-      describe "#validate" do
+      describe "#valid?" do
         it "returns false if the repository is not cloned" do
           git_mirror = create(:git_mirror, :empty)
           expect(git_mirror).not_to be_valid
@@ -15,54 +15,6 @@ module Decidim
         it "returns true if the repository is cloned and not empty" do
           git_mirror = create(:git_mirror, :ready)
           expect(git_mirror).to be_valid
-        end
-
-        it "returns false if the repo_author_email is not set" do
-          git_mirror = create(:git_mirror, :empty, repo_author_email: nil)
-          expect(git_mirror).not_to be_valid
-          expect(git_mirror.errors.full_messages).to include(match(/author email is not set/))
-        end
-
-        it "returns false if the repo_author_email is not a valid email" do
-          git_mirror = create(:git_mirror, :empty, repo_author_email: "not_an_email")
-          expect(git_mirror).not_to be_valid
-          expect(git_mirror.errors.full_messages).to include(match(/author email is not a valid email/))
-        end
-
-        it "returns false if the repo_author_name is not set" do
-          git_mirror = create(:git_mirror, :empty, repo_author_name: nil)
-          expect(git_mirror).not_to be_valid
-          expect(git_mirror.errors.full_messages).to include(match(/author name is not set/))
-        end
-
-        it "returns false if the repo_author_name is not at least 3 characters" do
-          git_mirror = create(:git_mirror, :empty, repo_author_name: "ab")
-          expect(git_mirror).not_to be_valid
-          expect(git_mirror.errors.full_messages).to include(match(/author name is not at least 3 characters/))
-        end
-
-        it "returns false if the repo_url is not set" do
-          git_mirror = create(:git_mirror, :empty, repo_url: nil)
-          expect(git_mirror).not_to be_valid
-          expect(git_mirror.errors.full_messages).to include(match(/Repository URL is not set/))
-        end
-
-        it "returns false if the repo_url is not a valid https url" do
-          git_mirror = create(:git_mirror, :empty, repo_url: "ssh://example.com")
-          expect(git_mirror).not_to be_valid
-          expect(git_mirror.errors.full_messages).to include(match(/Repository URL is not a valid https url/))
-        end
-
-        it "returns false if repo_username is not set but repo_password is" do
-          git_mirror = create(:git_mirror, :ready, repo_username: "", repo_password: "password")
-          expect(git_mirror).not_to be_valid
-          expect(git_mirror.errors.full_messages).to include(match(/Repository username is not set/))
-        end
-
-        it "returns false if repo_username is set but repo_password is not" do
-          git_mirror = create(:git_mirror, :ready, repo_username: "username", repo_password: "")
-          expect(git_mirror).not_to be_valid
-          expect(git_mirror.errors.full_messages).to include(match(/Repository password is not set/))
         end
       end
 
@@ -129,7 +81,7 @@ module Decidim
 
       describe "#writable?" do
         it "returns false if repo_username and repo_password are not set" do
-          git_mirror = create(:git_mirror, :ready, repo_username: "", repo_password: "")
+          git_mirror = create(:git_mirror, :ready, settings_attributes: { repo_username: "", repo_password: "" })
           expect(git_mirror).not_to be_writable
         end
         
@@ -143,7 +95,7 @@ module Decidim
 
       describe "#push!" do
         it "raises a RuntimeError if the repository is not writable" do
-          git_mirror = create(:git_mirror, :ready, repo_username: "", repo_password: "")
+          git_mirror = create(:git_mirror, :ready, settings_attributes: { repo_username: "", repo_password: "" })
           expect { git_mirror.push! }.to raise_error(RuntimeError)
         end
 
@@ -156,7 +108,7 @@ module Decidim
 
       describe "#pull" do
         it "raises a RuntimeError if the repository is not valid" do
-          git_mirror = create(:git_mirror, :ready, repo_username: "", repo_password: "apasswordwithout-username")
+          git_mirror = create(:git_mirror, :ready, settings_attributes: { repo_username: "", repo_password: "apasswordwithout-username" })
           expect { git_mirror.pull }.to raise_error(RuntimeError)
         end
 

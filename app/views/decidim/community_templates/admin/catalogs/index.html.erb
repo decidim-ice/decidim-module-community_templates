@@ -1,0 +1,9 @@
+<% add_decidim_page_title(t("decidim.community_templates.admin.catalogs.index.title")) %>
+
+<div class="card">
+  <div class="card-section form__wrapper">
+    <div class="row column">
+      <%= render partial: "decidim/community_templates/admin/catalogs/catalog", collection: catalogs_list %>
+    </div>
+  </div>
+</div>

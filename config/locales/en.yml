@@ -1,2 +1,44 @@
 ---
 en:
+  activemodel:
+    errors:
+      models:
+        template:
+          attributes:
+            participatory_space:
+              unsupported: The selected participatory space is not supported.
+  decidim:
+    community_templates:
+      admin:
+        catalogs:
+          index:
+            import: Import
+            title: Available catalogs
+          show:
+            imported_successfully: The catalog has been imported successfully.
+            not_found: The selected catalog could not be found.
+        menu:
+          community_templates: Community templates
+          create_template: Create template
+          external_templates: External templates
+          local_templates: Local templates
+          manage_catalogs: Manage catalogs
+        templates:
+          create:
+            error: There was an error creating the template. %{errors}
+            success: The template has been created successfully.
+          download:
+            error: There was an error generating the template zip file.
+          index:
+            create_template: Create the new template
+            new_from_space: Create a new template from a participatory space
+            select_participatory_space: Select the participatory space you want to
+              use as a template
+            title: Community Templates
+          no_external_templates: There are no templates. Please download some from
+            a catalog.
+          no_local_templates: There are no local templates. All newly created templates
+            will appear here.
+          template:
+            apply: Apply in a new participatory space
+            download: Download

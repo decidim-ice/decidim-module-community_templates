@@ -7,6 +7,15 @@ git config --global --add safe.directory /home/module
 bundle config unset frozen 
 bundle config unset deployment 
 bundle config set without ''
+
+# Fix catalog ownership if catalog exists
+if [ -d /home/module/spec/decidim_dummy_app/public/catalog ]; then
+    git config --global --add safe.directory /home/module/spec/decidim_dummy_app/public/catalog
+fi
+if [ -d /home/decidim/public/catalog ]; then
+    git config --global --add safe.directory /home/decidim/public/catalog
+fi
+
 # unless the module is already installed
 if ! bundle list | grep -q decidim-community_templates; then
     bundle add decidim-community_templates --path /home/module 
