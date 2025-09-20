@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Create and distribute templates from your participatory spaces"
   spec.description = "Create and distribute templates from your participatory spaces"
   spec.license = "AGPL-3.0"
-  spec.homepage = "https://github.com/octree-ch/decidim-module-community_templates"
+  spec.homepage = "https://github.com/decidim-ice/decidim-module-community_templates"
   spec.required_ruby_version = ">= 3.3"
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
