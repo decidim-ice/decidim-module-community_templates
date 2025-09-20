@@ -57,7 +57,7 @@ module Decidim
           expect { git_mirror.git }.to raise_error(ArgumentError)
         end
 
-        it "if git has a dubidious ownership error, it raises a RuntimeError and advises to add safe.directory in git config" do
+        it "if git has a dubidious ownership error, it raises a GitError and advises to add safe.directory in git config" do
           git_mirror = create(:git_mirror, :ready)
           allow(Rails.logger).to receive(:error)
           allow(Git).to receive(:open).and_raise(ArgumentError.new("fatal: not a git repository"))
@@ -66,7 +66,7 @@ module Decidim
           # So system should do a git status and check for dubious ownership
           allow(git_mirror).to receive(:`).with("cd #{git_mirror.catalog_path} && git status 2>&1").and_return("dubious ownership")
 
-          expect { git_mirror.git }.to raise_error(ArgumentError)
+          expect { git_mirror.git }.to raise_error(GitError)
           # Advise the user about this classic issue in docker environments
           expect(Rails.logger).to have_received(:error).with(match("--add safe.directory #{git_mirror.catalog_path}"))
         end
@@ -87,10 +87,10 @@ module Decidim
       end
 
       describe "#validate!" do
-        it "raises a RuntimeError if validation have any errors" do
+        it "raises a GitError if validation have any errors" do
           git_mirror = create(:git_mirror)
           git_mirror.errors.add(:base, "test error")
-          expect { git_mirror.validate! }.to raise_error(RuntimeError)
+          expect { git_mirror.validate! }.to raise_error(GitError)
         end
       end
 
@@ -122,9 +122,9 @@ module Decidim
       end
 
       describe "#pull" do
-        it "raises a RuntimeError if the repository is not valid" do
+        it "raises a GitError if the repository is not valid" do
           git_mirror = create(:git_mirror, :ready, settings_attributes: { repo_username: "", repo_password: "apasswordwithout-username" })
-          expect { git_mirror.pull }.to raise_error(RuntimeError)
+          expect { git_mirror.pull }.to raise_error(GitError)
         end
 
         it "pulls the repository" do

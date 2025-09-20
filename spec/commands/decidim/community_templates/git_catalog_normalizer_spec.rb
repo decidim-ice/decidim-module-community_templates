@@ -5,6 +5,21 @@ require "spec_helper"
 module Decidim
   module CommunityTemplates
     describe GitCatalogNormalizer do
+      before do
+        CommunityTemplates.configure do |config|
+          config.git_settings[:url] = Faker::Internet.url(scheme: "https")
+        end
+      end
+
+      it "does nothing if CommunityTemplates.git_settings[:url] is not set" do
+        allow(GitMirror).to receive(:instance).and_return(nil)
+        CommunityTemplates.configure do |config|
+          config.git_settings[:url] = nil
+        end
+        expect(GitMirror).not_to have_received(:instance)
+        expect(described_class.call).to have_key(:ok)
+      end
+
       it "run a git clone if the catalog path does not exists" do
         git_mirror = create(:git_mirror, :empty)
         expect(Git).to receive(:clone).with(

@@ -14,7 +14,7 @@ module Decidim
     autoload :SerializerManifest, "decidim/community_templates/serializer_manifest"
     autoload :GitMirror, "decidim/community_templates/git_mirror"
     autoload :GitSettings, "decidim/community_templates/git_settings"
-
+    autoload :GitError, "decidim/community_templates/error"
     config_accessor :git_settings do
       {
         url: ENV.fetch("TEMPLATE_GIT_URL", ""),
@@ -25,6 +25,7 @@ module Decidim
         author_email: ENV.fetch("TEMPLATE_GIT_AUTHOR_EMAIL", "decidim-community-templates@example.org")
       }
     end
+
     # Path where the module's built-in templates are stored.
     config_accessor :catalog_sources do
       {

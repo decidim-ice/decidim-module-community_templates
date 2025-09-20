@@ -21,6 +21,8 @@ module Decidim
       end
 
       def call
+        return broadcast(:ok) if Decidim::CommunityTemplates.git_settings[:url].blank?
+
         clone_repository unless catalog_path.exist?
         validate!
         configure_git

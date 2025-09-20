@@ -62,7 +62,7 @@ module Decidim
       def validate!
         settings.validate && validate
         messages = errors.full_messages + settings.errors.full_messages
-        raise messages.join(", ") unless messages.empty?
+        raise GitError, messages.join(", ") unless messages.empty?
       end
 
       def validate
@@ -96,7 +96,7 @@ module Decidim
         else
           Rails.logger.error("Git error: #{e.message}. Status: #{status_output}")
         end
-        raise e
+        raise GitError, e.message
       end
 
       private
