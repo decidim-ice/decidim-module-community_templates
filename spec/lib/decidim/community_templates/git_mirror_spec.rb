@@ -56,6 +56,20 @@ module Decidim
           git_mirror.catalog_path.rmtree
           expect { git_mirror.git }.to raise_error(ArgumentError)
         end
+
+        it "if git has a dubidious ownership error, it raises a RuntimeError and advises to add safe.directory in git config" do
+          git_mirror = create(:git_mirror, :ready)
+          allow(Rails.logger).to receive(:error)
+          allow(Git).to receive(:open).and_raise(ArgumentError.new("fatal: not a git repository"))
+          # In case of a dubious ownership error, ruby-git raises an ArgumentError with a message like:
+          # "fatal: not a git repository (or any of the parent directories): .git"
+          # So system should do a git status and check for dubious ownership
+          allow(git_mirror).to receive(:`).with("cd #{git_mirror.catalog_path} && git status 2>&1").and_return("dubious ownership")
+
+          expect { git_mirror.git }.to raise_error(ArgumentError)
+          # Advise the user about this classic issue in docker environments
+          expect(Rails.logger).to have_received(:error).with(match("--add safe.directory #{git_mirror.catalog_path}"))
+        end
       end
 
       describe "#configure" do
