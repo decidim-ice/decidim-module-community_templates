@@ -1,0 +1,8 @@
+<% if allowed_to? :templatize, :process, process: process %>
+  <%= icon_link_to "link", 
+                    decidim_participatory_processes.participatory_process_path(process), 
+                    t("actions.new_template", scope: "decidim.community_templates.admin"), 
+                    class: "action-icon--templatize", 
+                    target: "_blank", 
+                    data: { "external-link": false } %>
+<% end %>

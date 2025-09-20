@@ -15,6 +15,7 @@ module Decidim
     autoload :GitMirror, "decidim/community_templates/git_mirror"
     autoload :GitSettings, "decidim/community_templates/git_settings"
     autoload :GitError, "decidim/community_templates/error"
+
     config_accessor :git_settings do
       {
         url: ENV.fetch("TEMPLATE_GIT_URL", ""),

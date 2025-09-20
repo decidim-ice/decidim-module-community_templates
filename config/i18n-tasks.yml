@@ -10,5 +10,6 @@ data:
 ignore_unused:
   - decidim.community_templates.admin.menu.*
   - activemodel.errors.models.template.attributes.participatory_space.unsupported
+  - activerecord.errors.models.decidim/community_templates/community_template.attributes.*
 
 ignore_missing:

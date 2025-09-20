@@ -18,6 +18,11 @@ module Decidim
             return permission_action
           end
 
+          if templatize_action?
+            allow!
+            return permission_action
+          end
+
           permission_action
         end
 
@@ -26,6 +31,11 @@ module Decidim
         def read_admin_dashboard_action?
           permission_action.action == :read &&
             permission_action.subject == :admin_dashboard
+        end
+
+        def templatize_action?
+          permission_action.action == :templatize &&
+            permission_action.subject == :process
         end
       end
     end
