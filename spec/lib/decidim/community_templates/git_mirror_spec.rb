@@ -23,6 +23,7 @@ module Decidim
           git_mirror = create(:git_mirror)
           expect(git_mirror).to be_empty
         end
+
         it "returns true if the catalog path exists but is not a git repository" do
           git_mirror = create(:git_mirror)
           FileUtils.mkdir_p(git_mirror.catalog_path)
@@ -84,11 +85,11 @@ module Decidim
           git_mirror = create(:git_mirror, :ready, settings_attributes: { repo_username: "", repo_password: "" })
           expect(git_mirror).not_to be_writable
         end
-        
+
         it "returns false if git index is not writable" do
           git_mirror = create(:git_mirror, :ready)
           mock_index = double("index", writable?: false)
-          expect_any_instance_of(Git::Base).to receive(:index).and_return(mock_index)
+          expect_any_instance_of(Git::Base).to receive(:index).and_return(mock_index) # rubocop:disable RSpec/AnyInstance, RSpec/StubbedMock
           expect(git_mirror).not_to be_writable
         end
       end
@@ -101,7 +102,7 @@ module Decidim
 
         it "pushes the repository" do
           git_mirror = create(:git_mirror, :ready)
-          expect_any_instance_of(Git::Base).to receive(:push).with("origin", git_mirror.repo_branch, force: true).and_return(true)
+          expect_any_instance_of(Git::Base).to receive(:push).with("origin", git_mirror.repo_branch, force: true).and_return(true) # rubocop:disable RSpec/AnyInstance, RSpec/StubbedMock
           git_mirror.push!
         end
       end
@@ -114,10 +115,9 @@ module Decidim
 
         it "pulls the repository" do
           git_mirror = create(:git_mirror, :ready)
-          expect_any_instance_of(Git::Base).to receive(:pull).with("origin", git_mirror.repo_branch).and_return(true)
+          expect_any_instance_of(Git::Base).to receive(:pull).with("origin", git_mirror.repo_branch).and_return(true) # rubocop:disable RSpec/AnyInstance, RSpec/StubbedMock
           git_mirror.pull
         end
-        
       end
     end
   end

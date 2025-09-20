@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Decidim
   module CommunityTemplates
     class GitSettings
@@ -33,7 +35,6 @@ module Decidim
 
         errors.add(:repo_author_email, "is not a valid email") unless repo_author_email.match?(URI::MailTo::EMAIL_REGEXP)
       end
-
     end
   end
 end

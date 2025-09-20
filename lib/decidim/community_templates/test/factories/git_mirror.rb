@@ -9,9 +9,9 @@ FactoryBot.define do
     transient do
       settings_attributes { {} }
     end
-  
+
     settings { build(:git_settings, settings_attributes) }
-  
+
     initialize_with do
       # Get the singleton instance and configure it
       git_mirror = Decidim::CommunityTemplates::GitMirror.instance
@@ -25,6 +25,7 @@ FactoryBot.define do
     end
 
     trait :empty do
+      # Empty trait for testing empty state
     end
 
     trait :ready do

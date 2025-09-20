@@ -5,16 +5,15 @@ module Decidim
     class GitMirror
       include Singleton
 
-      delegate :repo_url, 
-                :repo_branch, 
-                :repo_username, 
-                :repo_password, 
-                :repo_author_name, 
-                :repo_author_email, 
-                to: :settings
+      delegate :repo_url,
+               :repo_branch,
+               :repo_username,
+               :repo_password,
+               :repo_author_name,
+               :repo_author_email,
+               to: :settings
 
-      attr_accessor :catalog_path
-      attr_accessor :settings
+      attr_accessor :catalog_path, :settings
       attr_reader :errors
 
       def push!
@@ -37,7 +36,7 @@ module Decidim
       # - the username/password are set
       # - a dry push can be performed
       def writable?
-        return false unless repo_username && repo_password && !repo_username.blank? && !repo_password.blank?
+        return false unless repo_username && repo_password && repo_username.present? && repo_password.present?
 
         with_git_credentials do |git|
           git.index.writable?
@@ -66,7 +65,6 @@ module Decidim
         raise messages.join(", ") unless messages.empty?
       end
 
-
       def validate
         errors.clear
         return errors.add(:base, "Repository catalog path does not exist. Check #{catalog_path}.") unless catalog_path.exist?
@@ -78,6 +76,7 @@ module Decidim
       def empty?
         return true unless catalog_path.exist?
         return true unless catalog_path.join(".git").exist?
+
         git.log(1).execute
         false
       rescue Git::FailedError => e
@@ -88,8 +87,8 @@ module Decidim
         Git.open(catalog_path, :log => Rails.logger)
       rescue ArgumentError => e
         raise e unless catalog_path.join(".git").exist?
-        status_output = %x(cd #{catalog_path} && git status 2>&1)
-        byebug
+
+        status_output = `cd #{catalog_path} && git status 2>&1`
         if status_output.include?("dubious ownership")
           Rails.logger.error("Git repository has ownership issues. Run: git config --global --add safe.directory #{catalog_path}")
         elsif status_output.include?("not a git repository") || status_output.include?("not in a git working tree")
