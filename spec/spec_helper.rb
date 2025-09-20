@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "spec_helpers/git_catalog_helpers"
+require_relative "spec_helpers/run_initializer"
 require "decidim/dev"
 
 ENV["ENGINE_ROOT"] = File.dirname(__dir__)
@@ -12,7 +13,7 @@ require "decidim/dev/test/base_spec_helper"
 
 RSpec.configure do |config|
   config.include Decidim::CommunityTemplates::SpecHelpers::GitCatalogHelpers
-
+  config.include Decidim::CommunityTemplates::SpecHelpers::RunInitializer
   config.after(:suite) do
     FileUtils.rm_rf(Rails.root.join("tmp/catalogs"))
   end
