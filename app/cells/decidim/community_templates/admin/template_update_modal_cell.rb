@@ -11,7 +11,7 @@ module Decidim
         def template
           @template ||= begin
             match = catalog.templates.find { |t| t.id == model.template_id }
-            raise ActiveRecord::RecordNotFound, "Template ##{model.template_id} not found" if template.nil?
+            raise ActiveRecord::RecordNotFound, "Template ##{model.template_id} not found" if match.nil?
 
             match
           end
