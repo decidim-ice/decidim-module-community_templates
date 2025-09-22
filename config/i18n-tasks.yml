@@ -9,7 +9,14 @@ data:
 
 ignore_unused:
   - decidim.community_templates.admin.menu.*
+  # FIXME: includes cells
+  - decidim.community_templates.admin.template_create.*
+  - decidim.community_templates.admin.template_update.*
+  - decidim.community_templates.admin.template_form.*
   - activemodel.errors.models.template.attributes.participatory_space.unsupported
-  - activerecord.errors.models.decidim/community_templates/community_template.attributes.*
+  - activemodel.errors.models.decidim/community_templates/catalog.attributes.*
+  - activerecord.errors.models.decidim/community_templates/template_use.attributes.*
+  - activerecord.errors.models.decidim/community_templates/template_source.attributes.*
+  - activemodel.errors.models.decidim/community_templates/template.attributes.*
 
 ignore_missing:

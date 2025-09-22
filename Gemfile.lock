@@ -19,6 +19,7 @@ PATH
   specs:
     decidim-community_templates (0.0.1)
       decidim-admin (>= 0.30.0, < 0.31.0)
+      decidim-comments (>= 0.30.0, < 0.31.0)
       decidim-core (>= 0.30.0, < 0.31.0)
       deface (~> 1.9)
       git (= 4.0.5)

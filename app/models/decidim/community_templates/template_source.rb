@@ -2,26 +2,24 @@
 
 module Decidim
   module CommunityTemplates
-    class CommunityTemplate < ApplicationRecord
-      self.table_name = "community_templates"
-      before_validation :ensure_uuid
+    ##
+    # Persist the relation between a template and its source.
+    # Source can be a participatory process, an assembly, etc.
+    # This is used to determine if a template is owned by an organization.
+    class TemplateSource < ApplicationRecord
+      self.table_name = "community_template_sources"
       belongs_to :organization, class_name: "Decidim::Organization", foreign_key: "decidim_organization_id"
       belongs_to :source, polymorphic: true
 
-      validates :author, presence: true
-      validates :title, presence: true
-      validates :version, presence: true
-      validates :short_description, presence: true
+      validates :template_id, presence: true, uniqueness: true
+
       validate :source_type_allowed
       validate :source_not_changed, if: :persisted?
       validate :source_uniqueness, unless: :persisted?
-      validate :uuid_not_changed, if: :persisted?
+      validate :source_in_organization, unless: :persisted?
+      validate :template_is_uuid
 
       private
-
-      def ensure_uuid
-        self.uuid = SecureRandom.uuid if uuid.blank?
-      end
 
       def allowed_sources
         Decidim::CommunityTemplates.serializers.map { |serializer| serializer[:model] }
@@ -33,17 +31,25 @@ module Decidim
         errors.add(:source, :inclusion, allowed_sources: allowed_sources.join(", ")) unless allowed_sources.include?(source_type)
       end
 
+      def source_not_changed
+        errors.add(:source, :changed) if source_id_changed? || source_type_changed?
+      end
+
       def source_uniqueness
         match = self.class.exists?(source_id: source_id, source_type: source_type, decidim_organization_id: organization&.id)
         errors.add(:source, :taken) if match
       end
 
-      def source_not_changed
-        errors.add(:source, :changed) if source_id_changed? || source_type_changed?
+      def source_in_organization
+        return unless source.present? && organization.present?
+
+        errors.add(:source, :not_in_organization) unless source.organization == organization
       end
 
-      def uuid_not_changed
-        errors.add(:uuid, :changed) if uuid_changed?
+      def template_is_uuid
+        return if template_id.blank?
+
+        errors.add(:template_id, :bad_format) unless template_id.match?(Decidim::CommunityTemplates::Template::UUID_REGEX)
       end
     end
   end

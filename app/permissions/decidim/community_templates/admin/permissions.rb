@@ -23,6 +23,11 @@ module Decidim
             return permission_action
           end
 
+          if read_catalog_action?
+            allow!
+            return permission_action
+          end
+
           permission_action
         end
 
@@ -35,7 +40,12 @@ module Decidim
 
         def templatize_action?
           permission_action.action == :templatize &&
-            permission_action.subject == :process
+            permission_action.subject == :space
+        end
+
+        def read_catalog_action?
+          permission_action.action == :read &&
+            permission_action.subject == :catalog
         end
       end
     end

@@ -1,8 +1,16 @@
-<% if allowed_to? :templatize, :process, process: process %>
+<% if Decidim::CommunityTemplates.enabled? %>
+  <% template_match = Decidim::CommunityTemplates::TemplateSource.find_by(source: process) %>
+  
   <%= icon_link_to "link", 
-                    decidim_participatory_processes.participatory_process_path(process), 
-                    t("actions.new_template", scope: "decidim.community_templates.admin"), 
-                    class: "action-icon--templatize", 
-                    target: "_blank", 
-                    data: { "external-link": false } %>
+                   decidim_participatory_processes.participatory_process_path(process), 
+                   template_match ? t("actions.update_template", scope: "decidim.community_templates.admin") : t("actions.new_template", scope: "decidim.community_templates.admin"), 
+                   class: "action-icon--templatize", 
+                   target: "_blank", 
+                   data: { "external-link": false, "dialog-open": template_match ? "template-update-#{template_match.id}" : "template-create-#{process.id}" } %>
+    
+  <% if template_match %>
+    <%= cell "decidim/community_templates/admin/template_update_modal", template_match %>
+  <% else %>
+    <%= cell "decidim/community_templates/admin/template_create_modal", process %>
+  <% end %>
 <% end %>

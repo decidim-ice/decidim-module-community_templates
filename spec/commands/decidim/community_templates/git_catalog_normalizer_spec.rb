@@ -24,8 +24,7 @@ module Decidim
         git_mirror = create(:git_mirror, :empty)
         expect(Git).to receive(:clone).with(
           git_mirror.repo_url,
-          path: git_mirror.catalog_path.to_s,
-          branch: git_mirror.repo_branch
+          git_mirror.catalog_path.to_s
         ) do |_repo_url, **_options|
           # Create a empty initialized git with a commit instead of cloning
           # (avoid remote calls)
@@ -56,7 +55,7 @@ module Decidim
       it "when cloning an empty repository, it commit and push an initial manifest.json file" do
         git_mirror = create(:git_mirror)
 
-        FileUtils.mkdir_p(git_mirror.catalog_path.to_s)
+        FileUtils.mkdir_p(git_mirror.catalog_path)
         Git.init(git_mirror.catalog_path.to_s)
         git_mirror.git.config("origin.url", git_mirror.repo_url)
         git_mirror.git.checkout("main", new_branch: true)

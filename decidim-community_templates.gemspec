@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "decidim-admin", Decidim::CommunityTemplates::COMPAT_DECIDIM_VERSION
+  spec.add_dependency "decidim-comments", Decidim::CommunityTemplates::COMPAT_DECIDIM_VERSION
   spec.add_dependency "decidim-core", Decidim::CommunityTemplates::COMPAT_DECIDIM_VERSION
   spec.add_dependency "deface", "~> 1.9"
   spec.add_dependency "git", "4.0.5"

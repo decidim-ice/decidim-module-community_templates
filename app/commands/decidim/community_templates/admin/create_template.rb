@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# FIXME: Deprecate in favor of create_community_template command
 module Decidim
   module CommunityTemplates
     module Admin

@@ -12,7 +12,6 @@ git config --global --add safe.directory /home/module
 bundle config unset frozen 
 bundle config unset deployment 
 bundle config set without ''
-bundle exec rails db:migrate
 
 # Fix catalog ownership if catalog exists
 if [ -d /home/module/spec/decidim_dummy_app/public/catalog ]; then
@@ -23,10 +22,17 @@ if [ -d /home/decidim/public/catalog ]; then
 fi
 
 # unless the module is already installed
+bundle install 
 if ! bundle list | grep -q decidim-community_templates; then
     bundle add decidim-community_templates --path /home/module 
 fi
-bundle install 
+# install deps if not present
+if ! bundle list | grep -q deface; then
+    bundle add deface --git https://github.com/froger/deface --branch fix/js-overrides
+fi
+bundle exec rails decidim:update
+bundle exec rails db:migrate
+
 
 # Exit if chrome and imagemagick are already installed
 if dpkg -l | grep -q google-chrome-stable && dpkg -l | grep -q imagemagick && command -v chromedriver >/dev/null 2>&1; then

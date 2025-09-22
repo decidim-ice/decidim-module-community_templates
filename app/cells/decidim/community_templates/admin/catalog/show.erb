@@ -1,0 +1,31 @@
+
+<div class="template-cards">
+  <% if catalog.templates.empty? %>
+    <div class="template-cards__empty">
+      <p><%= t("empty_catalog", scope: "decidim.community_templates.admin.catalog") %></p>
+    </div>
+  <% else %>
+    <% catalog.templates.each do |template| %>
+      <%= render view: "card", locals: { 
+        title: template.title,
+        metadatas: [
+          template.version,
+          template.author,
+          *template.links.map { |link| link_to(host_for(link), normalize_url(link), "data-external" => true) }
+        ],
+        markdown_content: template.short_description,
+        actions: [
+          with_tooltip("- Jardin de poche <br /> - Espace Frais") do 
+            content_tag(:span, class: "template-card__action--tooltip") do 
+              "Used in 3 processes"
+            end
+          end, 
+          link_to("try demo", "#try", class: "link"),
+          content_tag(:span) do
+            link_to("install", "#Install") + content_tag(:div, "last update: asdlkjasd") 
+          end
+        ]
+     } %>
+    <% end %>
+  <% end %>
+</div>

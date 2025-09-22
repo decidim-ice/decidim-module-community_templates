@@ -8,6 +8,7 @@ describe "Participatory processes template link" do
   let!(:user) { create(:user, :admin, :confirmed, organization:) }
 
   before do
+    allow(Decidim::CommunityTemplates).to receive(:enabled?).and_return(true)
     switch_to_host(organization.host)
     login_as user, scope: :user
     visit decidim_admin_participatory_processes.participatory_processes_path

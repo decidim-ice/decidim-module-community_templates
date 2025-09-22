@@ -21,7 +21,7 @@ module Decidim
       end
 
       def call
-        return broadcast(:ok) if Decidim::CommunityTemplates.git_settings[:url].blank?
+        return broadcast(:ok) unless Decidim::CommunityTemplates.enabled?
 
         clone_repository unless catalog_path.exist?
         validate!
@@ -49,8 +49,8 @@ module Decidim
       ##
       # Ensure there is at least one commit in the repository.
       def tada_commit
-        File.write(catalog_path.join("manifest.json"), "{}")
-        git.add(catalog_path.join("manifest.json"))
+        File.write(catalog_path.join("manifest.json").to_s, "{}")
+        git.add(catalog_path.join("manifest.json").to_s)
         git.commit(":tada: Add empty manifest.json")
       end
 
@@ -74,7 +74,7 @@ module Decidim
       ##
       # Clone the repository at catalog_path.
       def clone_repository
-        Git.clone(repo_url, path: catalog_path.to_s, branch: repo_branch)
+        Git.clone(repo_url, catalog_path.to_s)
       rescue Git::Error => e
         Rails.logger.error("Error cloning repository: #{e.message}")
         raise e

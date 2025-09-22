@@ -9,6 +9,8 @@ services:
       - .docker/entrypoint.sh:/home/decidim/bin/entrypoint.sh
       - bundle:/home/decidim/vendor
       - node_modules:/home/decidim/node_modules
+      # store migration as main image rebuilds everyday with different migrations versions name
+      - migrations:/home/decidim/db/migrate
     user: root
     environment:
       - PORT=3000
@@ -38,3 +40,4 @@ volumes:
   node_modules: {}
   bundle: {}
   community_template-pg-data: {}
+  migrations: {}
