@@ -10,10 +10,10 @@ module Decidim
 
         def template
           @template ||= begin
-            raise ActiveRecord::RecordNotFound, "Catalog is empty" if catalog.templates.empty?
-            template = catalog.templates.find { |template| template.id == model.template_id }
+            match = catalog.templates.find { |t| t.id == model.template_id }
             raise ActiveRecord::RecordNotFound, "Template ##{model.template_id} not found" if template.nil?
-            template
+
+            match
           end
         end
 

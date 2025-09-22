@@ -12,12 +12,11 @@ module Decidim
           catalog = Decidim::CommunityTemplates::Catalog.from_path(fixture_file_path)
           catalog.templates.each { |t| t.owned = true }
           catalog.write(Decidim::CommunityTemplates.catalog_path)
-          catalog = Decidim::CommunityTemplates::Catalog.from_path(Decidim::CommunityTemplates.catalog_path)
-          catalog
+          Decidim::CommunityTemplates::Catalog.from_path(Decidim::CommunityTemplates.catalog_path)
         end
 
-        before(:each) do 
-          reload_catalog        
+        before do
+          reload_catalog
         end
 
         let(:catalog) { reload_catalog }
@@ -59,7 +58,6 @@ module Decidim
         end
 
         context "when passing form as option" do
-          
           let(:another_template) { catalog.templates.last }
 
           let(:form) do
@@ -81,6 +79,7 @@ module Decidim
               reload_catalog
               another_template.links = ["invalid_link"]
             end
+
             it "shows the errors" do
               expect(subject).to have_css(".form-error")
               expect(subject).to have_css(".form-error", text: "must be valid links starting with https://")
