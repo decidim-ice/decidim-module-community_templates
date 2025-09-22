@@ -76,6 +76,7 @@ module Decidim
 
         FileUtils.mkdir_p(template_path)
         File.write(template_path.join("manifest.json"), JSON.pretty_generate(as_json))
+        Rails.logger.info("Template wrote #{id} to #{catalog_path}")
       end
 
       def delete(catalog_path)

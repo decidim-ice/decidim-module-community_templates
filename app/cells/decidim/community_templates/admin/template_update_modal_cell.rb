@@ -5,11 +5,16 @@ module Decidim
     module Admin
       class TemplateUpdateModalCell < TemplateModalCell
         def catalog
-          @catalog ||= Decidim::CommunityTemplates::Catalog.from_path(Decidim::CommunityTemplates.catalog_path)
+          @catalog = Decidim::CommunityTemplates::Catalog.from_path(Decidim::CommunityTemplates.catalog_path)
         end
 
         def template
-          catalog.templates.find { |template| template.id == model.template_id }
+          @template ||= begin
+            raise ActiveRecord::RecordNotFound, "Catalog is empty" if catalog.templates.empty?
+            template = catalog.templates.find { |template| template.id == model.template_id }
+            raise ActiveRecord::RecordNotFound, "Template ##{model.template_id} not found" if template.nil?
+            template
+          end
         end
 
         def space

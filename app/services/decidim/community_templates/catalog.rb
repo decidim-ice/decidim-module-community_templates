@@ -39,6 +39,7 @@ module Decidim
         templates.each do |template|
           template.write(path)
         end
+        Rails.logger.info("Catalog wrote #{templates.size} templates to #{path}")
       end
 
       private

@@ -7,13 +7,21 @@ module Decidim
     module Admin
       describe TemplateUpdateModalCell, type: :cell do
         controller Decidim::ParticipatoryProcesses::Admin::ParticipatoryProcessesController
-
-        let!(:catalog) do
-          fixture_file_path = Decidim::CommunityTemplates::Engine.root.join("spec/fixtures/catalog_test/valid")
+        def reload_catalog
+          fixture_file_path = Decidim::CommunityTemplates::Engine.root.join("spec", "fixtures", "catalog_test", "valid")
           catalog = Decidim::CommunityTemplates::Catalog.from_path(fixture_file_path)
+          catalog.templates.each { |t| t.owned = true }
           catalog.write(Decidim::CommunityTemplates.catalog_path)
+          catalog = Decidim::CommunityTemplates::Catalog.from_path(Decidim::CommunityTemplates.catalog_path)
           catalog
         end
+
+        before(:each) do 
+          reload_catalog        
+        end
+
+        let(:catalog) { reload_catalog }
+
         let(:my_cell) { cell("decidim/community_templates/admin/template_update_modal", template_source) }
         let(:template) { catalog.templates.first }
         let(:template_source) { create(:community_template_source, template_id: template.id) }
@@ -51,7 +59,9 @@ module Decidim
         end
 
         context "when passing form as option" do
+          
           let(:another_template) { catalog.templates.last }
+
           let(:form) do
             Decidim::CommunityTemplates::Admin::TemplateSourceForm.new(
               source_id: template_source.source_id,
@@ -68,9 +78,9 @@ module Decidim
 
           context "when the form is invalid" do
             before do
+              reload_catalog
               another_template.links = ["invalid_link"]
             end
-
             it "shows the errors" do
               expect(subject).to have_css(".form-error")
               expect(subject).to have_css(".form-error", text: "must be valid links starting with https://")

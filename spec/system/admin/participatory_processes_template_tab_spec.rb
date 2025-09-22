@@ -15,6 +15,7 @@ describe "Participatory processes template tab" do
     visit decidim_admin_community_templates.community_templates_path
     # Place a valid catalog in the catalog folder
     catalog = Decidim::CommunityTemplates::Catalog.from_path(fixture_path)
+    catalog.templates.each { |t| t.owned = true }
     catalog.write(Decidim::CommunityTemplates.catalog_path)
   end
 
@@ -48,13 +49,13 @@ describe "Participatory processes template tab" do
 
   it "parses markdown content in template card" do
     within(".template-card__intro", text: "Idea Board Template") do
-      expect(page).to have_css("p a", text: "Octree")
+      expect(page).to have_css(".template-card__content a", text: "Octree")
     end
   end
 
   it "displays only host for links" do
     within(".template-card__intro", text: "Idea Board Template") do
-      expect(page).to have_css(".template-card__metadatas a[href='https://octree.ch']", text: "octree.ch")
+      expect(page).to have_css(".template-card__metadatas-item a[href='https://octree.ch']", text: "octree.ch")
     end
   end
 
