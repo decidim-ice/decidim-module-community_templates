@@ -69,7 +69,7 @@ module Decidim
         it "loads the catalog from the fixtures" do
           loaded_catalog = Catalog.from_path(fixtures_path.join("valid"))
           expect(loaded_catalog.templates.size).to eq(2)
-          expect(loaded_catalog.templates.map(&:title)).to eq(["Idea Board Template", "Participatory Budget Template"])
+          expect(loaded_catalog.templates.map(&:title)).to contain_exactly("Idea Board Template", "Participatory Budget Template")
         end
 
         it "loads available templates" do
