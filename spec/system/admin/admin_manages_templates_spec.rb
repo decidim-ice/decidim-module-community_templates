@@ -37,13 +37,15 @@ describe "Admin templates" do
       before do
         path = "#{Decidim::CommunityTemplates.local_path}/external/template_1"
         FileUtils.mkdir_p(path)
-        FileUtils.cp_r("spec/fixtures/zipper_test", path)
+        FileUtils.cp_r("spec/fixtures/template_test", path)
       end
 
       it "lists external templates" do
         click_on "External templates"
 
-        expect(page).to have_content("Main template file")
+        expect(page).to have_content("Participatory process template")
+        expect(page).to have_content("A template for participatory processes")
+        expect(page).to have_content("1.0.0")
         expect(page).to have_content("Apply in a new participatory space")
       end
     end
@@ -57,6 +59,11 @@ describe "Admin templates" do
     it "creates a new template" do
       click_on "Create template"
       select translated_attribute(participatory_process.title), from: "Select the participatory space you want to use as a template"
+      click_on "Create the new template"
+
+      fill_in_i18n(:template_name, "#template-name-tabs", { "ca" => "Nom del template", "es" => "Nombre de la plantilla", "en" => "Template name" })
+      fill_in_i18n(:template_description, "#template-description-tabs", { "ca" => "Descripció del template", "es" => "Descripción de la plantilla", "en" => "Template description" })
+      fill_in "Version", with: "1.0.0"
       click_on "Create the new template"
 
       expect(page).to have_content("The template has been created successfully.")

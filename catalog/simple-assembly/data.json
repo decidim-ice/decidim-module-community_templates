@@ -1,3 +1,17 @@
 {
-  
+  "class": "Decidim::Assembly",
+  "id": "2025-0001-0001-0001",
+  "attributes": {
+    "title": "2025-0001-0001-0001.attributes.title",
+    "description": "2025-0001-0001-0001.attributes.description"
+  },
+  "components": [
+    { 
+      "class": "Decidim::Component",
+      "id": "0001",
+      "attributes": {
+        "name": "2025-0001-0001-0001.components.0001.attributes.name"
+      }
+    }
+  ]
 }
