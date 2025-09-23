@@ -68,6 +68,13 @@ en:
           cancel_button: Cancel
           submit_button: Create & Share
           title: Community template
+          errors:
+            file_not_found: "Server error, contact your administrator. (File not found: catalog or template directory do not exist)"
+            no_space: "Server error, contact your administrator. (No space left on device: template directory is full)"
+            permission_denied: "Server error, contact your administrator. (Permission denied: catalog directory is not writable)"
+            name_too_long: "Server error, contact your administrator. (File name too long: template directory name is too long)"
+            read_only_filesystem: "Server error, contact your administrator. (Catalog directory is read only)"
+            unknown: "Server error, contact your administrator. (Unknown error: %{error})"
         template_form:
           author: Author
           author_help_text: Visible to members of the community

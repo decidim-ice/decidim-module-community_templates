@@ -14,7 +14,7 @@ module Decidim
           )
           form.template.id = SecureRandom.uuid
           update_template_values!(form.template)
-          Decidim::CommunityTemplates::Admin::CreateCommunityCommand.call(form, current_organization) do
+          Decidim::CommunityTemplates::Admin::CreateCommunityTemplateCommand.call(form, current_organization) do
             on(:ok) do
               redirect_back fallback_location: decidim_admin.root_path, notice: t(".success")
             end
