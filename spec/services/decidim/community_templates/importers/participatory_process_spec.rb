@@ -9,14 +9,7 @@ module Decidim
         let(:organization) { create(:organization, available_locales: [:en, :ca]) }
         let(:user) { create(:user, organization: organization) }
         let(:parser) do
-          double(
-            "Parser",
-            model_class: Decidim::ParticipatoryProcess,
-            model_title: { "en" => "Test Process", "ca" => "Procés de prova" },
-            subtitle: { "en" => "Test Subtitle", "ca" => "Subtítol de prova" },
-            short_description: { "en" => "Short description", "ca" => "Descripció curta" },
-            description: { "en" => "A description", "ca" => "Una descripció" }
-          )
+          TemplateParser.new("spec/fixtures/template_test", organization.available_locales)
         end
 
         subject(:importer) { described_class.new(parser, organization, user) }
@@ -43,11 +36,11 @@ module Decidim
           it "creates a new participatory process with the parsed title and a unique slug" do
             participatory_process = importer.import!
             expect(participatory_process).to be_persisted
-            expect(participatory_process.title).to eq({ "en" => "Test Process", "ca" => "Procés de prova" })
-            expect(participatory_process.subtitle).to eq({ "en" => "Test Subtitle", "ca" => "Subtítol de prova" })
-            expect(participatory_process.short_description).to eq({ "en" => "Short description", "ca" => "Descripció curta" })
-            expect(participatory_process.description).to eq({ "en" => "A description", "ca" => "Una descripció" })
-            expect(participatory_process.slug).to eq("test-process")
+            expect(participatory_process.title).to eq({ "ca" => "Títol del procés participatiu", "en" => "Participatory process title" })
+            expect(participatory_process.subtitle).to eq({ "en" => "Participatory process subtitle", "ca" => "Subtítol del procés participatiu" })
+            expect(participatory_process.short_description).to eq({ "en" => "Participatory process short description", "ca" => "Descripció breu del procés participatiu" })
+            expect(participatory_process.description).to eq({ "en" => "Participatory process description", "ca" => "Descripció del procés participatiu" })
+            expect(participatory_process.slug).to eq("participatory-process-title")
             expect(participatory_process.organization).to eq(organization)
           end
         end
