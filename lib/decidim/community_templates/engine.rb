@@ -23,6 +23,19 @@ module Decidim
           )
           Decidim::CommunityTemplates::GitCatalogNormalizer.call
           mirror.validate!
+        else
+          warn("")
+          warn("⚠ Decidim::CommunityTemplates is installed but not enabled")
+          warn("================================================================")
+          warn("To enable it, define your catalog with the following environment variables:")
+          warn("  TEMPLATE_GIT_URL=https://github.com/your-organization/your-repo")
+          warn("  TEMPLATE_GIT_BRANCH=main")
+          warn("If you need to create and update your catalog, set also these variables:")
+          warn("  TEMPLATE_GIT_USERNAME=your_username")
+          warn("  TEMPLATE_GIT_PASSWORD=your_password")
+          warn("  TEMPLATE_GIT_AUTHOR_NAME=Your Name")
+          warn("  TEMPLATE_GIT_AUTHOR_EMAIL=me@example.org")
+          warn("")
         end
       end
 
