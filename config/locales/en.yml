@@ -3,13 +3,53 @@ en:
   activemodel:
     errors:
       models:
+        decidim/community_templates/catalog:
+          attributes:
+            templates:
+              invalid: Templates are invalid
+            updated_at:
+              must_be_after_created_at: Updated at must be after created at
+        decidim/community_templates/template:
+          attributes:
+            links:
+              bad_format: must be valid links starting with https://
         template:
           attributes:
             participatory_space:
               unsupported: The selected participatory space is not supported.
+  activerecord:
+    errors:
+      models:
+        decidim/community_templates/template_source:
+          attributes:
+            source:
+              changed: can't be changed.
+              inclusion: 'type is invalid. Must be one of: %{allowed_sources}'
+              invalid: is invalid, does it exist?.
+              not_in_organization: must be in the same organization as the template
+                source.
+              taken: has already been taken.
+            template_id:
+              bad_format: is not a valid UUID
+        decidim/community_templates/template_use:
+          attributes:
+            resource:
+              changed: can't be changed.
+              inclusion: 'type is invalid. Must be one of: %{allowed_resources}'
+              invalid: is invalid, does it exist?.
+              not_in_organization: must be in the same organization as the template
+                use.
+              taken: has already been taken.
+            template_id:
+              bad_format: is not a valid UUID
   decidim:
     community_templates:
       admin:
+        actions:
+          new_template: Share as template
+          update_template: Update template
+        catalog:
+          empty_catalog: Template Catalog is empty
         catalogs:
           index:
             import: Import
@@ -23,6 +63,55 @@ en:
           external_templates: External templates
           local_templates: Local templates
           manage_catalogs: Manage catalogs
+          participatory_process_catalog: Templates
+        template_create:
+          cancel_button: Cancel
+          errors:
+            file_not_found: 'Server error, contact your administrator. (File not found:
+              catalog or template directory do not exist)'
+            name_too_long: 'Server error, contact your administrator. (File name too
+              long: template directory name is too long)'
+            no_space: 'Server error, contact your administrator. (No space left on
+              device: template directory is full)'
+            permission_denied: 'Server error, contact your administrator. (Permission
+              denied: catalog directory is not writable)'
+            read_only_filesystem: Server error, contact your administrator. (Catalog
+              directory is read only)
+            unknown: 'Server error, contact your administrator. (Unknown error: %{error})'
+          submit_button: Create & Share
+          title: Community template
+        template_form:
+          author: Author
+          author_help_text: Visible to members of the community
+          author_placeholder: John Doe
+          links: Links
+          links_help_text: Visible to members of the community. Comma separated.
+          links_placeholder: https://github.com/cyberschnaps, https://www.cyberschnaps.com/,
+            ...
+          short_description: Short description
+          short_description_help_text: Visible to members of the community
+          short_description_placeholder: 'This template is intended to be used in
+            this context and has the following options: ...'
+          source_id: Source
+          source_id_help_text: The template will be an anonymized copy of this. No
+            user data will be made public.
+          title: Template title
+          title_help_text: Visible to members of the community
+          title_placeholder: i.e. Participatory Budget, Association, ...
+          version: Version
+          version_help_text: Visible to members of the community. Whatever you want.
+          version_placeholder: v15.4 First Deluxe edition
+        template_sources:
+          create:
+            error: There was an error creating the template. %{errors}
+            success: The template has been created successfully.
+          update:
+            error: There was an error updating the template. %{errors}
+            success: The template has been updated successfully.
+        template_update:
+          cancel_button: Cancel
+          submit_button: Share update
+          title: Community template
         templates:
           create:
             error: There was an error creating the template. %{errors}
@@ -42,3 +131,5 @@ en:
           template:
             apply: Apply in a new participatory space
             download: Download
+        titles:
+          community_templates: Community Templates

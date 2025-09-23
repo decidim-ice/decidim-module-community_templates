@@ -1,0 +1,55 @@
+<%= decidim_modal id: modal_id, class: "template-modal template-modal--#{modal_modifier}", open: open? do %>
+  <div data-dialog-container>
+  <%= modal_form_for do |f| %>
+    <h3 id="dialog-title-template-create-<%= space.id %>" data-dialog-title>
+      <%= t("title", scope: i18n_scope) %>
+    </h3>
+    <div class="form__wrapper">
+      <div class="row column">
+        <%= f.select :source_id, grouped_options_for_select(participatory_spaces.transform_values(&:invert), space_gid), {  include_blank: true }, {disabled: true, label: t("source_id", scope: i18n_form_scope) } %>
+        <div class="help-text">
+          <%= t("source_id_help_text", scope: i18n_form_scope) %>
+        </div>
+        <%= f.hidden_field :source_id, value: space_gid %>
+      </div>
+
+      <% f.fields_for :template, f.object.template do |field| %>
+        <div class="row column">
+          <%= field.text_field :title, required: true, label: t("title", scope: i18n_form_scope), placeholder: t("title_placeholder", scope: i18n_form_scope) %>
+          <div class="help-text">
+            <%= t("title_help_text", scope: i18n_form_scope) %>
+          </div>
+        </div>
+        <div class="row column">
+          <%= field.text_field :author, required: true,label: t("author", scope: i18n_form_scope), placeholder: t("author_placeholder", scope: i18n_form_scope) %>
+          <div class="help-text">
+            <%= t("author_help_text", scope: i18n_form_scope) %>
+          </div>
+        </div>
+        <div class="row column">
+          <%= field.text_field :links, label: t("links", scope: i18n_form_scope), placeholder: t("links_placeholder", scope: i18n_form_scope) %>
+          <div class="help-text">
+            <%= t("links_help_text", scope: i18n_form_scope) %>
+          </div>
+        </div>
+        <div class="row column">
+          <%= field.text_field :version, required: true,label: t("version", scope: i18n_form_scope), placeholder: t("version_placeholder", scope: i18n_form_scope) %>
+          <div class="help-text">
+            <%= t("version_help_text", scope: i18n_form_scope) %>
+          </div>
+        </div>
+        <div class="row column">
+          <%= field.text_area :short_description, rows: 5, required: true, label: t("short_description", scope: i18n_form_scope), placeholder: t("short_description_placeholder", scope: i18n_form_scope), maxlength: 170 %>
+          <div class="help-text">
+            <%= t("short_description_help_text", scope: i18n_form_scope) %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <div data-dialog-actions>
+      <%= f.button t("cancel_button", scope: i18n_scope), type: "reset", class: "button button__lg button__transparent-secondary", "data-dialog-close" => modal_id %>
+      <%= f.submit t("submit_button", scope: i18n_scope), class: "button button__lg button__secondary" %>
+    </div>
+  <% end %>
+  </div>
+<% end %>

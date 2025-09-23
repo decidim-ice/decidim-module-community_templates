@@ -1,0 +1,13 @@
+{
+  "id": "f3c5b62a-f686-4cad-95aa-2041c2c8eb2d",
+  "title": "Participatory Budget Template",
+  "short_description": "Participatory Budget Template",
+  "version": "First version of participatory budget templates",
+  "author": "Cybersnap",
+  "links": ["https://cybersnap.ch", "https://mastodon.social/cybersnap/profile", "https://octree.ch"],
+  "source_type": "Decidim::ParticipatoryProcess",
+  "community_template_version": "1.0.0",
+  "decidim_version": "0.30.0",
+  "created_at": "2021-01-01T00:00:00Z",
+  "updated_at": "2021-01-01T00:00:00Z"
+}

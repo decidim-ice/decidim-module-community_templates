@@ -1,0 +1,13 @@
+{
+  "id": "invalid_id",
+  "title": "Invalid ID Template",
+  "short_description": "Invalid ID Template",
+  "version": "First version of invalid id templates",
+  "author": "Invalid ID Template",
+  "links": [],
+  "source_type": "Decidim::ParticipatoryProcess",
+  "community_template_version": "1.0.0",
+  "decidim_version": "0.30.0",
+  "created_at": "2021-01-01T00:00:00Z",
+  "updated_at": "2021-01-01T00:00:00Z"
+}

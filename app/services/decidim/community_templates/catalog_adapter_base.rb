@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# FIXME: deprecate this in favor of a unique Catalog class.
+# @see Decidim::CommunityTemplates::Catalog
 module Decidim
   module CommunityTemplates
     class CatalogAdapterBase
