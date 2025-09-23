@@ -1,0 +1,13 @@
+{
+  "id": "4aa438f0-cd09-4074-b936-2d4cfce60611",
+  "title": "Idea Board Template",
+  "short_description": "Idea Board Template, made by [Octree](https://octree.ch)",
+  "version": "First version of idea board templates",
+  "author": "London",
+  "links": ["https://octree.ch", "https://mastodon.social/octree/profile"],
+  "source_type": "Decidim::ParticipatoryProcess",
+  "community_template_version": "1.0.0",
+  "decidim_version": "0.30.0",
+  "created_at": "2021-03-01T00:00:00Z",
+  "updated_at": "2021-03-01T00:00:00Z"
+}

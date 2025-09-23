@@ -21,6 +21,10 @@ gem "puma", ">= 6.3.1"
 # temporary fix for simplecov
 gem "rexml", "3.4.0"
 
+gem "deface",
+    git: "https://github.com/froger/deface",
+    branch: "fix/js-overrides"
+
 group :development, :test do
   gem "byebug", "~> 11.0", platform: :mri
 

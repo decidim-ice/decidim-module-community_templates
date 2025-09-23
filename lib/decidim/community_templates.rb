@@ -15,6 +15,8 @@ module Decidim
     autoload :GitMirror, "decidim/community_templates/git_mirror"
     autoload :GitSettings, "decidim/community_templates/git_settings"
     autoload :GitError, "decidim/community_templates/error"
+    autoload :GitCatalogNormalizer, "decidim/community_templates/git_catalog_normalizer"
+
     config_accessor :git_settings do
       {
         url: ENV.fetch("TEMPLATE_GIT_URL", ""),
@@ -63,6 +65,14 @@ module Decidim
       else
         Rails.root.join(Decidim::CommunityTemplates.local_templates_path)
       end
+    end
+
+    def self.enabled?
+      git_settings[:url].present?
+    end
+
+    def self.catalog_path
+      Rails.public_path.join("catalog")
     end
 
     def self.catalog_registry

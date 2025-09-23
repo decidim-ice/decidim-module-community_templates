@@ -46,7 +46,7 @@ module Decidim
       def initialize
         @settings = GitSettings.new
         @errors = ActiveModel::Errors.new(self)
-        @catalog_path = Rails.public_path.join("catalog")
+        @catalog_path = Decidim::CommunityTemplates.catalog_path
       end
 
       def configure(options)

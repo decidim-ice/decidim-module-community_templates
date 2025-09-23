@@ -30,11 +30,11 @@ FactoryBot.define do
 
     trait :ready do
       after(:create) do |git_mirror|
-        path_string = git_mirror.catalog_path.to_s
-        FileUtils.mkdir_p(path_string)
+        path = git_mirror.catalog_path
+        FileUtils.mkdir_p(path)
         # initialize a git with a commit.
-        Git.init(path_string)
-        git = Git.open(path_string)
+        Git.init(path)
+        git = Git.open(path)
         git.config("remote.origin.url", git_mirror.repo_url)
         git.config("remote.origin.branch", git_mirror.repo_branch)
         git.config("user.name", git_mirror.repo_author_name)

@@ -9,14 +9,15 @@ module Decidim
       paths["lib/tasks"] = nil
 
       routes do
+        resources :community_templates, only: [:index], controller: "community_templates", as: :community_templates
+        resources :template_sources, only: [:create, :update], controller: "template_sources"
+
         resources :templates do
           collection do
             get "download/:id", to: "templates#download", as: :download
           end
         end
-
         resources :catalogs
-
         root to: "templates#show", id: :external
       end
 
@@ -28,6 +29,18 @@ module Decidim
 
       initializer "decidim_community_templates.register_icons" do |_app|
         Decidim.icons.register(name: "apps-line", icon: "apps-line", category: "system", description: "Community Templates", engine: :admin)
+      end
+
+      initializer "decidim_community_templates.template_tabs" do
+        Decidim.menu :admin_participatory_processes_menu do |menu|
+          menu.add_item :participatory_processes,
+                        I18n.t("menu.participatory_process_catalog", scope: "decidim.community_templates.admin"),
+                        decidim_admin_community_templates.community_templates_path,
+                        position: 0,
+                        icon_name: "grid-line",
+                        if: Decidim::CommunityTemplates.enabled? && allowed_to?(:update, :organization, organization: current_organization),
+                        active: is_active_link?(decidim_admin_community_templates.community_templates_path)
+        end
       end
 
       initializer "decidim_community_templates.admin_menu" do

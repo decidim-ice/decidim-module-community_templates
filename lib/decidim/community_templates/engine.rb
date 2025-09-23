@@ -11,7 +11,7 @@ module Decidim
       end
 
       initializer "decidim-community_templates.git_mirror" do
-        if Decidim::CommunityTemplates.git_settings[:url].present?
+        if Decidim::CommunityTemplates.enabled?
           mirror = Decidim::CommunityTemplates::GitMirror.instance
           mirror.configure(
             repo_url: Decidim::CommunityTemplates.git_settings[:url],
@@ -21,7 +21,7 @@ module Decidim
             repo_author_name: Decidim::CommunityTemplates.git_settings[:author_name],
             repo_author_email: Decidim::CommunityTemplates.git_settings[:author_email]
           )
-          GitCatalogNormalizer.call
+          Decidim::CommunityTemplates::GitCatalogNormalizer.call
           mirror.validate!
         end
       end
@@ -43,6 +43,11 @@ module Decidim
             manifest.options = config[:options] || {}
           end
         end
+      end
+
+      initializer "decidim-community_templates.add_cells_view_paths" do
+        Cell::ViewModel.view_paths << File.expand_path("#{Decidim::CommunityTemplates::Engine.root}/app/cells")
+        Cell::ViewModel.view_paths << File.expand_path("#{Decidim::CommunityTemplates::Engine.root}/app/views") # for partials
       end
     end
   end
