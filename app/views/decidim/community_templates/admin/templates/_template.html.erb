@@ -3,7 +3,7 @@
     <h3 class="h5"><%= template.name %></h3>
     <p><%= template.description %> (<%= template.version %>)</p>
     <p>
-      <%= link_to t("decidim.community_templates.admin.templates.template.apply"), "#", class: "button button__xs button__transparent-secondary" %>
+      <%= link_to t("decidim.community_templates.admin.templates.template.apply"), edit_template_path("#{tab_path}_#{template.id}"), class: "button button__xs button__transparent-secondary" %>
       <%= link_to t("decidim.community_templates.admin.templates.template.download"), download_templates_path("#{tab_path}/#{template.id}"), class: "button button__xs button__transparent-secondary" %>
     </p>
   </div>

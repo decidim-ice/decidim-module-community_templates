@@ -41,7 +41,7 @@ module Decidim
         translations
       end
 
-      # A unique random identifier for the serialized object
+      # A unique random identifier with very low collision probability for the serialized object
       def id
         return metadata[:id] if metadata[:id].present?
 

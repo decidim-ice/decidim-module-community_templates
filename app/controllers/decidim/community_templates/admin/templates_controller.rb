@@ -29,6 +29,11 @@ module Decidim
           return redirect_to templates_path, alert: t(".serializer_not_found") if @form.serializer.blank?
         end
 
+        # shows the template details, and allows to import it into the current organization (or a tenant if demo mode)
+        def edit
+          @form = form(ImportTemplateForm).from_params(params)
+        end
+
         # creates a new template from a participatory space and passed metadata
         def create
           @form = form(TemplateForm).from_params(params)
@@ -41,6 +46,20 @@ module Decidim
             on(:invalid) do |errors|
               flash.now[:alert] = I18n.t("decidim.community_templates.admin.templates.create.error", errors:)
               render :new
+            end
+          end
+        end
+
+        def update
+          @form = form(ImportTemplateForm).from_params(params)
+          ImportTemplate.call(@form) do
+            on(:ok) do |participatory_space|
+              redirect_to decidim.admin_participatory_space_path(participatory_space), notice: I18n.t("decidim.community_templates.admin.templates.edit.success")
+            end
+
+            on(:invalid) do |errors|
+              flash.now[:alert] = I18n.t("decidim.community_templates.admin.templates.edit.error", errors:)
+              render :edit
             end
           end
         end

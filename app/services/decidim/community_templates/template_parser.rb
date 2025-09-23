@@ -15,6 +15,10 @@ module Decidim
         @id ||= metadata["id"] || File.basename(@template_path)
       end
 
+      def model_class
+        @model_class ||= metadata["class"].constantize
+      end
+
       def name
         translation_for(metadata["name"])
       end
@@ -48,10 +52,24 @@ module Decidim
         data["attributes"] || {}
       end
 
+      # if an array of locales is given, it will return a hash with the translations
+      # otherwise it will return the translation in the first locale available
       def method_missing(method, *args, &)
         if method.to_s.start_with?("model_")
           key = method.to_s.sub("model_", "")
-          return translation_for(attributes[key]) if attributes.has_key?(key)
+          if attributes.has_key?(key)
+            value = attributes[key]
+            # If an array of locales is given as argument, return a hash with translations
+            return translation_for(value) unless args.first.is_a?(Array)
+
+            locales_array = args.first
+            return locales_array.index_with do |locale|
+              translations.dig(locale, *value.to_s.split(".")) || value
+            end
+
+            # Otherwise, return the translation in the first locale available
+
+          end
         end
         super
       end
