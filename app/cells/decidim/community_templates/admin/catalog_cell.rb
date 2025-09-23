@@ -16,8 +16,6 @@ module Decidim
 
         def host_for(url)
           URI.parse(normalize_url(url)).host
-        rescue URI::InvalidURIError
-          url
         end
 
         def normalize_url(url)

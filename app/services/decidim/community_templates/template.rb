@@ -100,11 +100,11 @@ module Decidim
         end
       end
 
-      def to_json(*_args)
-        attributes.to_json
+      def to_json(*)
+        as_json(*).to_json
       end
 
-      def as_json(*_args)
+      def as_json(*)
         json = super
         json.delete("owned")
         json

@@ -119,6 +119,21 @@ module Decidim
         end
       end
 
+      describe "#as_json" do
+        it "does not include owned attribute" do
+          expect(template.as_json).not_to include("owned")
+        end
+      end
+
+      describe "#to_json" do
+        it "calls #as_json" do
+          allow(template).to receive(:as_json).and_call_original
+          template.to_json
+          expect(template).to have_received(:as_json)
+          expect(template.to_json).to eq(template.as_json.to_json)
+        end
+      end
+
       describe "#from_path" do
         let(:catalog_path) { Rails.root.join("tmp", "catalogs", "test_catalog_#{SecureRandom.uuid}") }
         let(:template) { create(:template, owned: true) }

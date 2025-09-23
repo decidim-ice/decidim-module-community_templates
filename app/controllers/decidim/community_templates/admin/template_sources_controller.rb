@@ -42,7 +42,7 @@ module Decidim
           form.template.id = match.template_id
           update_template_values!(form.template)
 
-          Decidim::CommunityTemplates::Admin::UpdateCommunityCommand.call(form) do
+          Decidim::CommunityTemplates::Admin::UpdateCommunityTemplateCommand.call(form) do
             on(:ok) do
               redirect_back fallback_location: decidim_admin.root_path, notice: t(".success")
             end
