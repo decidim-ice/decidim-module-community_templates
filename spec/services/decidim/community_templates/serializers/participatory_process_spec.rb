@@ -46,6 +46,8 @@ module Decidim
 
         it "has the correct attributes" do
           expect(attributes[:title]).to eq("#{serializer.id}.attributes.title")
+          expect(attributes[:subtitle]).to eq("#{serializer.id}.attributes.subtitle")
+          expect(attributes[:short_description]).to eq("#{serializer.id}.attributes.short_description")
           expect(attributes[:description]).to eq("#{serializer.id}.attributes.description")
         end
 

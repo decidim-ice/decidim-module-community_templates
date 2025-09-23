@@ -7,6 +7,8 @@ module Decidim
         def attributes
           {
             title: i18n_field(:title),
+            subtitle: i18n_field(:subtitle),
+            short_description: i18n_field(:short_description),
             description: i18n_field(:description),
             components:
           }
