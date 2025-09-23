@@ -47,8 +47,19 @@ module Decidim
         it "has the correct attributes" do
           expect(attributes[:title]).to eq("#{serializer.id}.attributes.title")
           expect(attributes[:subtitle]).to eq("#{serializer.id}.attributes.subtitle")
+          expect(attributes[:weight]).to eq(model.weight)
+          expect(attributes[:slug]).to eq(model.slug)
           expect(attributes[:short_description]).to eq("#{serializer.id}.attributes.short_description")
           expect(attributes[:description]).to eq("#{serializer.id}.attributes.description")
+          expect(attributes[:announcement]).to eq("#{serializer.id}.attributes.announcement")
+          expect(attributes[:start_date]).to eq(model.start_date)
+          expect(attributes[:end_date]).to eq(model.end_date)
+          expect(attributes[:developer_group]).to eq("#{serializer.id}.attributes.developer_group")
+          expect(attributes[:local_area]).to eq("#{serializer.id}.attributes.local_area")
+          expect(attributes[:meta_scope]).to eq("#{serializer.id}.attributes.meta_scope")
+          expect(attributes[:target]).to eq("#{serializer.id}.attributes.target")
+          expect(attributes[:participatory_scope]).to eq("#{serializer.id}.attributes.participatory_scope")
+          expect(attributes[:participatory_structure]).to eq("#{serializer.id}.attributes.participatory_structure")
         end
 
         it "generates translations" do
