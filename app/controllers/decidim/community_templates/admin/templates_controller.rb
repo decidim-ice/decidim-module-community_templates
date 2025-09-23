@@ -30,7 +30,7 @@ module Decidim
         end
 
         # shows the template details, and allows to import it into the current organization (or a tenant if demo mode)
-        def edit
+        def apply
           @form = form(ImportTemplateForm).from_params(params)
         end
 
@@ -52,14 +52,15 @@ module Decidim
 
         def update
           @form = form(ImportTemplateForm).from_params(params)
+
           ImportTemplate.call(@form) do
-            on(:ok) do |participatory_space|
-              redirect_to decidim.admin_participatory_space_path(participatory_space), notice: I18n.t("decidim.community_templates.admin.templates.edit.success")
+            on(:ok) do |_participatory_space|
+              redirect_to template_path(tab), notice: I18n.t("decidim.community_templates.admin.templates.apply.success")
             end
 
             on(:invalid) do |errors|
-              flash.now[:alert] = I18n.t("decidim.community_templates.admin.templates.edit.error", errors:)
-              render :edit
+              flash.now[:alert] = I18n.t("decidim.community_templates.admin.templates.apply.error", errors:)
+              render :apply
             end
           end
         end

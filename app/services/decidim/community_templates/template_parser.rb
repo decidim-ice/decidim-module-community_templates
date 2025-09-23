@@ -64,7 +64,7 @@ module Decidim
 
             locales_array = args.first
             return locales_array.index_with do |locale|
-              translations.dig(locale, *value.to_s.split(".")) || value
+              translations.dig(locale, *value.to_s.split(".")) || ""
             end
 
             # Otherwise, return the translation in the first locale available

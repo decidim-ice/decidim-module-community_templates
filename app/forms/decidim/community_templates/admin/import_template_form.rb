@@ -7,16 +7,8 @@ module Decidim
         attribute :id, String
         attribute :demo, Boolean, default: false
 
-        def path
-          @path ||= id.split("_").first
-        end
-
-        def template_id
-          @template_id ||= id.split("_").last
-        end
-
         def template_path
-          @template_path ||= "#{Decidim::CommunityTemplates.local_path}/#{path}/#{template_id}"
+          @template_path ||= "#{Decidim::CommunityTemplates.local_path}/#{id}"
         end
 
         def locales

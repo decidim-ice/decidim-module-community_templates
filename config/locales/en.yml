@@ -29,11 +29,11 @@ en:
             success: The template has been created successfully.
           download:
             error: There was an error generating the template zip file.
-          edit:
+          apply:
             demo: Include demo data
-            error: There was an error updating the template. %{errors}
+            error: There was an error importing the template. %{errors}
             submit: Create the new participatory space
-            success: The template has been updated successfully.
+            success: The participatory space has been created successfully.
             title: Create space from template
           index:
             create_template: Create the new template

@@ -35,7 +35,7 @@ describe "Admin templates" do
 
     context "when there are external templates" do
       before do
-        path = "#{Decidim::CommunityTemplates.local_path}/external/template_1"
+        path = "#{Decidim::CommunityTemplates.local_path}/external/pp-template-001"
         FileUtils.mkdir_p(path)
         FileUtils.cp_r("spec/fixtures/template_test", path)
       end
@@ -47,6 +47,17 @@ describe "Admin templates" do
         expect(page).to have_content("A template for participatory processes")
         expect(page).to have_content("1.0.0")
         expect(page).to have_content("Apply in a new participatory space")
+      end
+
+      it "imports an external template" do
+        click_on "External templates"
+        click_on "Apply in a new participatory space"
+
+        check "Include demo data"
+        click_on "Create the new participatory space"
+
+        expect(page).to have_content("The participatory space has been created successfully.")
+        expect(Decidim::ParticipatoryProcess.last.title).to eq({ "en" => "Participatory process title", "ca" => "Títol del procés participatiu", "es" => "" })
       end
     end
 

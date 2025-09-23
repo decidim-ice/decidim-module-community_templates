@@ -31,6 +31,10 @@ module Decidim
         expect(metadata["original_id"]).to eq(1)
       end
 
+      it "returns the model class correctly" do
+        expect(parser.model_class).to eq(Decidim::ParticipatoryProcess)
+      end
+
       it "returns attributes correctly" do
         expect(attributes).to be_a(Hash)
 
@@ -38,6 +42,14 @@ module Decidim
         expect(parser.model_description).to eq("Participatory process description")
         expect(attributes["title"]).to eq("pp-template-001.attributes.title")
         expect(attributes["description"]).to eq("pp-template-001.attributes.description")
+      end
+
+      it "returns translations correctly for the model translatable fields" do
+        expect(parser.model_title(locales)).to eq({ "en" => "Participatory process title", "ca" => "Títol del procés participatiu" })
+        expect(parser.model_description(locales)).to eq({ "en" => "Participatory process description", "ca" => "Descripció del procés participatiu" })
+
+        expect(parser.model_title(["ca"])).to eq({ "ca" => "Títol del procés participatiu" })
+        expect(parser.model_title(["en"])).to eq({ "en" => "Participatory process title" })
       end
 
       context "when locales reversed" do

@@ -8,7 +8,10 @@ module Decidim
           Decidim::ParticipatoryProcess.create!(
             organization:,
             title: parser.model_title(locales),
-            slug: slugify(parser.model_title)
+            slug: slugify(parser.model_title),
+            subtitle: parser.model_subtitle(locales),
+            short_description: parser.model_short_description(locales),
+            description: parser.model_description(locales)
           )
         end
       end

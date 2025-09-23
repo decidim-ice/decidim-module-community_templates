@@ -21,6 +21,7 @@ module Decidim
       end
 
       def slugify(text)
+        text = text.values.first if text.is_a?(Hash)
         base_slug = text.to_s.parameterize
         slug = base_slug
         count = 2
