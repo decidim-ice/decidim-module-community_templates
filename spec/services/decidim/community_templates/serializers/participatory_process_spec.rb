@@ -60,6 +60,8 @@ module Decidim
           expect(attributes[:target]).to eq("#{serializer.id}.attributes.target")
           expect(attributes[:participatory_scope]).to eq("#{serializer.id}.attributes.participatory_scope")
           expect(attributes[:participatory_structure]).to eq("#{serializer.id}.attributes.participatory_structure")
+          expect(attributes[:private_space]).to eq(model.private_space)
+          expect(attributes[:promoted]).to eq(model.promoted)
         end
 
         it "generates translations" do

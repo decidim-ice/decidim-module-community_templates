@@ -21,6 +21,8 @@ module Decidim
             target: i18n_field(:target),
             participatory_scope: i18n_field(:participatory_scope),
             participatory_structure: i18n_field(:participatory_structure),
+            private_space: model.private_space,
+            promoted: model.promoted,
             components:
           }
         end
