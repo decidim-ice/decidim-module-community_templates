@@ -94,14 +94,14 @@ module Decidim
             it "does not configure git mirror" do
               expect(Decidim::CommunityTemplates::GitMirror).not_to receive(:instance)
               expect(Decidim::CommunityTemplates::GitCatalogNormalizer).not_to receive(:call)
-  
+
               # Run the specific initializer
               run_initializer!("decidim-community_templates.git_mirror")
             end
-  
+
             it "prints a warning message" do
-            expect { run_initializer!("decidim-community_templates.git_mirror") }
-              .to output(/TEMPLATE_GIT_URL=/).to_stderr
+              expect { run_initializer!("decidim-community_templates.git_mirror") }
+                .to output(/TEMPLATE_GIT_URL=/).to_stderr
             end
 
             it "Decidim::CommunityTemplates.enabled? is false" do

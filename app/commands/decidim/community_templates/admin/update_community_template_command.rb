@@ -15,6 +15,7 @@ module Decidim
 
           form.template.owned = true
           form.template.write(Decidim::CommunityTemplates.catalog_path)
+          GitSyncronizerJob.perform_now
           broadcast(:ok)
         rescue StandardError => e
           Rails.logger.error("[Decidim::CommunityTemplates] Error updating template: #{e.message}")

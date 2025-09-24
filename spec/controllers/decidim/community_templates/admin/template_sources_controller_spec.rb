@@ -32,9 +32,10 @@ module Decidim::CommunityTemplates
         end
 
         it "creates a new template source" do
-          post :create, params: { template_source: { source_id: participatory_process.to_global_id.to_s, template: template_params } }
+          expect do
+            post :create, params: { template_source: { source_id: participatory_process.to_global_id.to_s, template: template_params } }
+          end.to change(Decidim::CommunityTemplates::TemplateSource, :count).by(1)
           expect(response).to have_http_status(:redirect)
-          expect(Decidim::CommunityTemplates::TemplateSource.count).to eq(1)
           expect(Decidim::CommunityTemplates::TemplateSource.last.source_id).to eq(participatory_process.id)
           expect(Decidim::CommunityTemplates::TemplateSource.last.source_type).to eq("Decidim::ParticipatoryProcess")
         end

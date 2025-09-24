@@ -25,7 +25,7 @@ module Decidim
             # Write the template to the catalog
             form.template.write(Decidim::CommunityTemplates.catalog_path)
           end
-
+          GitSyncronizerJob.perform_later
           broadcast(:ok)
         rescue StandardError => e
           Rails.logger.error "Error writing template: #{e.message}"
