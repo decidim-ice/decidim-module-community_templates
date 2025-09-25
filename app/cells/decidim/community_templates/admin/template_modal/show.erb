@@ -1,18 +1,36 @@
 <%= decidim_modal id: modal_id, class: "template-modal template-modal--#{modal_modifier}", open: open? do %>
   <div data-dialog-container>
   <%= modal_form_for do |f| %>
-    <h3 id="dialog-title-template-create-<%= space.id %>" data-dialog-title>
-      <%= t("title", scope: i18n_scope) %>
+    <h3 id="<%= modal_id %>_title" data-dialog-title>
+      <%= modal_title %>
     </h3>
     <div class="form__wrapper">
       <div class="row column">
         <%= f.select :source_id, grouped_options_for_select(participatory_spaces.transform_values(&:invert), space_gid), {  include_blank: true }, {disabled: true, label: t("source_id", scope: i18n_form_scope) } %>
         <div class="help-text">
-          <%= t("source_id_help_text", scope: i18n_form_scope) %>
+          <%= t("source_id_help_text", scope: i18n_scope) %>
         </div>
         <%= f.hidden_field :source_id, value: space_gid %>
       </div>
-
+      <% if public_url.present? %>
+        <div class="row column">
+          <label for="template-js-public-url">
+            <%= t("public_url", scope: i18n_form_scope) %>
+            <div class="template-modal__public_link_container">
+              <%= link_to public_url, target: "_blank", class:"template-modal__public_link" do %>
+                <span id="template-js-public-url" class="template-modal__public_link_text"><%= public_url %></span>
+              <% end %>
+              <%= link_to "#", class: "template-modal__public_link_icon", "data-clipboard-target" => "template-js-public-url" do %>
+                <%= icon "file-copy-line" %>
+                <span class="copy_success_message" aria-hidden="true"><%= t("copied_to_clipboard", scope: i18n_form_scope) %></span>
+              <% end %>
+            </div>
+          </label>
+          <div class="help-text">
+            <%= t("public_url_help_text", scope: i18n_form_scope) %>
+          </div>
+        </div>
+      <% end %>
       <% f.fields_for :template, f.object.template do |field| %>
         <div class="row column">
           <%= field.text_field :title, required: true, label: t("title", scope: i18n_form_scope), placeholder: t("title_placeholder", scope: i18n_form_scope) %>

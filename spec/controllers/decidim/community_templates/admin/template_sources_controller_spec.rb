@@ -88,7 +88,7 @@ module Decidim::CommunityTemplates
           it "render modal.js.erb if xhr?" do
             post :create, params: { template_source: { source_id: participatory_process.to_global_id.to_s, template: template_params } }, xhr: true
             expect(response).to have_http_status(:success)
-            expect(response).to render_template(partial: "decidim/community_templates/admin/template_sources/_modal")
+            expect(response).to render_template(partial: "decidim/community_templates/admin/template_sources/_template_modal_form")
           end
         end
       end
@@ -152,7 +152,7 @@ module Decidim::CommunityTemplates
               template: template_params
             } }, xhr: true
             expect(response).to have_http_status(:success)
-            expect(response).to render_template(partial: "decidim/community_templates/admin/template_sources/_modal")
+            expect(response).to render_template(partial: "decidim/community_templates/admin/template_sources/_template_modal_form")
           end
         end
       end

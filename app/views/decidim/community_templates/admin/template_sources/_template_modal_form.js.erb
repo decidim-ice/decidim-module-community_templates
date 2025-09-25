@@ -1,0 +1,24 @@
+var $form = $(`.form.js-template-modal-form[data-source="<%= source_record.to_global_id %>"]`)
+<% if form.valid? && template_source %>
+    var $content = $(`<%= j(render partial: "decidim/community_templates/admin/template_sources/modal_success", locals: { template_source: template_source, source_record: source_record, current_organization: current_organization }) %>`);
+    $form.html($content.html());
+
+  // Override temporarly close function to reload the page, as
+  // we finished the flow, and next time, need to show form again
+  var dialog = window.Decidim.currentDialogs[`modal-template-<%= source_record.id %>`];
+   const originalClose = dialog.close
+   dialog.close = function() {
+    originalClose();
+    window.location.reload();
+    dialog.close = originalClose;
+   };
+<% else %>
+  <% if template_source.nil? || !source_record.persisted? %>
+    var $content = $(`<%= j(cell("decidim/community_templates/admin/template_create_modal", source_record, form: @form).to_s) %>`);
+  <% else %>
+    var $content = $(`<%= j(cell("decidim/community_templates/admin/template_update_modal", template_source, form: @form).to_s) %>`);
+  <% end %>
+  $form.html($content.find(".form").html());
+<% end %>
+// Manually dispatch the event to mount clipboard on modals.
+document.dispatchEvent(new CustomEvent("remote-modal:loaded"));

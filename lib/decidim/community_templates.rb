@@ -72,7 +72,7 @@ module Decidim
     end
 
     def self.catalog_path
-      Rails.public_path.join("catalog")
+      Rails.root.join("catalog")
     end
 
     def self.catalog_registry

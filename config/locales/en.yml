@@ -78,23 +78,36 @@ en:
             read_only_filesystem: Server error, contact your administrator. (Catalog
               directory is read only)
             unknown: 'Server error, contact your administrator. (Unknown error: %{error})'
+          source_id_help_text: The template will be an anonymized copy of this. No
+            user data will be made public.
           submit_button: Create & Share
           title: Community template
         template_form:
           author: Author
           author_help_text: Visible to members of the community
           author_placeholder: John Doe
+          copied_to_clipboard: Copied to clipboard!
+          copy_button: Copy
           links: Links
           links_help_text: Visible to members of the community. Comma separated.
           links_placeholder: https://github.com/cyberschnaps, https://www.cyberschnaps.com/,
             ...
+          public_url: Sharing link
+          public_url_help_text: Share this with others to install via processes >
+            manage > install from link
           short_description: Short description
           short_description_help_text: Visible to members of the community
           short_description_placeholder: 'This template is intended to be used in
             this context and has the following options: ...'
           source_id: Source
-          source_id_help_text: The template will be an anonymized copy of this. No
-            user data will be made public.
+          success:
+            copied_to_clipboard: Copied to clipboard!
+            in_catalog: Your template is now available in your catalog.
+            public_url: Sharing link
+            public_url_help_text: Share this with others to install via processes
+              > manage > install from link
+            title: "%{title} shared!"
+            view_catalog: View it here
           title: Template title
           title_help_text: Visible to members of the community
           title_placeholder: i.e. Participatory Budget, Association, ...
@@ -110,6 +123,8 @@ en:
             success: The template has been updated successfully.
         template_update:
           cancel_button: Cancel
+          source_id_help_text: The template will be an anonymized copy of this. No
+            user data will be made public. This can not be changed.
           submit_button: Share update
           title: Community template
         templates:

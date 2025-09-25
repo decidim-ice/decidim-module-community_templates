@@ -53,6 +53,10 @@ module Decidim
         Decidim.version >= decidim_version && community_template_version <= Decidim::CommunityTemplates::VERSION
       end
 
+      def public_url(host)
+        "https://#{host}/catalog/#{id}"
+      end
+
       def self.from_path(template_path)
         manifest_path = template_path.join("manifest.json")
         raise "Manifest file not found at #{manifest_path}" unless manifest_path.exist?

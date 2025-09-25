@@ -1,6 +1,68 @@
 .template-modal {
   max-width: 80% !important;
 
+  &__public_link_container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  &__public_link {
+    color: var(--secondary);
+    max-width: 80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    [data-external-link] {
+      display: none;
+    }
+    &:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+  }
+  &__public_link_text {
+    white-space: nowrap;
+    font-size: 100%;
+    font-weight: normal;
+    display: block;
+  }
+  &__public_link_icon {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    fill: var(--secondary);
+    &:hover {
+      opacity: 0.8;
+    }
+    .copy_success_message {
+      font-size: 100%;
+      font-weight: normal;
+      display: block;
+      font-size: 14px;
+      line-height: 18px;
+      color: var(--success);
+      &[aria-hidden="true"] {
+        display: none;
+      }
+    }
+  }
+  .template_success_modal {
+    &__title {
+      margin-bottom: 2rem;
+    }
+    &__catalog_link {
+      display: inline-block;
+      margin-left: 0.5rem;
+      color: var(--secondary);
+      font-size: 100%;
+      font-weight: normal;
+      &:hover {
+        opacity: 0.8;
+        text-decoration: underline;
+      }
+    }
+  }
+
   input[type="date"],
   input[type="datetime-local"],
   input[type="email"],

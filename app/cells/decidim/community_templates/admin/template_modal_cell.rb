@@ -12,12 +12,24 @@ module Decidim
 
         private
 
+        def current_organization
+          space.organization
+        end
+
+        def modal_title
+          raise NotImplementedError
+        end
+
+        def public_url
+          raise NotImplementedError
+        end
+
         def open?
           false
         end
 
         def modal_id
-          raise NotImplementedError
+          "modal-template-#{space.id}"
         end
 
         def modal_modifier

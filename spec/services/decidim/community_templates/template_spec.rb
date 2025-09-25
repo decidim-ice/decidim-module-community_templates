@@ -70,6 +70,12 @@ module Decidim
         expect(template.errors.full_messages).to include(match(%r{must be valid links starting with https://}))
       end
 
+      describe "#public_url" do
+        it "returns the public url of the template" do
+          expect(template.public_url("example.com")).to eq("https://example.com/catalog/#{template.id}")
+        end
+      end
+
       describe "#delete" do
         let(:catalog_path) { Rails.root.join("tmp", "catalogs", "test_catalog_#{SecureRandom.uuid}") }
         let(:template) { create(:template, owned: true) }

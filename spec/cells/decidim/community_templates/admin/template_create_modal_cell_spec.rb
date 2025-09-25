@@ -17,8 +17,8 @@ module Decidim
           expect(subject).to have_css("form[data-remote='true']")
         end
 
-        it "use a template-create-<participatory_process.id> as modal id" do
-          expect(subject).to have_css("#template-create-#{participatory_process.id}")
+        it "use a modal-template-<participatory_process.id> as modal id" do
+          expect(subject).to have_css("#modal-template-#{participatory_process.id}")
         end
 
         it "have a POST form" do
@@ -33,7 +33,7 @@ module Decidim
         end
 
         it "is closable" do
-          expect(subject).to have_css("[data-dialog-close='template-create-#{participatory_process.id}']")
+          expect(subject).to have_css("[data-dialog-close='modal-template-#{participatory_process.id}']")
         end
 
         it "have fields for the template form" do

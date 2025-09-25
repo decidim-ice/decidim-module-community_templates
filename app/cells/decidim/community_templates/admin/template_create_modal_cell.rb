@@ -20,12 +20,23 @@ module Decidim
           "decidim.community_templates.admin.template_create"
         end
 
-        def modal_id
-          "template-create-#{space.id}"
+        def public_url
+          nil
+        end
+
+        def modal_title
+          t("title", scope: i18n_scope)
         end
 
         def modal_form_for(&block)
-          form_for form, url: decidim_admin_community_templates.template_sources_path, html: { :class => "form form-defaults", "data-remote" => true }, method: :post do |f|
+          form_for form,
+                   url: decidim_admin_community_templates.template_sources_path,
+                   html: {
+                     :class => "form form-defaults js-template-modal-form",
+                     "data-source" => space.to_global_id,
+                     "data-remote" => true
+                   },
+                   method: :post do |f|
             block.call(f)
           end
         end

@@ -169,16 +169,50 @@ module Decidim
       end
 
       describe "#pull" do
-        it "raises a GitError if the repository is not valid" do
-          git_mirror = create(:git_mirror, :with_commit, settings_attributes: { repo_username: "", repo_password: "apasswordwithout-username" })
-          git_instance = git_mirror.git
-          allow(git_mirror).to receive(:git).and_return(git_instance)
-          allow(git_instance).to receive(:pull)
-          remote_double = double("remote")
-          allow(remote_double).to receive(:fetch)
-          allow(git_instance).to receive(:remote).and_return(remote_double)
+        context "when the repository is writable" do
+          it "push the repository if there are changes" do
+            git_mirror = create(:git_mirror, :with_commit)
+            git_instance = git_mirror.git
+            allow(git_mirror).to receive(:git).and_return(git_instance)
+            allow(git_mirror).to receive(:writable?).and_return(true)
+            allow(git_instance).to receive(:pull)
+            allow(git_instance).to receive(:push)
+            remote_double = double("remote")
+            allow(remote_double).to receive(:fetch)
+            allow(git_instance).to receive(:remote).and_return(remote_double)
 
-          expect { git_mirror.pull }.to raise_error(GitError)
+            git_mirror.pull
+            expect(git_instance).to have_received(:push)
+          end
+
+          it "raises a GitError if repo is badly configured" do
+            git_mirror = create(:git_mirror, :with_commit, settings_attributes: { repo_username: "", repo_password: "apasswordwithout-username" })
+            git_instance = git_mirror.git
+            allow(git_mirror).to receive(:git).and_return(git_instance)
+            allow(git_mirror).to receive(:writable?).and_return(true)
+            allow(git_instance).to receive(:pull)
+            remote_double = double("remote")
+            allow(remote_double).to receive(:fetch)
+            allow(git_instance).to receive(:remote).and_return(remote_double)
+
+            expect { git_mirror.pull }.to raise_error(GitError)
+          end
+        end
+
+        context "when the repository is not writable" do
+          it "it ignores unstaged changes and pull the repository" do
+            git_mirror = create(:git_mirror, :with_commit)
+            git_instance = git_mirror.git
+            allow(git_mirror).to receive(:git).and_return(git_instance)
+            allow(git_mirror).to receive(:writable?).and_return(false)
+            allow(git_instance).to receive(:pull)
+            remote_double = double("remote")
+            allow(remote_double).to receive(:fetch)
+            allow(git_instance).to receive(:remote).and_return(remote_double)
+
+            git_mirror.pull
+            expect(git_instance).to have_received(:pull)
+          end
         end
 
         describe "when in the wrong branch," do

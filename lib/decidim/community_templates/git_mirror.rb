@@ -33,17 +33,14 @@ module Decidim
       end
 
       def pull
-        return unless git.status.changed.empty?
+        # If we are synced with a remote git repository, we need to push first.
+        return if !git.status.changed.empty? && writable?
 
         validate!
         with_git_credentials do |git|
           git.remote("origin").fetch
           checkout_branch(git, repo_branch)
-          unless remote_branch_exists?(git)
-            next unless writable?
-
-            git.push("origin", repo_branch)
-          end
+          git.push("origin", repo_branch) if writable? && (!remote_branch_exists?(git) || !git.status.changed.empty?)
           git.pull
         end
       end
