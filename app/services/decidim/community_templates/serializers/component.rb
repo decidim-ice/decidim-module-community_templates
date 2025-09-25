@@ -20,11 +20,13 @@ module Decidim
         end
 
         def settings
-          model.manifest.settings.attributes.map do |type, value|
-            {
-              type:,
-              value:
-            }
+          [:global, :step].flat_map do |scope|
+            model.manifest.settings(scope).attributes.map do |type, value|
+              {
+                type: type.to_s,
+                value: value.translated? ? i18n_setting_field(type) : model.settings[type]
+              }
+            end
           end
         end
       end

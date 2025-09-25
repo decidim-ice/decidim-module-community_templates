@@ -123,6 +123,11 @@ module Decidim
         "#{id}.attributes.#{field}"
       end
 
+      def i18n_setting_field(field)
+        translations.deep_merge!(hash_to_i18n(model.settings[field], field))
+        "#{id}.attributes.#{field}"
+      end
+
       def hash_to_i18n(hash, field, prefix = "attributes")
         return {} unless hash.is_a?(Hash)
 

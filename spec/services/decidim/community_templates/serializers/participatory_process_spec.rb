@@ -90,6 +90,8 @@ module Decidim
           expect(component_data[:class]).to eq("Decidim::Component")
           expect(component_data[:original_id]).to eq(component.id)
           expect(component_data[:attributes][:name]).to eq("#{serializer.id}.attributes.components.#{component.id}.attributes.name")
+          expect(component_data[:attributes][:manifest_name]).to eq(component.manifest_name)
+          expect(component_data[:attributes][:settings]).to be_an(Array)
         end
 
         it "saves the serialized data to disk" do
