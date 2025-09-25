@@ -23,6 +23,10 @@ module Decidim
             participatory_structure: i18n_field(:participatory_structure),
             private_space: model.private_space,
             promoted: model.promoted,
+            published_at: model.published_at&.iso8601,
+            created_at: model.created_at.iso8601,
+            updated_at: model.updated_at.iso8601,
+            deleted_at: model.deleted_at&.iso8601,
             components:
           }
         end
