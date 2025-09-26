@@ -1,7 +1,7 @@
 <%= decidim_modal id: modal_id, class: "template-modal template-modal--#{modal_modifier}", open: open? do %>
   <div data-dialog-container>
   <%= modal_form_for do |f| %>
-    <h3 id="<%= modal_id %>_title" data-dialog-title>
+    <h3 id="<%= modal_id %>_title" data-dialog-title class="template-modal__title">
       <%= modal_title %>
     </h3>
     <div class="form__wrapper">
@@ -57,7 +57,7 @@
           </div>
         </div>
         <div class="row column">
-          <%= field.text_area :short_description, rows: 5, required: true, label: t("short_description", scope: i18n_form_scope), placeholder: t("short_description_placeholder", scope: i18n_form_scope), maxlength: 170 %>
+          <%= field.text_area :short_description, rows: 5, required: true, label: t("short_description", scope: i18n_form_scope), placeholder: t("short_description_placeholder", scope: i18n_form_scope), maxlength: 450 %>
           <div class="help-text">
             <%= t("short_description_help_text", scope: i18n_form_scope) %>
           </div>

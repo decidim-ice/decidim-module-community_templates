@@ -49,13 +49,13 @@ describe "Participatory processes template tab" do
 
   it "parses markdown content in template card" do
     within(".template-card__intro", text: "Idea Board Template") do
-      expect(page).to have_css(".template-card__content a", text: "Octree")
+      expect(page).to have_css(".catalog_summary__content a", text: "Octree")
     end
   end
 
   it "displays only host for links" do
     within(".template-card__intro", text: "Idea Board Template") do
-      expect(page).to have_css(".template-card__metadatas-item a[href='https://octree.ch']", text: "octree.ch")
+      expect(page).to have_css(".catalog_summary__metadatas a[href='https://octree.ch']", text: "octree.ch")
     end
   end
 

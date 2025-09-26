@@ -18,5 +18,6 @@ ignore_unused:
   - activerecord.errors.models.decidim/community_templates/template_use.attributes.*
   - activerecord.errors.models.decidim/community_templates/template_source.attributes.*
   - activemodel.errors.models.decidim/community_templates/template.attributes.*
+  - decidim.community_templates.admin.direct_link_modal.*
 
 ignore_missing:

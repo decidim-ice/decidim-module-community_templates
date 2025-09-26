@@ -1,0 +1,82 @@
+<%
+form ||= begin
+  importer = Decidim::CommunityTemplates::DirectLinkImporter.new(params)
+  importer.form
+end
+i18n_scope = "decidim.community_templates.admin.direct_link_modal"
+def host_for(url)
+  URI.parse(normalize_url(url)).host
+end
+
+def normalize_url(url)
+  # add https:// if not present
+  url = "https://#{url}" unless url.start_with?("http")
+  # remove trailing slash
+  url.chomp("/")
+end
+%>
+<%= decidim_modal id: "template-direct-link-modal", class: "template-direct-link__modal" do %>
+  <%= decidim_form_for form, url: decidim_admin_community_templates.import_from_link_index_path, method: :post, html: { class: "template-direct-link__form form form-defaults", "data-remote" => true } do |f| %>
+    <div class="template-direct-link__container">
+      <% if form.has_manifest? %>
+        <%= f.hidden_field :link, value: form.link %>
+        <div class="template-direct-link__form-section">
+
+          <%= render partial: "decidim/view_model/community_templates/design/catalog_summary", locals: {
+            id: "Catalog#{form.template_id}",
+            title: form.title,
+            metadatas: [
+              form.version,
+              form.author,
+              *form.links.map { |link| link_to(host_for(link), normalize_url(link), "data-external" => true) }
+            ],
+            content: form.short_description_html
+          } %>
+        </div>
+        <div class="template-direct-link__actions-section">
+          <a href="#" class="template-direct-link__link">
+            <%= t("try_demo_button", scope: i18n_scope) %>
+          </a>
+          <a href="#" class="template-direct-link__link">
+            <%= t("install_button", scope: i18n_scope) %>
+          </a>
+        </div>
+      <% else %>
+        <div class="template-direct-link__form-section">
+          <label for="direct_link_link" class="template-direct-link__label">
+            <%= t("template_link_label", scope: i18n_scope) %>
+          </label>
+          <div class="template-direct-link__form-group">
+            <div class="row column template-direct-link__field">
+              <%= f.text_field :link,
+              label: false,
+              placeholder: t("public_link_placeholder", scope: i18n_scope),
+              class: "template-direct-link__input" %>
+              <span class="help-text">
+                <%= t("public_link_help_text", scope: i18n_scope) %>
+                <a href="<%= t("public_link_help_text_url", scope: i18n_scope) %>" target="_blank" class="template-direct-link__link">
+                  <%= t("public_link_help_text_link", scope: i18n_scope) %>
+                </a>
+              </span>
+            </div>
+            <%= f.submit t("go_button", scope: i18n_scope), class: "button button__lg template-direct-link__button" %>
+          </div>
+        </div>
+        <div class="template-direct-link__actions-section">
+          <span class="template-direct-link__link template-direct-link__link--disabled">
+            <%= t("try_demo_button", scope: i18n_scope) %>
+          </span>
+          <span class="template-direct-link__link template-direct-link__link--disabled">
+            <%= t("install_button", scope: i18n_scope) %>
+          </span>
+        </div>
+      <% end %>
+
+    </div>
+    <% if form.has_manifest? %>
+      <div data-dialog-actions>
+        <%= f.button t("cancel_button", scope: i18n_scope), type: "reset", class: "template-direct-link__close-button", "data-dialog-close" => "template-direct-link-modal" %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

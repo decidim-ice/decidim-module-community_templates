@@ -57,10 +57,25 @@ en:
           show:
             imported_successfully: The catalog has been imported successfully.
             not_found: The selected catalog could not be found.
+        direct_link_modal:
+          cancel_button: Close
+          errors:
+            failed_to_fetch: Failed to fetch %{path} from link
+            invalid_link: Does not looks like a valid template link
+            manifest_file_not_found: Manifest file not found
+          go_button: Go
+          install_button: Install
+          public_link_help_text: Paste the public link here.
+          public_link_help_text_link: More info
+          public_link_help_text_url: https://decidim.org/en/docs/community-templates/public-link
+          public_link_placeholder: https://example.com/catalog/1234-5678-9012-3456-7890-1234-5678-9012
+          template_link_label: Template Link
+          try_demo_button: Try demo
         menu:
           community_templates: Community templates
           create_template: Create template
           external_templates: External templates
+          import_from_link: Create from link
           local_templates: Local templates
           manage_catalogs: Manage catalogs
           participatory_process_catalog: Templates
@@ -101,6 +116,7 @@ en:
             this context and has the following options: ...'
           source_id: Source
           success:
+            close: Close
             copied_to_clipboard: Copied to clipboard!
             in_catalog: Your template is now available in your catalog.
             public_url: Sharing link

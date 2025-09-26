@@ -21,8 +21,9 @@ module Decidim
 
         let(:catalog) { reload_catalog }
 
-        let(:my_cell) { cell("decidim/community_templates/admin/template_update_modal", template_source) }
+        let(:my_cell) { cell("decidim/community_templates/admin/template_update_modal", template_source, form: form) }
         let(:template) { catalog.templates.first }
+        let(:form) { Decidim::CommunityTemplates::Admin::TemplateSourceForm.new(source_id: participatory_process.to_global_id, template: template.attributes) }
         let(:template_source) { create(:community_template_source, template_id: template.id) }
         let(:participatory_process) { template_source.source }
 
@@ -62,7 +63,7 @@ module Decidim
 
           let(:form) do
             Decidim::CommunityTemplates::Admin::TemplateSourceForm.new(
-              source_id: template_source.source_id,
+              source_id: template_source.source.to_global_id,
               template: another_template
             )
           end

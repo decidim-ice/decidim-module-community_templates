@@ -26,7 +26,7 @@ module Decidim
         end
 
         def space
-          model.source
+          options[:form].source
         end
 
         def i18n_scope

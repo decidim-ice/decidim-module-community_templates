@@ -13,12 +13,10 @@ var $form = $(`.form.js-template-modal-form[data-source="<%= source_record.to_gl
     dialog.close = originalClose;
    };
 <% else %>
-  <% if template_source.nil? || !source_record.persisted? %>
+  <% if !form.id.present? %>
     var $content = $(`<%= j(cell("decidim/community_templates/admin/template_create_modal", source_record, form: @form).to_s) %>`);
   <% else %>
     var $content = $(`<%= j(cell("decidim/community_templates/admin/template_update_modal", template_source, form: @form).to_s) %>`);
   <% end %>
   $form.html($content.find(".form").html());
 <% end %>
-// Manually dispatch the event to mount clipboard on modals.
-document.dispatchEvent(new CustomEvent("remote-modal:loaded"));

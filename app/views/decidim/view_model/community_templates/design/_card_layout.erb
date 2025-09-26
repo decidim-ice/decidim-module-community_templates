@@ -1,0 +1,18 @@
+<%
+  intro ||= ""
+  actions ||= []
+%>
+  <div class="template-card" id="<%= id %>">
+    <div class="template-card__intro">
+      <%= intro %>
+    </div>
+    <% if actions.any? %>
+    <div class="template-card__actions">
+      <% actions.each do |action| %>
+        <div class="template-card__action">
+          <%= action %>
+        </div>
+      <% end %>
+    </div>
+    <% end %>
+  </div>

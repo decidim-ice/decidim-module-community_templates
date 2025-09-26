@@ -2,63 +2,48 @@
   max-width: 80% !important;
 
   &__public_link_container {
-    display: flex;
+    @apply flex items-center;
     gap: 0.5rem;
-    align-items: center;
   }
   &__public_link {
-    color: var(--secondary);
+    @apply text-secondary overflow-hidden text-ellipsis;
     max-width: 80%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-
     [data-external-link] {
-      display: none;
+      @apply hidden;
     }
     &:hover {
-      opacity: 0.8;
-      text-decoration: underline;
+      @apply opacity-80 underline;
     }
   }
   &__public_link_text {
-    white-space: nowrap;
+    @apply whitespace-nowrap font-normal block;
     font-size: 100%;
-    font-weight: normal;
-    display: block;
   }
   &__public_link_icon {
-    display: flex;
+    @apply flex items-center fill-secondary;
     gap: 0.5rem;
-    align-items: center;
-    fill: var(--secondary);
+
     &:hover {
-      opacity: 0.8;
+      @apply opacity-80;
     }
     .copy_success_message {
-      font-size: 100%;
-      font-weight: normal;
-      display: block;
-      font-size: 14px;
-      line-height: 18px;
-      color: var(--success);
+      @apply font-normal block text-sm text-success;
       &[aria-hidden="true"] {
-        display: none;
+        @apply hidden;
       }
     }
   }
   .template_success_modal {
     &__title {
-      margin-bottom: 2rem;
+      @apply mb-8;
     }
+    
+  
     &__catalog_link {
-      display: inline-block;
+      @apply inline-block text-secondary font-normal;
       margin-left: 0.5rem;
-      color: var(--secondary);
-      font-size: 100%;
-      font-weight: normal;
       &:hover {
-        opacity: 0.8;
-        text-decoration: underline;
+        @apply opacity-80 underline;
       }
     }
   }
@@ -76,20 +61,19 @@
   input[type="url"],
   input[type="week"],
   select,
-  textarea {
+  textarea,
+  .input-character-counter {
     @apply mt-0;
   }
 
   .form__wrapper {
-    gap: 1rem;
+    @apply gap-4 mt-0 mx-auto pt-6;
     max-width: 900px;
-    margin: 0 auto;
-    padding-top: 1.5rem;
     .help-text {
-      margin: 0;
+      @apply m-0;
     }
     .form-error {
-      margin-top: 0;
+      @apply mt-0;
     }
   }
 }

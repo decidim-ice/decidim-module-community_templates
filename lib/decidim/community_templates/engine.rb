@@ -65,6 +65,7 @@ module Decidim
       initializer "decidim-community_templates.add_cells_view_paths" do
         Cell::ViewModel.view_paths << File.expand_path("#{Decidim::CommunityTemplates::Engine.root}/app/cells")
         Cell::ViewModel.view_paths << File.expand_path("#{Decidim::CommunityTemplates::Engine.root}/app/views") # for partials
+        Cell::ViewModel.view_paths << Decidim::CommunityTemplates::Engine.root.join("app/views/decidim/community_templates/admin/design")
       end
     end
   end

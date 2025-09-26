@@ -41,6 +41,11 @@ module Decidim
         archived_at.present?
       end
 
+      def normalized_links
+        links_array = links.map { |l| l.split(", ") }.flatten
+        links_array.map { |l| l.strip.chomp("/") }
+      end
+
       def data
         raise NotImplementedError, "TODO: implement a TemplateData service"
       end
@@ -94,9 +99,9 @@ module Decidim
       end
 
       def link_well_formed
-        return if links.blank?
+        return if normalized_links.blank?
 
-        links.each do |link|
+        normalized_links.each do |link|
           uri = URI.parse(link)
           errors.add(:links, :bad_format) unless uri.is_a?(URI::HTTPS) && uri.host.present?
         rescue URI::InvalidURIError
@@ -110,6 +115,7 @@ module Decidim
 
       def as_json(*)
         json = super
+        json["links"] = normalized_links
         json.delete("owned")
         json
       end
