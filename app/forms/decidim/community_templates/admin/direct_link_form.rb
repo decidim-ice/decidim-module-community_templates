@@ -11,38 +11,20 @@ module Decidim
         validate :validate_link_ends_with_uuid
         validate :validate_coherence
         validate :validate_manifest_file
-
+        validate :validate_template
+        delegate :id, :title, :short_description, :version, :author, :links, to: :template
+        alias template_id id
         def self.from_params(params)
           strong_params = params.permit(direct_link: [:link])
           new(strong_params[:direct_link])
         end
 
-        def template_id
-          @template_id ||= manifest_file["id"]
-        end
-
-        def title
-          @title ||= manifest_file["title"]
-        end
-
-        def short_description
-          @short_description ||= manifest_file["short_description"]
+        def template
+          @template ||= Decidim::CommunityTemplates::Template.new(manifest_file || {})
         end
 
         def short_description_html
           @short_description_html ||= markdown_to_html(short_description)
-        end
-
-        def version
-          @version ||= manifest_file["version"]
-        end
-
-        def author
-          @author ||= manifest_file["author"]
-        end
-
-        def links
-          @links ||= manifest_file["links"]
         end
 
         def has_manifest?
@@ -60,24 +42,23 @@ module Decidim
         end
 
         def normalized_link
-          @normalized_link ||= link.chomp("/")
+          @normalized_link ||= (link || "").chomp("/")
         end
 
         ##
         # Fetch a path from the given link
         def fetch_path(path)
-          return "" if link_error?
+          return nil if link_error? || normalized_link.blank?
 
           # standard ruby library calls, no external dependencies
           uri = URI.parse(normalized_link + path)
           response = Net::HTTP.get_response(uri)
           return JSON.parse(response.body) if response.code == "200"
 
-          errors.add(:link, I18n.t("errors.failed_to_fetch", scope: i18n_scope, path: path))
+          nil
         rescue StandardError => e
           Rails.logger.error("Error fetching path #{path} from #{normalized_link}: #{e.message}")
-          errors.add(:link, I18n.t("errors.failed_to_fetch", scope: i18n_scope, path: path))
-          return ""
+          nil
         end
 
         def i18n_scope
@@ -118,13 +99,21 @@ module Decidim
         def validate_coherence
           return if link_error?
 
-          errors.add(:link, I18n.t("errors.invalid_link", scope: i18n_scope)) unless folder_name == template_id
+          errors.add(:link, I18n.t("errors.invalid_link", scope: i18n_scope)) unless folder_name == id
         end
 
         def validate_manifest_file
-          return if link_error?
-
           errors.add(:link, I18n.t("errors.manifest_file_not_found", scope: i18n_scope)) unless manifest_file
+        end
+
+        def validate_template
+          return if errors.any?
+
+          if template.invalid?
+            template.errors.full_messages.each do |message|
+              errors.add(:base, message)
+            end
+          end
         end
       end
     end
