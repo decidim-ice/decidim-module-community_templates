@@ -3,16 +3,16 @@
 module Decidim
   module CommunityTemplates
     class TemplateParser
-      def initialize(template_path, locales = Decidim.available_locales.map(&:to_s))
-        @template_path = template_path
-        @translations_path = File.join(@template_path, "locales")
+      def initialize(data:, translations: {}, locales: Decidim.available_locales.map(&:to_s))
+        @data = data
+        @translations = translations
         @locales = locales
       end
 
-      attr_reader :template_path, :translations_path, :locales
+      attr_reader :data, :translations, :locales
 
       def id
-        @id ||= metadata["id"] || File.basename(@template_path)
+        @id ||= metadata["id"]
       end
 
       def model_class
@@ -29,19 +29,6 @@ module Decidim
 
       def version
         metadata["version"]
-      end
-
-      def translations
-        @translations ||= if Dir.exist?(@translations_path)
-                            locales.each_with_object({}) do |lang, hash|
-                              file = File.join(@translations_path, "#{lang}.yml")
-                              next unless File.exist?(file)
-
-                              hash[lang] = YAML.load_file(file)[lang] || {}
-                            end
-                          else
-                            {}
-                          end
       end
 
       def metadata
@@ -80,18 +67,6 @@ module Decidim
           return true if attributes.has_key?(key)
         end
         super
-      end
-
-      def data
-        @data ||= JSON.parse(File.read(File.join(@template_path, "data.json")))
-      end
-
-      def demo
-        @demo ||= if File.exist?(File.join(@template_path, "demo.json"))
-                    JSON.parse(File.read(File.join(@template_path, "demo.json")))
-                  else
-                    {}
-                  end
       end
 
       def translation_for(field)

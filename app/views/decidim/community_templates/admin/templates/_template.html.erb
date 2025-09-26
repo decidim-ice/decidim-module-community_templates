@@ -1,11 +1,10 @@
 <div class="card my-4 p-4">
   <div class="card-section">
-    <h3 class="h5"><%= template.name %></h3>
-    <p><%= template.description %> (<%= template.version %>)</p>
+    <h3 class="h5"><%= template[:parser].name %></h3>
+    <p><%= template[:parser].description %> (<%= template[:parser].version %>)</p>
     <p>
-      <% relative_path = template.template_path.gsub(/^#{Decidim::CommunityTemplates.local_path}\//, "") %>
-      <%= link_to t("decidim.community_templates.admin.templates.template.apply"), apply_templates_path("#{relative_path}"), class: "button button__xs button__transparent-secondary" %>
-      <%= link_to t("decidim.community_templates.admin.templates.template.download"), download_templates_path("#{relative_path}"), class: "button button__xs button__transparent-secondary" %>
+      <%= link_to t("decidim.community_templates.admin.templates.template.apply"), apply_templates_path("#{template[:path]}"), class: "button button__xs button__transparent-secondary" %>
+      <%= link_to t("decidim.community_templates.admin.templates.template.download"), download_templates_path("#{template[:path]}"), class: "button button__xs button__transparent-secondary" %>
     </p>
   </div>
 </div>

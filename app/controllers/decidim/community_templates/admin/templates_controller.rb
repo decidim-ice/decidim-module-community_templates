@@ -97,8 +97,11 @@ module Decidim
         def templates
           locales = ([I18n.locale.to_s, current_organization.default_locale.to_s] + current_organization.available_locales.map(&:to_s)).uniq
 
-          Dir.glob("#{Decidim::CommunityTemplates.local_path}/#{tab_path}/*/data.json").map do |template_file|
-            TemplateParser.new(File.dirname(template_file), locales)
+          TemplateExtractor.collection_from("#{Decidim::CommunityTemplates.local_path}/#{tab_path}", locales).map do |item|
+            {
+              path: item[:path].gsub(%r{^#{Decidim::CommunityTemplates.local_path}/}, ""),
+              parser: item[:parser]
+            }
           end
         end
       end

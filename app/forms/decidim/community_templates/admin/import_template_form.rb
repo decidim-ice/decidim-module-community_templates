@@ -16,7 +16,7 @@ module Decidim
         end
 
         def parser
-          @parser ||= Decidim::CommunityTemplates::TemplateParser.new(template_path, locales)
+          @parser ||= TemplateExtractor.parse(template_path, locales)
         end
       end
     end

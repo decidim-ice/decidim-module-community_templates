@@ -9,7 +9,7 @@ module Decidim
         let(:organization) { create(:organization, available_locales: [:en, :ca]) }
         let(:user) { create(:user, organization: organization) }
         let(:parser) do
-          TemplateParser.new("spec/fixtures/template_test", organization.available_locales)
+          TemplateExtractor.parse("spec/fixtures/template_test", organization.available_locales)
         end
 
         subject(:importer) { described_class.new(parser, organization, user) }
