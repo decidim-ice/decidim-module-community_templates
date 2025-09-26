@@ -62,6 +62,10 @@ module Decidim
           expect(attributes[:participatory_structure]).to eq("#{serializer.id}.attributes.participatory_structure")
           expect(attributes[:private_space]).to eq(model.private_space)
           expect(attributes[:promoted]).to eq(model.promoted)
+          expect(attributes[:published_at]).to eq(model.published_at&.iso8601)
+          expect(attributes[:created_at]).to eq(model.created_at.iso8601)
+          expect(attributes[:updated_at]).to eq(model.updated_at.iso8601)
+          expect(attributes[:deleted_at]).to eq(model.deleted_at&.iso8601)
         end
 
         it "generates translations" do
@@ -76,8 +80,26 @@ module Decidim
           attributes_en = serializer.translations["en"][serializer.id]["attributes"]
           expect(attributes_ca["title"]).to eq(model.title["ca"])
           expect(attributes_en["title"]).to eq(model.title["en"])
+          expect(attributes_ca["subtitle"]).to eq(model.subtitle["ca"])
+          expect(attributes_en["subtitle"]).to eq(model.subtitle["en"])
+          expect(attributes_ca["short_description"]).to eq(model.short_description["ca"])
+          expect(attributes_en["short_description"]).to eq(model.short_description["en"])
           expect(attributes_ca["description"]).to eq(model.description["ca"])
           expect(attributes_en["description"]).to eq(model.description["en"])
+          expect(attributes_ca["announcement"]).to eq(model.announcement["ca"])
+          expect(attributes_en["announcement"]).to eq(model.announcement["en"])
+          expect(attributes_ca["developer_group"]).to eq(model.developer_group["ca"])
+          expect(attributes_en["developer_group"]).to eq(model.developer_group["en"])
+          expect(attributes_ca["local_area"]).to eq(model.local_area["ca"])
+          expect(attributes_en["local_area"]).to eq(model.local_area["en"])
+          expect(attributes_ca["meta_scope"]).to eq(model.meta_scope["ca"])
+          expect(attributes_en["meta_scope"]).to eq(model.meta_scope["en"])
+          expect(attributes_ca["target"]).to eq(model.target["ca"])
+          expect(attributes_en["target"]).to eq(model.target["en"])
+          expect(attributes_ca["participatory_scope"]).to eq(model.participatory_scope["ca"])
+          expect(attributes_en["participatory_scope"]).to eq(model.participatory_scope["en"])
+          expect(attributes_ca["participatory_structure"]).to eq(model.participatory_structure["ca"])
+          expect(attributes_en["participatory_structure"]).to eq(model.participatory_structure["en"])
           expect(attributes_ca["components"][component.id.to_s]["attributes"]["name"]).to eq(component.name["ca"])
           expect(attributes_en["components"][component.id.to_s]["attributes"]["name"]).to eq(component.name["en"])
         end
@@ -92,6 +114,10 @@ module Decidim
           expect(component_data[:attributes][:name]).to eq("#{serializer.id}.attributes.components.#{component.id}.attributes.name")
           expect(component_data[:attributes][:manifest_name]).to eq(component.manifest_name)
           expect(component_data[:attributes][:settings]).to be_an(Array)
+          expect(component_data[:attributes][:published_at]).to eq(component.published_at&.iso8601)
+          expect(component_data[:attributes][:created_at]).to eq(component.created_at.iso8601)
+          expect(component_data[:attributes][:updated_at]).to eq(component.updated_at.iso8601)
+          expect(component_data[:attributes][:deleted_at]).to eq(component.deleted_at&.iso8601)
         end
 
         it "saves the serialized data to disk" do
