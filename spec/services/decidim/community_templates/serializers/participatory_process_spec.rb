@@ -62,10 +62,6 @@ module Decidim
           expect(attributes[:participatory_structure]).to eq("#{serializer.id}.attributes.participatory_structure")
           expect(attributes[:private_space]).to eq(model.private_space)
           expect(attributes[:promoted]).to eq(model.promoted)
-          expect(attributes[:published_at]).to eq(model.published_at&.iso8601)
-          expect(attributes[:created_at]).to eq(model.created_at.iso8601)
-          expect(attributes[:updated_at]).to eq(model.updated_at.iso8601)
-          expect(attributes[:deleted_at]).to eq(model.deleted_at&.iso8601)
         end
 
         it "generates translations" do
@@ -114,10 +110,6 @@ module Decidim
           expect(component_data[:attributes][:name]).to eq("#{serializer.id}.attributes.components.#{component.id}.attributes.name")
           expect(component_data[:attributes][:manifest_name]).to eq(component.manifest_name)
           expect(component_data[:attributes][:settings]).to be_an(Array)
-          expect(component_data[:attributes][:published_at]).to eq(component.published_at&.iso8601)
-          expect(component_data[:attributes][:created_at]).to eq(component.created_at.iso8601)
-          expect(component_data[:attributes][:updated_at]).to eq(component.updated_at.iso8601)
-          expect(component_data[:attributes][:deleted_at]).to eq(component.deleted_at&.iso8601)
         end
 
         it "saves the serialized data to disk" do

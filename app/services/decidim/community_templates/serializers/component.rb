@@ -11,11 +11,7 @@ module Decidim
             settings:,
             weight: model.weight,
             permissions: model.permissions,
-            published_at: model.published_at&.iso8601,
-            created_at: model.created_at.iso8601,
-            updated_at: model.updated_at.iso8601,
-            visible: model.visible,
-            deleted_at: model.deleted_at&.iso8601
+            visible: model.visible
           }
         end
 
