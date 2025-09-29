@@ -20,7 +20,7 @@ module Decidim
             model.manifest.settings(scope).attributes.map do |type, value|
               {
                 type: type.to_s,
-                value: value.translated? ? i18n_setting_field(type) : model.settings[type]
+                value: value.translated? ? i18n_field(type, model.settings[type], "attributes.settings") : model.settings[type]
               }
             end
           end

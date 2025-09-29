@@ -117,15 +117,11 @@ module Decidim
         id.split(".")
       end
 
-      def i18n_field(field)
-        translations.deep_merge!(hash_to_i18n(model.send(field), field))
+      def i18n_field(field, value = nil, prefix = "attributes")
+        value ||= model.send(field)
+        translations.deep_merge!(hash_to_i18n(value, field))
 
-        "#{id}.attributes.#{field}"
-      end
-
-      def i18n_setting_field(field)
-        translations.deep_merge!(hash_to_i18n(model.settings[field], field))
-        "#{id}.attributes.#{field}"
+        "#{id}.#{prefix}.#{field}"
       end
 
       def hash_to_i18n(hash, field, prefix = "attributes")
