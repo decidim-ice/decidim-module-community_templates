@@ -49,13 +49,7 @@ module Decidim
             # If an array of locales is given as argument, return a hash with translations
             return translation_for(value) unless args.first.is_a?(Array)
 
-            locales_array = args.first
-            return locales_array.index_with do |locale|
-              translations.dig(locale, *value.to_s.split(".")) || ""
-            end
-
-            # Otherwise, return the translation in the first locale available
-
+            return all_translations_for(value, args.first)
           end
         end
         super
@@ -69,12 +63,16 @@ module Decidim
         super
       end
 
-      def translation_for(field)
-        return unless field
+      def all_translations_for(field, locales)
+        locales.index_with do |locale|
+          translations.dig(locale, *field.to_s.split(".")) || ""
+        end
+      end
 
-        find_translation(field) || metadata[field]
-      rescue StandardError
-        metadata[field]
+      def translation_for(field)
+        return unless field && field.is_a?(String)
+
+        find_translation(field) || field
       end
 
       private

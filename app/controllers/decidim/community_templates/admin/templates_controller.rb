@@ -50,12 +50,13 @@ module Decidim
           end
         end
 
+        # imports a template into the current organization (or a tenant if demo mode)
         def update
           @form = form(ImportTemplateForm).from_params(params)
 
           ImportTemplate.call(@form) do
-            on(:ok) do |_participatory_space|
-              redirect_to template_path(tab), notice: I18n.t("decidim.community_templates.admin.templates.apply.success")
+            on(:ok) do |participatory_space|
+              redirect_to participatory_space_path(participatory_space), notice: I18n.t("decidim.community_templates.admin.templates.apply.success")
             end
 
             on(:invalid) do |errors|
@@ -103,6 +104,10 @@ module Decidim
               parser: item[:parser]
             }
           end
+        end
+
+        def participatory_space_path(participatory_space)
+          Decidim::EngineRouter.admin_proxy(participatory_space).send("edit_#{participatory_space.manifest.route_name}_path", participatory_space.slug)
         end
       end
     end

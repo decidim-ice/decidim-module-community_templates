@@ -14,8 +14,10 @@ module Decidim
         def call
           return broadcast(:invalid, form.errors.full_messages.to_sentence) if form.invalid?
 
-          importer.import!
-          broadcast(:ok)
+          transaction do
+            importer.import!
+          end
+          broadcast(:ok, importer.object)
         rescue StandardError => e
           return broadcast(:invalid, e.message)
         end
