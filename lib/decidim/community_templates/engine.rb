@@ -10,6 +10,10 @@ module Decidim
         Decidim.register_assets_path File.expand_path("app/packs", root)
       end
 
+      config.after_initialize do
+        Decidim::CommunityTemplates::GitSyncronizerJob.perform_later if Decidim::CommunityTemplates.enabled?
+      end
+
       initializer "decidim-community_templates.git_mirror" do
         if Decidim::CommunityTemplates.enabled?
           mirror = Decidim::CommunityTemplates::GitMirror.instance
@@ -23,6 +27,19 @@ module Decidim
           )
           Decidim::CommunityTemplates::GitCatalogNormalizer.call
           mirror.validate!
+        else
+          warn("")
+          warn("⚠ Decidim::CommunityTemplates is installed but not enabled")
+          warn("================================================================")
+          warn("To enable it, define your catalog with the following environment variables:")
+          warn("  TEMPLATE_GIT_URL=https://github.com/your-organization/your-repo")
+          warn("  TEMPLATE_GIT_BRANCH=main")
+          warn("If you need to create and update your catalog, set also these variables:")
+          warn("  TEMPLATE_GIT_USERNAME=your_username")
+          warn("  TEMPLATE_GIT_PASSWORD=your_password")
+          warn("  TEMPLATE_GIT_AUTHOR_NAME=Your Name")
+          warn("  TEMPLATE_GIT_AUTHOR_EMAIL=me@example.org")
+          warn("")
         end
       end
 
@@ -48,6 +65,7 @@ module Decidim
       initializer "decidim-community_templates.add_cells_view_paths" do
         Cell::ViewModel.view_paths << File.expand_path("#{Decidim::CommunityTemplates::Engine.root}/app/cells")
         Cell::ViewModel.view_paths << File.expand_path("#{Decidim::CommunityTemplates::Engine.root}/app/views") # for partials
+        Cell::ViewModel.view_paths << Decidim::CommunityTemplates::Engine.root.join("app/views/decidim/community_templates/admin/design")
       end
     end
   end

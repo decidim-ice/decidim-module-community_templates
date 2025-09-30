@@ -11,7 +11,8 @@ module Decidim
       routes do
         resources :community_templates, only: [:index], controller: "community_templates", as: :community_templates
         resources :template_sources, only: [:create, :update], controller: "template_sources"
-
+        resources :import_from_link, only: [:new, :create], controller: "import_from_link", as: :import_from_link
+        resources :template_usages, only: [:create], controller: "template_usages"
         resources :templates do
           collection do
             get "download/:id", to: "templates#download", as: :download
@@ -40,6 +41,22 @@ module Decidim
                         icon_name: "grid-line",
                         if: Decidim::CommunityTemplates.enabled? && allowed_to?(:update, :organization, organization: current_organization),
                         active: is_active_link?(decidim_admin_community_templates.community_templates_path)
+        end
+      end
+
+      initializer "decidim_community_templates.manage_process_templates" do
+        Decidim.menu :admin_participatory_processes_manage_menu do |menu|
+          caption = content_tag(:span, class: "module-template-direct_link") do
+            I18n.t("menu.import_from_link", scope: "decidim.community_templates.admin")
+          end
+
+          menu.add_item :import_from_link,
+                        caption.html_safe,
+                        "#js-import-from-link",
+                        position: 1,
+                        icon_name: "link",
+                        if: allowed_to?(:create, :process) && Decidim::CommunityTemplates.enabled?,
+                        active: false
         end
       end
 

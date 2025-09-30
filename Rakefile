@@ -23,7 +23,9 @@ task :development_app do
       "--path",
       "..",
       "--recreate_db",
-      "--demo"
+      "--demo",
+      "--locales",
+      "en,ca,es,es-MX,pt-BR,fr"
     )
   end
 

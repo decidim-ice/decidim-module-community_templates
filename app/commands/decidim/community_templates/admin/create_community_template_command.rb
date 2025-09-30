@@ -14,7 +14,7 @@ module Decidim
         def call
           return broadcast(:invalid) if form.invalid?
 
-          ActiveRecord::Base.transaction do
+          created_template_source = ActiveRecord::Base.transaction do
             # Create a TemplateSource
             TemplateSource.create!(
               source: form.source,
@@ -22,11 +22,18 @@ module Decidim
               organization: organization
             )
             form.template.owned = true
-            # Write the template to the catalog
-            form.template.write(Decidim::CommunityTemplates.catalog_path)
+            # Retrieve serializer for the source
+            serializer = Decidim::CommunityTemplates::Serializers::ParticipatoryProcess.init(
+              model: form.source,
+              locales: [organization.default_locale],
+              with_manifest: true,
+              metadata: form.template.metadatas
+            )
+            serializer.metadata_translations!
+            serializer.save!(Decidim::CommunityTemplates.catalog_path)
           end
-
-          broadcast(:ok)
+          GitSyncronizerJob.perform_later
+          broadcast(:ok, created_template_source)
         rescue StandardError => e
           Rails.logger.error "Error writing template: #{e.message}"
           add_specific_error(e)

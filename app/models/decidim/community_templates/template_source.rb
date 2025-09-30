@@ -19,6 +19,10 @@ module Decidim
       validate :source_in_organization, unless: :persisted?
       validate :template_is_uuid
 
+      def template
+        @template ||= Decidim::CommunityTemplates::TemplateMetadata.find(template_id)
+      end
+
       private
 
       def allowed_sources
@@ -49,7 +53,7 @@ module Decidim
       def template_is_uuid
         return if template_id.blank?
 
-        errors.add(:template_id, :bad_format) unless template_id.match?(Decidim::CommunityTemplates::Template::UUID_REGEX)
+        errors.add(:template_id, :bad_format) unless template_id.match?(Decidim::CommunityTemplates::TemplateMetadata::UUID_REGEX)
       end
     end
   end

@@ -1,0 +1,79 @@
+.template-modal {
+  max-width: 80% !important;
+
+  &__public_link_container {
+    @apply flex items-center;
+    gap: 0.5rem;
+  }
+  &__public_link {
+    @apply text-secondary overflow-hidden text-ellipsis;
+    max-width: 80%;
+    [data-external-link] {
+      @apply hidden;
+    }
+    &:hover {
+      @apply opacity-80 underline;
+    }
+  }
+  &__public_link_text {
+    @apply whitespace-nowrap font-normal block;
+    font-size: 100%;
+  }
+  &__public_link_icon {
+    @apply flex items-center fill-secondary;
+    gap: 0.5rem;
+
+    &:hover {
+      @apply opacity-80;
+    }
+    .copy_success_message {
+      @apply font-normal block text-sm text-success;
+      &[aria-hidden="true"] {
+        @apply hidden;
+      }
+    }
+  }
+  .template_success_modal {
+    &__title {
+      @apply mb-8;
+    }
+    
+  
+    &__catalog_link {
+      @apply inline-block text-secondary font-normal;
+      margin-left: 0.5rem;
+      &:hover {
+        @apply opacity-80 underline;
+      }
+    }
+  }
+
+  input[type="date"],
+  input[type="datetime-local"],
+  input[type="email"],
+  input[type="month"],
+  input[type="number"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="text"],
+  input[type="time"],
+  input[type="url"],
+  input[type="week"],
+  select,
+  textarea,
+  .input-character-counter {
+    @apply mt-0;
+  }
+
+  .form__wrapper {
+    @apply gap-4 mt-0 mx-auto pt-6;
+    max-width: 900px;
+    .help-text {
+      @apply m-0;
+    }
+    .form-error {
+      @apply mt-0;
+    }
+  }
+}

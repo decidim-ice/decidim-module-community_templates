@@ -12,16 +12,32 @@ module Decidim
 
         private
 
+        def current_organization
+          space.organization
+        end
+
+        def modal_title
+          raise NotImplementedError
+        end
+
+        def public_url
+          raise NotImplementedError
+        end
+
         def open?
           false
         end
 
         def modal_id
-          raise NotImplementedError
+          "modal-template-#{space.id}"
         end
 
         def modal_modifier
           raise NotImplementedError
+        end
+
+        def form_method
+          "POST"
         end
 
         def modal_form_for(&)
@@ -46,6 +62,12 @@ module Decidim
 
         def template
           raise NotImplementedError
+        end
+
+        def links_csv
+          return "" if template.links.blank?
+
+          template.links.join(", ")
         end
 
         def form

@@ -6,14 +6,17 @@
     </div>
   <% else %>
     <% catalog.templates.each do |template| %>
-      <%= render view: "card", locals: {
-        title: template.title,
-        metadatas: [
-          template.version,
-          template.author,
-          *template.links.map { |link| link_to(host_for(link), normalize_url(link), "data-external" => true) }
-        ],
-        markdown_content: template.short_description,
+      <%= render view: "community_templates/design/_card_layout", locals: {
+        id: "TemplateCard#{template.id}",
+        intro: render(view: "community_templates/design/_catalog_summary", locals: {
+          title: template.name,
+          metadatas: [
+            template.version,
+            template.author,
+            *template.normalized_links.map { |link| link_to(host_for(link), normalize_url(link), "data-external" => true) }
+          ],
+          content: markdown_to_html(template.description)
+        }),
         actions: [
           with_tooltip("- Jardin de poche <br /> - Espace Frais") do
             content_tag(:span, class: "template-card__action--tooltip") do
@@ -22,7 +25,9 @@
           end,
           link_to("try demo", "#try", class: "link"),
           content_tag(:span) do
-            link_to("install", "#Install") + content_tag(:div, "last update: asdlkjasd")
+            button_to(decidim_admin_community_templates.template_usages_path(template_id: template.id), method: :post, class: "template-card__action--install") do
+              "install"
+            end + content_tag(:div, "last update: asdlkjasd")
           end
         ]
      } %>

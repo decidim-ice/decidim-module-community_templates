@@ -1,0 +1,21 @@
+<%
+  id ||= ""
+  title ||= nil
+  metadatas ||= []
+  content ||= nil
+%>
+<div class="catalog_summary"<% unless id.blank? %> id="<%= id %>"<% end %>>
+  <h2 class="catalog_summary__title">
+    <%= title %>
+  </h2>
+  <div class="catalog_summary__metadatas">
+    <% metadatas.each do |metadata| %>
+      <span class="catalog_summary__metadatas-item">
+        <%= metadata %>
+      </span>
+    <% end %>
+  </div>
+  <div class="catalog_summary__content">
+    <%= content %>
+  </div>
+</div>

@@ -1,0 +1,3 @@
+var modal = document.getElementById("template-direct-link-modal");
+var $content = $(`<%= j(render partial: "decidim/community_templates/admin/import_from_link/form", locals: { form: @form }).to_s %>`);
+modal.innerHTML = $content.html();

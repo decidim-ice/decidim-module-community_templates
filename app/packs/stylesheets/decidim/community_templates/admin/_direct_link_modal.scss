@@ -1,0 +1,55 @@
+.template-direct-link {
+  &__form {
+    @apply flex flex-col gap-1 items-start justify-start;
+  }
+  &__content {
+    @apply w-full;
+  }
+  &__container {
+    @apply flex flex-row gap-1 items-start justify-start w-full;
+    .template-card {
+      @apply p-0 border-none;
+      box-shadow: none;
+    }
+  }
+  &__form-section {
+    flex: 3;
+  }
+  &__actions-section {
+    @apply flex flex-row gap-1 items-start justify-evenly;
+    padding-top: 1.70rem;
+    flex: 2;
+  }
+  &__close-button {
+    @apply text-md text-secondary cursor-pointer;
+    text-transform: lowercase;
+  }
+  &__link {
+    @apply text-md font-semibold text-secondary cursor-pointer;
+    text-transform: lowercase;
+  }
+  &__link--disabled {
+    color: var(--cm-gray-900);
+    @apply font-normal cursor-not-allowed;
+  }
+  &__form-group {
+    @apply flex flex-row gap-4 items-start justify-start;
+  }
+
+  &__label {
+    @apply text-lg font-semibold;
+  }
+
+  &__field {
+    @apply flex-1;
+    input {
+      @apply w-full mb-1;
+    }
+  }
+
+  &__button {
+    @apply p-1 border border-secondary text-secondary;
+    max-height: 41px;
+  }
+
+}

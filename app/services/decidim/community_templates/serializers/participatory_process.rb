@@ -4,28 +4,18 @@ module Decidim
   module CommunityTemplates
     module Serializers
       class ParticipatoryProcess < SerializerBase
-        def manifest
+        def attributes
           {
-            name: "Participatory Process"
+            title: i18n_field(:title),
+            description: i18n_field(:description),
+            components:
           }
         end
 
-        def data
-          {
-            title: model.title,
-            description: model.description
-          }
-        end
-
-        def demo
-          {
-            title: {
-              en: "Participatory Process Example"
-            },
-            description: {
-              en: "This is an example of a participatory process."
-            }
-          }
+        def components
+          model.components.map do |component|
+            append_serializer(Serializers::Component, component, "components.#{component.manifest_name}_#{component.id}")
+          end
         end
       end
     end

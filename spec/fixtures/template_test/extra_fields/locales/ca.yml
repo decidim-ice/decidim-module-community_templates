@@ -1,0 +1,8 @@
+ca:
+  60577f3e-b9e8-4825-80c3-8a84d55bfd88:
+    metadata:
+      name: Plantilla de procés participatiu
+      description: Una plantilla per a processos participatius
+    attributes:
+      title: Títol del procés participatiu
+      description: Descripció del procés participatiu

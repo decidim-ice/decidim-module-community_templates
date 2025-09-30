@@ -6,7 +6,7 @@ module Decidim
   module CommunityTemplates
     module Admin
       describe TemplateSourceForm do
-        let(:template) { create(:template) }
+        let(:template) { create(:template_metadata) }
         let(:participatory_process) { create(:participatory_process) }
         let(:form) { described_class.new(template: template, source_id: participatory_process.to_global_id.to_s) }
 

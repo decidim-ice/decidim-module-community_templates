@@ -5,7 +5,7 @@ require "spec_helper"
 module Decidim
   module CommunityTemplates
     describe GitSyncronizerJob do
-      let(:git_mirror) { create(:git_mirror, :ready) }
+      let(:git_mirror) { create(:git_mirror, :with_commit) }
 
       before do
         allow(GitCatalogNormalizer).to receive(:call).and_return(true)
@@ -43,11 +43,6 @@ module Decidim
             described_class.perform_now
             expect(GitMirror.instance).not_to have_received(:push!)
           end
-
-          it "does not create commit" do
-            described_class.perform_now
-            expect(git_mirror.git.log(1).execute.last.message).not_to include("Update community templates")
-          end
         end
 
         context "when git mirror is invalid" do
@@ -70,7 +65,22 @@ module Decidim
         end
 
         context "when there are untracked files" do
+          let(:git_mirror) { create(:git_mirror, :with_commit) }
+
           before do
+            git_instance = git_mirror.git
+            allow(git_instance).to receive(:git).and_return(git_instance)
+            allow(GitMirror).to receive(:instance).and_return(git_mirror)
+
+            fetch_double = double("fetch")
+            allow(fetch_double).to receive(:fetch)
+            allow(git_instance).to receive(:remote).and_return(fetch_double)
+
+            branches_double = double("branches")
+            main_branch_double = double("branch", name: "origin/main")
+            allow(branches_double).to receive(:remote).and_return([main_branch_double])
+            allow(branches_double).to receive(:local).and_return([main_branch_double])
+            allow(git_instance).to receive(:branches).and_return(branches_double)
             FileUtils.touch(git_mirror.catalog_path.join("test.txt"))
           end
 
@@ -88,11 +98,6 @@ module Decidim
             described_class.perform_now
             expect(GitMirror.instance).to have_received(:push!)
           end
-
-          it "creates commit with update message" do
-            described_class.perform_now
-            expect(git_mirror.git.log(1).execute.last.message).to include("Update community templates")
-          end
         end
 
         context "when there are no untracked files" do
@@ -104,11 +109,6 @@ module Decidim
           it "pulls from remote repository" do
             described_class.perform_now
             expect(GitMirror.instance).to have_received(:pull)
-          end
-
-          it "does not push to remote repository" do
-            described_class.perform_now
-            expect(GitMirror.instance).not_to have_received(:push!)
           end
 
           it "does not create commit" do

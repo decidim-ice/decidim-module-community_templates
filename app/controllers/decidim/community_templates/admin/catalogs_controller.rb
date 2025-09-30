@@ -12,7 +12,10 @@ module Decidim
           enforce_permission_to :read, :admin_dashboard
         end
 
-        def index; end
+        def index
+          # Enqueue a catalog sync job if last updated is more than 1 day ago
+          Decidim::CommunityTemplates::GitSyncronizerJob.perform_later if Decidim::CommunityTemplates.catalog_path.mtime < 1.day.ago
+        end
 
         # this currently does not render a view but in the future we might want to
         # let the admins choose which templates to import from the catalog

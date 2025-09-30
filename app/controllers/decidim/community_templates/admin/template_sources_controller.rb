@@ -15,13 +15,16 @@ module Decidim
           form.template.id = SecureRandom.uuid
           update_template_values!(form.template)
           Decidim::CommunityTemplates::Admin::CreateCommunityTemplateCommand.call(form, current_organization) do
-            on(:ok) do
-              redirect_back fallback_location: decidim_admin.root_path, notice: t(".success")
+            on(:ok) do |_template_source|
+              if request.xhr?
+                render_template_modal_form(method: :post)
+              else
+                redirect_back fallback_location: decidim_admin.root_path, notice: t(".success")
+              end
             end
             on(:invalid) do
               if request.xhr?
-                @template_source = nil
-                render partial: "modal", locals: { source_record: source_record }
+                render_template_modal_form(method: :post)
               else
                 redirect_back fallback_location: decidim_admin.root_path, error: t(".error")
               end
@@ -32,7 +35,7 @@ module Decidim
         def update
           enforce_permission_to :templatize, :space, space: source_record
 
-          @template_source = match = Decidim::CommunityTemplates::TemplateSource.find_by(template_id: params.require(:id))
+          match = Decidim::CommunityTemplates::TemplateSource.find_by(template_id: params.require(:id))
           raise ActionController::RoutingError, "Not Found" unless match
 
           @form = Decidim::CommunityTemplates::Admin::TemplateSourceForm.new(
@@ -42,13 +45,17 @@ module Decidim
           form.template.id = match.template_id
           update_template_values!(form.template)
 
-          Decidim::CommunityTemplates::Admin::UpdateCommunityTemplateCommand.call(form) do
+          Decidim::CommunityTemplates::Admin::UpdateCommunityTemplateCommand.call(form, current_organization) do
             on(:ok) do
-              redirect_back fallback_location: decidim_admin.root_path, notice: t(".success")
+              if request.xhr?
+                render_template_modal_form(method: :put)
+              else
+                redirect_back fallback_location: decidim_admin.root_path, notice: t(".success")
+              end
             end
             on(:invalid) do
               if request.xhr?
-                render partial: "modal"
+                render_template_modal_form(method: :put)
               else
                 redirect_back fallback_location: decidim_admin.root_path, error: t(".error")
               end
@@ -58,10 +65,15 @@ module Decidim
 
         private
 
+        def render_template_modal_form(**options)
+          render partial: "template_modal_form",
+                 locals: { template: form.template, source_record: source_record, form: form, **options }
+        end
+
         def update_template_values!(template)
           template.default_locale = I18n.default_locale.to_s
-          template.source_type = source_record.class.name
-          template.community_template_version = Decidim::CommunityTemplates::VERSION
+          template[:@class] = source_record.class.name
+          template.community_templates_version = Decidim::CommunityTemplates::VERSION
           template.decidim_version = Decidim.version
         end
 
@@ -75,11 +87,11 @@ module Decidim
 
         def template_params
           @template_params ||= params.require(:template_source).require(:template).permit(
-            :title,
+            :name,
             :author,
             :links,
             :version,
-            :short_description
+            :description
           )
         end
       end

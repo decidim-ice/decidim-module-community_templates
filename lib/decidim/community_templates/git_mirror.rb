@@ -21,14 +21,28 @@ module Decidim
         raise "Repository is not writable" unless writable?
 
         with_git_credentials do |git|
-          git.push("origin", repo_branch, force: true)
+          checkout_branch(git, repo_branch)
+          if git.status.untracked.size.positive? || git.status.changed.size.positive?
+            git.add(all: true)
+            git.commit_all("Update community templates")
+          end
+          next unless git.status.any?
+
+          git.push("origin", repo_branch.to_s, force: true)
         end
       end
 
       def pull
-        validate!
+        # If we are synced with a remote git repository, we need to push first.
+        return if !git.status.changed.empty? && writable?
 
-        git.pull("origin", repo_branch)
+        validate!
+        with_git_credentials do |git|
+          git.remote("origin").fetch
+          checkout_branch(git, repo_branch)
+          git.push("origin", repo_branch) if writable? && (!remote_branch_exists?(git) || !git.status.changed.empty?)
+          git.pull
+        end
       end
 
       ##
@@ -69,7 +83,7 @@ module Decidim
         errors.clear
         return errors.add(:base, "Repository catalog path does not exist. Check #{catalog_path}.") unless catalog_path.exist?
         return errors.add(:base, "Repository catalog path is not a git repository. Check #{catalog_path}.") unless catalog_path.join(".git").exist?
-        return errors.add(:base, "Repository is empty") if empty?
+        return errors.add(:base, "Repository is empty (no commits found)") if empty?
         return errors.add(:base, "Repository is not readable") unless git.index.readable?
       end
 
@@ -101,13 +115,32 @@ module Decidim
 
       private
 
+      def checkout_branch(git, repo_branch)
+        return if git.current_branch == repo_branch
+
+        git.checkout(repo_branch, new_branch: git.branches.local.none? { |branch| branch.name == "origin/#{repo_branch}" })
+      end
+
       def with_git_credentials
-        ENV["GIT_USERNAME"] = repo_username
-        ENV["GIT_PASSWORD"] = repo_password
+        # Parse URI and add username and password
+        uri = URI.parse(repo_url)
+        uri.user = repo_username
+        uri.password = repo_password
+        git.remove_remote("origin") if has_origin?(git)
+        git.add_remote("origin", uri.to_s)
         yield(git)
       ensure
-        ENV["GIT_USERNAME"] = nil
-        ENV["GIT_PASSWORD"] = nil
+        git.remove_remote("origin") if has_origin?(git)
+      end
+
+      def has_origin?(git)
+        git.remotes.any? { |remote| remote.name == "origin" }
+      end
+
+      def remote_branch_exists?(git)
+        git.branches.remote.any? { |branch| branch.name == "origin/#{repo_branch}" }
+      rescue StandardError
+        false
       end
     end
   end

@@ -9,9 +9,8 @@ module Decidim
         controller Decidim::ParticipatoryProcesses::Admin::ParticipatoryProcessesController
         def reload_catalog
           fixture_file_path = Decidim::CommunityTemplates::Engine.root.join("spec", "fixtures", "catalog_test", "valid")
-          catalog = Decidim::CommunityTemplates::Catalog.from_path(fixture_file_path)
-          catalog.templates.each { |t| t.owned = true }
-          catalog.write(Decidim::CommunityTemplates.catalog_path)
+          FileUtils.rm_rf(Decidim::CommunityTemplates.catalog_path)
+          FileUtils.cp_r(fixture_file_path, Decidim::CommunityTemplates.catalog_path)
           Decidim::CommunityTemplates::Catalog.from_path(Decidim::CommunityTemplates.catalog_path)
         end
 
@@ -21,8 +20,9 @@ module Decidim
 
         let(:catalog) { reload_catalog }
 
-        let(:my_cell) { cell("decidim/community_templates/admin/template_update_modal", template_source) }
+        let(:my_cell) { cell("decidim/community_templates/admin/template_update_modal", template, form: form) }
         let(:template) { catalog.templates.first }
+        let(:form) { Decidim::CommunityTemplates::Admin::TemplateSourceForm.new(source_id: participatory_process.to_global_id, template: template.attributes) }
         let(:template_source) { create(:community_template_source, template_id: template.id) }
         let(:participatory_process) { template_source.source }
 
@@ -32,8 +32,8 @@ module Decidim
           expect(subject).to have_css("form[data-remote='true']")
         end
 
-        it "use a template-update-<template_source.id> as modal id" do
-          expect(subject).to have_css("#template-update-#{template_source.id}")
+        it "use a modal-template-<space.id> as modal id" do
+          expect(subject).to have_css("#modal-template-#{participatory_process.id}")
         end
 
         it "have a modal" do
@@ -43,14 +43,14 @@ module Decidim
         end
 
         it "is closable" do
-          expect(subject).to have_css("[data-dialog-close='template-update-#{template_source.id}']")
+          expect(subject).to have_css("[data-dialog-close='modal-template-#{participatory_process.id}']")
         end
 
         it "have fields for the template form" do
-          expect(subject).to have_field("template_source[template][title]", with: template.title)
+          expect(subject).to have_field("template_source[template][name]", with: template.name)
           expect(subject).to have_field("template_source[template][author]", with: template.author)
           expect(subject).to have_field("template_source[template][links]")
-          expect(subject).to have_field("template_source[template][short_description]")
+          expect(subject).to have_field("template_source[template][description]")
         end
 
         it "have a disabled select field for the source_id" do
@@ -62,15 +62,15 @@ module Decidim
 
           let(:form) do
             Decidim::CommunityTemplates::Admin::TemplateSourceForm.new(
-              source_id: template_source.source_id,
+              source_id: template_source.source.to_global_id,
               template: another_template
             )
           end
 
-          let(:my_cell) { cell("decidim/community_templates/admin/template_update_modal", template_source, form: form) }
+          let(:my_cell) { cell("decidim/community_templates/admin/template_update_modal", template, form: form) }
 
           it "uses the form passed as option" do
-            expect(subject).to have_field("template_source[template][title]", with: another_template.title)
+            expect(subject).to have_field("template_source[template][name]", with: another_template.name)
             expect(subject).to have_field("template_source[template][author]", with: another_template.author)
           end
 
