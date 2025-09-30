@@ -31,8 +31,8 @@ module Decidim
             version:
           }
         end
-        let(:name) { { "ca" => "Nom", "es" => "Nombre", "en" => "Name" } }
-        let(:description) { { "ca" => "Descripció", "es" => "Descripción", "en" => "Description" } }
+        let(:name) { { "ca" => "Nom", "pt-BR" => "Nome", "en" => "Name" } }
+        let(:description) { { "ca" => "Descripció", "pt-BR" => "Descrição", "en" => "Description" } }
         let(:version) { "1.0.0" }
 
         it { is_expected.to be_valid }

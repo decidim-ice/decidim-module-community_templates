@@ -8,6 +8,7 @@ describe "Admin templates" do
   let!(:user) { create(:user, :admin, :confirmed, organization:) }
 
   before do
+    organization.update(available_locales: ["en", "ca", "pt-BR"])
     switch_to_host(organization.host)
     login_as user, scope: :user
 
@@ -57,7 +58,7 @@ describe "Admin templates" do
         click_on "Create the new participatory space"
 
         expect(page).to have_content("The participatory space has been created successfully.")
-        expect(Decidim::ParticipatoryProcess.last.title).to eq({ "en" => "Participatory process title", "ca" => "Títol del procés participatiu", "es" => "" })
+        expect(Decidim::ParticipatoryProcess.last.title).to eq({ "en" => "Participatory process title", "ca" => "Títol del procés participatiu", "pt-BR" => "Título do processo participativo" })
       end
     end
 
@@ -72,8 +73,8 @@ describe "Admin templates" do
       select translated_attribute(participatory_process.title), from: "Select the participatory space you want to use as a template"
       click_on "Create the new template"
 
-      fill_in_i18n(:template_name, "#template-name-tabs", { "ca" => "Nom del template", "es" => "Nombre de la plantilla", "en" => "Template name" })
-      fill_in_i18n(:template_description, "#template-description-tabs", { "ca" => "Descripció del template", "es" => "Descripción de la plantilla", "en" => "Template description" })
+      fill_in_i18n(:template_name, "#template-name-tabs", { "ca" => "Nom del template", "en" => "Template name" })
+      fill_in_i18n(:template_description, "#template-description-tabs", { "ca" => "Descripció del template", "en" => "Template description" })
       fill_in "Version", with: "1.0.0"
       click_on "Create the new template"
 

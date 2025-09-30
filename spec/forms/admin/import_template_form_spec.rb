@@ -20,7 +20,7 @@ module Decidim
 
         describe "#locales" do
           it "returns the default and available locales as strings, uniq" do
-            expect(form.locales).to match_array(%w(en es))
+            expect(form.locales).to match_array(%w(en pt-BR))
           end
         end
 
