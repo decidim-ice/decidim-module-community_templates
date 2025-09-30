@@ -6,7 +6,7 @@ module Decidim
   module CommunityTemplates
     module Admin
       describe ImportTemplateForm, type: :form do
-        let(:organization) { create(:organization, default_locale: :en, available_locales: [:en, :es]) }
+        let(:organization) { create(:organization, default_locale: :en, available_locales: [:en, :"pt-BR"]) }
         let(:context) { { current_organization: organization } }
         let(:id) { "folder_123" }
         let(:form) { described_class.new(id: id, demo: true).with_context(**context) }
