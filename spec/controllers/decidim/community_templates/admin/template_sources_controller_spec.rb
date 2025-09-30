@@ -23,10 +23,10 @@ module Decidim::CommunityTemplates
         let(:participatory_process) { create(:participatory_process, organization:) }
         let(:template_params) do
           {
-            title: Faker::Lorem.sentence,
+            name: Faker::Lorem.sentence,
             author: Faker::Name.name,
             links: [Faker::Internet.url(scheme: "https")],
-            short_description: Faker::Lorem.sentence,
+            description: Faker::Lorem.sentence,
             version: Faker::Lorem.sentence
           }
         end
@@ -44,7 +44,7 @@ module Decidim::CommunityTemplates
           post :create, params: { template_source: { source_id: participatory_process.to_global_id.to_s, template: template_params } }
           expect(response).to have_http_status(:redirect)
           catalog = reload_catalog
-          match = catalog.templates.find { |template| template.title == template_params[:title] }
+          match = catalog.templates.find { |template| template.name == template_params[:name] }
           expect(match).to be_present
           expect(Decidim::CommunityTemplates.catalog_path.join(match.id)).to be_exist
         end
@@ -55,7 +55,7 @@ module Decidim::CommunityTemplates
           end.to change(Decidim::CommunityTemplates::TemplateSource, :count).by(1)
           expect(response).to have_http_status(:redirect)
           catalog = reload_catalog
-          match = catalog.templates.find { |template| template.title == template_params[:title] }
+          match = catalog.templates.find { |template| template.name == template_params[:name] }
           expect(Decidim::CommunityTemplates::TemplateSource.last.template_id).to eq(match.id)
         end
 
@@ -63,17 +63,17 @@ module Decidim::CommunityTemplates
           post :create, params: { template_source: { source_id: participatory_process.to_global_id.to_s, template: template_params } }
           expect(response).to have_http_status(:redirect)
           catalog = reload_catalog
-          match = catalog.templates.find { |template| template.title == template_params[:title] }
+          match = catalog.templates.find { |template| template.name == template_params[:name] }
           expect(match.default_locale).to eq(organization.default_locale)
         end
 
         context "when the template is not valid" do
           let(:template_params) do
             {
-              title: Faker::Lorem.sentence,
+              name: Faker::Lorem.sentence,
               author: Faker::Name.name,
               links: [Faker::Internet.url(scheme: "https")],
-              short_description: Faker::Lorem.sentence,
+              description: Faker::Lorem.sentence,
               version: nil
             }
           end
@@ -98,10 +98,10 @@ module Decidim::CommunityTemplates
         let(:id) { template_source.template_id }
         let(:template_params) do
           {
-            title: Faker::Lorem.sentence,
+            name: Faker::Lorem.sentence,
             author: Faker::Name.name,
             links: [Faker::Internet.url(scheme: "https")],
-            short_description: Faker::Lorem.sentence,
+            description: Faker::Lorem.sentence,
             version: Faker::Lorem.sentence
           }
         end
@@ -113,16 +113,16 @@ module Decidim::CommunityTemplates
           } }
           expect(response).to have_http_status(:redirect)
           catalog = reload_catalog
-          expect(catalog.templates.find { |template| template.id == id }.title).to eq(template_params[:title])
+          expect(catalog.templates.find { |template| template.id == id }.name).to eq(template_params[:name])
         end
 
         context "when the template is not valid" do
           let(:template_params) do
             {
-              title: Faker::Lorem.sentence,
+              name: Faker::Lorem.sentence,
               author: Faker::Name.name,
               links: [Faker::Internet.url(scheme: "https")],
-              short_description: Faker::Lorem.sentence,
+              description: Faker::Lorem.sentence,
               version: nil
             }
           end

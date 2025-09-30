@@ -1,6 +1,11 @@
+<%
+  method ||= :post
+%>
+
+var node;
 var $form = $(`.form.js-template-modal-form[data-source="<%= source_record.to_global_id %>"]`)
-<% if form.valid? && template_source %>
-    var $content = $(`<%= j(render partial: "decidim/community_templates/admin/template_sources/modal_success", locals: { template_source: template_source, source_record: source_record, current_organization: current_organization }) %>`);
+<% if form.valid? && template %>
+    var $content = $(`<%= j(render partial: "decidim/community_templates/admin/template_sources/modal_success", locals: { template: template, source_record: source_record, current_organization: current_organization }) %>`);
     $form.html($content.html());
 
   // Override temporarly close function to reload the page, as
@@ -13,10 +18,14 @@ var $form = $(`.form.js-template-modal-form[data-source="<%= source_record.to_gl
     dialog.close = originalClose;
    };
 <% else %>
-  <% if !form.id.present? %>
+  <% if !form.template.id.present? %>
     var $content = $(`<%= j(cell("decidim/community_templates/admin/template_create_modal", source_record, form: @form).to_s) %>`);
+    node = document.getElementById("modal-template-<%= source_record.id %>");
   <% else %>
-    var $content = $(`<%= j(cell("decidim/community_templates/admin/template_update_modal", template_source, form: @form).to_s) %>`);
+    var $content = $(`<%= j(cell("decidim/community_templates/admin/template_update_modal", template, form: @form).to_s) %>`);
+    node = document.getElementById("modal-template-<%= form.source.id %>");
   <% end %>
   $form.html($content.find(".form").html());
+  document.dispatchEvent(new CustomEvent("remote-modal:loaded", { detail: node }));
 <% end %>
+

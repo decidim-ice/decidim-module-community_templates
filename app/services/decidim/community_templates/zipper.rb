@@ -34,8 +34,8 @@ module Decidim
 
             # Create a zip entry for the file conserving the directory structure
             # inside the base directory
-            # e.g. if dir is /path/to/catalog and file is /path/to/catalog/template1/manifest.json
-            # the entry in the zip will be template1/manifest.json
+            # e.g. if dir is /path/to/catalog and file is /path/to/catalog/template1/data.json
+            # the entry in the zip will be template1/data.json
             entry = Pathname.new(file).relative_path_from(Pathname.new(path).parent).to_s
             zip.add(entry, file)
           end

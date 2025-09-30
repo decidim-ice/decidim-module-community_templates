@@ -1,0 +1,9 @@
+          THIS IS A MALFORMED YAML FILE
+ca:
+  pp-template-001:
+    metadata:
+      name: Plantilla de procés participatiu
+      description: Una plantilla per a processos participatius
+    attributes:
+      title: Títol del procés participatiu
+      description: Descripció del procés participatiu

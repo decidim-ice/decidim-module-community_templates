@@ -1,0 +1,8 @@
+en:
+  60577f3e-b9e8-4825-80c3-8a84d55bfd88:
+    metadata:
+      name: Participatory process template
+      description: A template for participatory processes
+    attributes:
+      title: Participatory process title
+      description: Participatory process description

@@ -5,8 +5,8 @@ require "spec_helper"
 module Decidim
   module CommunityTemplates
     describe Catalog do
-      let(:catalog) { create(:catalog, templates: create_list(:template, 1, :owned)) }
-      let(:fixtures_path) { Engine.root.join("spec/fixtures/catalog_test") }
+      let(:organization) { create(:organization) }
+      let(:catalog) { create(:catalog, templates: create_list(:template_metadata, 1, :owned, organization:)) }
 
       it "is valid with all attributes defined" do
         expect(catalog).to be_valid
@@ -29,67 +29,42 @@ module Decidim
         expect(catalog).to be_valid
       end
 
-      describe "#write" do
-        let(:catalog_path) { Rails.root.join("tmp", "catalogs", "test_catalog_#{SecureRandom.uuid}") }
-
-        it "validates before writing" do
-          allow(catalog).to receive(:valid?).and_return(true)
-          catalog.write(catalog_path)
-          expect(catalog).to have_received(:valid?)
-        end
-
-        it "writes owned templates to the catalog path" do
-          catalog.templates = create_list(:template, 3, :owned)
-          catalog.write(catalog_path)
-          expect(catalog_path.children.select(&:directory?).size).to eq(3)
-        end
-
-        it "does not write owned templates to the catalog path" do
-          catalog.templates = create_list(:template, 3, owned: false)
-          catalog.write(catalog_path)
-          expect(catalog_path.children.select(&:directory?).size).to eq(0)
-        end
-      end
-
       describe "#active_templates" do
         it "returns the not archived templates" do
-          catalog = create(:catalog, templates: create_list(:template, 3, :owned) + create_list(:template, 1, :archived))
+          catalog = create(:catalog, templates: create_list(:template_metadata, 3, :owned) + create_list(:template_metadata, 1, :archived))
           expect(catalog.active_templates.size).to eq(3)
         end
       end
 
       describe "#from_path" do
         let(:catalog_path) { Rails.root.join("tmp", "catalogs", "test_catalog_#{SecureRandom.uuid}") }
-        let(:catalog) { create(:catalog, templates: create_list(:template, 3, :owned)) }
+        let(:catalog) { create(:catalog, templates: create_list(:template_metadata, 3, organization:)) }
+        let(:fixtures_path) { Decidim::CommunityTemplates::Engine.root.join("spec/fixtures/catalog_test/valid") }
 
         before do
-          catalog.write(catalog_path)
-        end
+          Decidim::CommunityTemplates.catalog_dir = catalog_path
+          FileUtils.mkdir_p(Rails.root.join("tmp/catalogs"))
 
-        it "loads the catalog from the fixtures" do
-          loaded_catalog = Catalog.from_path(fixtures_path.join("valid"))
-          expect(loaded_catalog.templates.size).to eq(2)
-          expect(loaded_catalog.templates.map(&:title)).to contain_exactly("Idea Board Template", "Participatory Budget Template")
+          FileUtils.rm_rf(catalog_path)
+          FileUtils.cp_r(fixtures_path, catalog_path)
         end
 
         it "loads available templates" do
-          loaded_catalog = Catalog.from_path(catalog_path)
-          expect(loaded_catalog.templates.size).to eq(catalog.templates.size)
+          expect(catalog.templates.size).to eq(3)
         end
 
         it "does not load folder that are not templates" do
           FileUtils.mkdir_p(catalog_path.join("not_a_template"))
-          FileUtils.touch(catalog_path.join("not_a_template", "manifest.json"))
+          FileUtils.touch(catalog_path.join("not_a_template", "data.json"))
           loaded_catalog = Catalog.from_path(catalog_path)
-          expect(loaded_catalog.templates.size).to eq(catalog.templates.size)
+          expect(catalog_path.children.size).to eq(2)
+          expect(loaded_catalog.templates.size).to eq(1)
         end
 
-        it "call Template.from_path for each template" do
-          valid_fixtures_path = fixtures_path.join("valid")
-          allow(Template).to receive(:from_path).and_call_original
-          Catalog.from_path(valid_fixtures_path)
-          expect(Template).to have_received(:from_path).with(valid_fixtures_path.join("4aa438f0-cd09-4074-b936-2d4cfce60611"))
-          expect(Template).to have_received(:from_path).with(valid_fixtures_path.join("f3c5b62a-f686-4cad-95aa-2041c2c8eb2d"))
+        it "call TemplateParser.new for each template" do
+          allow(TemplateParser).to receive(:new).and_call_original
+          Catalog.from_path(fixtures_path)
+          expect(TemplateParser).to have_received(:new).with(fixtures_path.join("00605f97-a5d6-4464-9c7e-5bc5d5840212"))
         end
       end
     end

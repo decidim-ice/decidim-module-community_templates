@@ -36,6 +36,10 @@ module Decidim
           raise NotImplementedError
         end
 
+        def form_method
+          "POST"
+        end
+
         def modal_form_for(&)
           raise NotImplementedError
         end
@@ -58,6 +62,12 @@ module Decidim
 
         def template
           raise NotImplementedError
+        end
+
+        def links_csv
+          return "" if template.links.blank?
+
+          template.links.join(", ")
         end
 
         def form

@@ -16,15 +16,21 @@ module Decidim
 
           created_template_source = ActiveRecord::Base.transaction do
             # Create a TemplateSource
-            created = TemplateSource.create!(
+            TemplateSource.create!(
               source: form.source,
               template_id: form.template.id,
               organization: organization
             )
             form.template.owned = true
-            # Write the template to the catalog
-            form.template.write(Decidim::CommunityTemplates.catalog_path)
-            created
+            # Retrieve serializer for the source
+            serializer = Decidim::CommunityTemplates::Serializers::ParticipatoryProcess.init(
+              model: form.source,
+              locales: [organization.default_locale],
+              with_manifest: true,
+              metadata: form.template.metadatas
+            )
+            serializer.metadata_translations!
+            serializer.save!(Decidim::CommunityTemplates.catalog_path)
           end
           GitSyncronizerJob.perform_later
           broadcast(:ok, created_template_source)

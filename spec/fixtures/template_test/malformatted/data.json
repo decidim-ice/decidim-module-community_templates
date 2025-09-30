@@ -1,0 +1,15 @@
+THIS IS A MALFORMED JSON FILE
+{
+  "id": "pp-template-001",
+  "class": "Decidim::ParticipatoryProcess",
+  "original_id": 1,
+  "name": "pp-template-001.metadata.name",
+  "description": "pp-template-001.metadata.description",
+  "version": "1.0.0",
+  "decidim_version": "0.30.1",
+  "community_templates_version": "0.0.1",
+  "attributes": {
+    "title": "pp-template-001.attributes.title",
+    "description": "pp-template-001.attributes.description"
+  }
+}

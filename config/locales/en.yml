@@ -9,7 +9,7 @@ en:
               invalid: Templates are invalid
             updated_at:
               must_be_after_created_at: Updated at must be after created at
-        decidim/community_templates/template:
+        decidim/community_templates/template_metadata:
           attributes:
             links:
               bad_format: must be valid links starting with https://
@@ -103,17 +103,20 @@ en:
           author_placeholder: John Doe
           copied_to_clipboard: Copied to clipboard!
           copy_button: Copy
+          description: Short description
+          description_help_text: Visible to members of the community
+          description_placeholder: 'This template is intended to be used in this context
+            and has the following options: ...'
           links: Links
           links_help_text: Visible to members of the community. Comma separated.
           links_placeholder: https://github.com/cyberschnaps, https://www.cyberschnaps.com/,
             ...
+          name: Template title
+          name_help_text: Visible to members of the community
+          name_placeholder: i.e. Participatory Budget, Association, ...
           public_url: Sharing link
           public_url_help_text: Share this with others to install via processes >
             manage > install from link
-          short_description: Short description
-          short_description_help_text: Visible to members of the community
-          short_description_placeholder: 'This template is intended to be used in
-            this context and has the following options: ...'
           source_id: Source
           success:
             close: Close
@@ -124,9 +127,6 @@ en:
               > manage > install from link
             title: "%{title} shared!"
             view_catalog: View it here
-          title: Template title
-          title_help_text: Visible to members of the community
-          title_placeholder: i.e. Participatory Budget, Association, ...
           version: Version
           version_help_text: Visible to members of the community. Whatever you want.
           version_placeholder: v15.4 First Deluxe edition
@@ -155,6 +155,19 @@ en:
             select_participatory_space: Select the participatory space you want to
               use as a template
             title: Community Templates
+          new:
+            metadata:
+              description: Description
+              description_placeholder: A brief description of the template
+              name: Name
+              title: Template Metadata
+              version: Version
+              version_placeholder: e.g. 1.0.0
+            participatory_space_not_found: The selected participatory space could
+              not be found.
+            serializer_not_found: There is no serializer for the selected participatory
+              space.
+            title: Create a new template
           no_external_templates: There are no templates. Please download some from
             a catalog.
           no_local_templates: There are no local templates. All newly created templates

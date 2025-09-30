@@ -6,7 +6,7 @@ module Decidim
       class TemplateSourceForm < Decidim::Form
         attribute :source_id, String
 
-        attribute :template, Decidim::CommunityTemplates::Template
+        attribute :template, Decidim::CommunityTemplates::TemplateMetadata
 
         validates :source_id, presence: true
         validates :template, presence: true

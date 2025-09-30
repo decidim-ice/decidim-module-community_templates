@@ -1,6 +1,11 @@
 <%= decidim_modal id: modal_id, class: "template-modal template-modal--#{modal_modifier}", open: open? do %>
   <div data-dialog-container>
   <%= modal_form_for do |f| %>
+    <%= f.hidden_field :method, value: form_method %>
+    <% if template.id.present? %>
+      <%= f.hidden_field :id, value: template.id %>
+    <% end %>
+
     <h3 id="<%= modal_id %>_title" data-dialog-title class="template-modal__title">
       <%= modal_title %>
     </h3>
@@ -33,9 +38,9 @@
       <% end %>
       <% f.fields_for :template, f.object.template do |field| %>
         <div class="row column">
-          <%= field.text_field :title, required: true, label: t("title", scope: i18n_form_scope), placeholder: t("title_placeholder", scope: i18n_form_scope) %>
+          <%= field.text_field :name, required: true, label: t("name", scope: i18n_form_scope), placeholder: t("name_placeholder", scope: i18n_form_scope) %>
           <div class="help-text">
-            <%= t("title_help_text", scope: i18n_form_scope) %>
+            <%= t("name_help_text", scope: i18n_form_scope) %>
           </div>
         </div>
         <div class="row column">
@@ -45,7 +50,7 @@
           </div>
         </div>
         <div class="row column">
-          <%= field.text_field :links, label: t("links", scope: i18n_form_scope), placeholder: t("links_placeholder", scope: i18n_form_scope) %>
+          <%= field.text_field :links, label: t("links", scope: i18n_form_scope), placeholder: t("links_placeholder", scope: i18n_form_scope), value: links_csv %>
           <div class="help-text">
             <%= t("links_help_text", scope: i18n_form_scope) %>
           </div>
@@ -57,9 +62,9 @@
           </div>
         </div>
         <div class="row column">
-          <%= field.text_area :short_description, rows: 5, required: true, label: t("short_description", scope: i18n_form_scope), placeholder: t("short_description_placeholder", scope: i18n_form_scope), maxlength: 450 %>
+          <%= field.text_area :description, rows: 5, required: true, label: t("description", scope: i18n_form_scope), placeholder: t("description_placeholder", scope: i18n_form_scope), maxlength: 450 %>
           <div class="help-text">
-            <%= t("short_description_help_text", scope: i18n_form_scope) %>
+            <%= t("description_help_text", scope: i18n_form_scope) %>
           </div>
         </div>
       <% end %>

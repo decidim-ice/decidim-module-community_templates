@@ -1,0 +1,38 @@
+---
+en:
+  00605f97-a5d6-4464-9c7e-5bc5d5840212:
+    attributes:
+      title: Dolorum et nemo id ut.
+      description: "<p>Aut labore veritatis. Quam sit sint. Sed error possimus.</p>"
+      components:
+        accountability_1:
+          attributes:
+            name: Accountability
+        blogs_2:
+          attributes:
+            name: Blog
+        budgets_3:
+          attributes:
+            name: Budgets
+        debates_4:
+          attributes:
+            name: Debates
+        meetings_5:
+          attributes:
+            name: Meetings
+        pages_6:
+          attributes:
+            name: Page
+        proposals_7:
+          attributes:
+            name: Proposals
+        sortitions_8:
+          attributes:
+            name: Sortitions
+        surveys_9:
+          attributes:
+            name: Surveys
+    metadata:
+      name: Idea Board Template
+      description: 'Template to ask participants for ideas. Made by [Octree](https://octree.ch)'
+    

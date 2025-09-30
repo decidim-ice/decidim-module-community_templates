@@ -5,7 +5,7 @@ module Decidim
     module Admin
       class TemplateCreateModalCell < TemplateModalCell
         def template
-          Decidim::CommunityTemplates::Template.new
+          Decidim::CommunityTemplates::TemplateMetadata.new
         end
 
         def space
@@ -32,7 +32,7 @@ module Decidim
           form_for form,
                    url: decidim_admin_community_templates.template_sources_path,
                    html: {
-                     :class => "form form-defaults js-template-modal-form",
+                     :class => "form form-defaults js-template-modal-form template-modal-form--create",
                      "data-source" => space.to_global_id,
                      "data-remote" => true
                    },

@@ -12,7 +12,8 @@ module Decidim
         validate :validate_coherence
         validate :validate_manifest_file
         validate :validate_template
-        delegate :id, :title, :short_description, :version, :author, :links, to: :template
+        delegate :id, :name, :description, :version, :author, :links, to: :template
+
         alias template_id id
         def self.from_params(params)
           strong_params = params.permit(direct_link: [:link])
@@ -20,11 +21,11 @@ module Decidim
         end
 
         def template
-          @template ||= Decidim::CommunityTemplates::Template.new(manifest_file || {})
+          @template ||= Decidim::CommunityTemplates::TemplateMetadata.new(manifest_file || {})
         end
 
-        def short_description_html
-          @short_description_html ||= markdown_to_html(short_description)
+        def description_html
+          @description_html ||= markdown_to_html(description)
         end
 
         def has_manifest?
@@ -85,7 +86,7 @@ module Decidim
           return if link.blank? || link_error?
 
           folder = folder_name
-          return if folder.match?(Decidim::CommunityTemplates::Template::UUID_REGEX)
+          return if folder.match?(Decidim::CommunityTemplates::TemplateMetadata::UUID_REGEX)
 
           errors.add(:link, I18n.t("errors.invalid_link", scope: i18n_scope))
         end

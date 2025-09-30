@@ -1,0 +1,104 @@
+# frozen_string_literal: true
+
+require "spec_helper"
+
+module Decidim
+  module CommunityTemplates
+    module Serializers
+      describe ParticipatoryProcess do
+        let(:model) { create(:participatory_process, :with_steps) }
+        let!(:component) { create(:proposal_component, participatory_space: model) }
+        let(:serializer) do
+          s = described_class.init(model:, metadata:, locales:, with_manifest:)
+          s.metadata_translations!
+          s
+        end
+        let(:metadata) { { name:, description:, version: "1.2.3" } }
+        let(:with_manifest) { true }
+        let(:name) do
+          {
+            "en" => "Participatory process example",
+            "ca" => "Exemple de procés participatiu"
+          }
+        end
+        let(:description) do
+          {
+            "en" => "This is an example participatory process",
+            "ca" => "Aquest és un exemple de procés participatiu"
+          }
+        end
+        let(:locales) { %w(en ca) }
+        let(:data) { serializer.data }
+        let(:demo) { serializer.demo }
+        let(:attributes) { data[:attributes] }
+        let(:assets) { serializer.assets }
+
+        it "has the correct metadata" do
+          expect(data[:id]).to eq(serializer.id)
+          expect(data[:@class]).to eq("Decidim::ParticipatoryProcess")
+          expect(data[:name]).to eq("#{serializer.id}.metadata.name")
+          expect(data[:description]).to eq("#{serializer.id}.metadata.description")
+          expect(data[:decidim_version]).to eq(Decidim.version)
+          expect(data[:community_templates_version]).to eq(Decidim::CommunityTemplates::VERSION)
+          expect(data[:version]).to eq("1.2.3")
+        end
+
+        it "has the correct attributes" do
+          expect(attributes[:title]).to eq("#{serializer.id}.attributes.title")
+          expect(attributes[:description]).to eq("#{serializer.id}.attributes.description")
+        end
+
+        it "generates translations" do
+          metadata_ca = serializer.translations["ca"][serializer.id]["metadata"]
+          metadata_en = serializer.translations["en"][serializer.id]["metadata"]
+          expect(metadata_ca["name"]).to eq(name["ca"])
+          expect(metadata_en["name"]).to eq(name["en"])
+          expect(metadata_ca["description"]).to eq(description["ca"])
+          expect(metadata_en["description"]).to eq(description["en"])
+
+          attributes_ca = serializer.translations["ca"][serializer.id]["attributes"]
+          attributes_en = serializer.translations["en"][serializer.id]["attributes"]
+          expect(attributes_ca["title"]).to eq(model.title["ca"])
+          expect(attributes_en["title"]).to eq(model.title["en"])
+          expect(attributes_ca["description"]).to eq(model.description["ca"])
+          expect(attributes_en["description"]).to eq(model.description["en"])
+          expect(attributes_ca["components"]["proposals_#{component.id}"]["attributes"]["name"]).to eq(component.name["ca"])
+          expect(attributes_en["components"]["proposals_#{component.id}"]["attributes"]["name"]).to eq(component.name["en"])
+        end
+
+        it "includes components" do
+          expect(attributes[:components]).to be_an(Array)
+          expect(attributes[:components].size).to eq(1)
+          component_data = attributes[:components].first
+          expect(component_data[:id]).to eq("#{serializer.id}.attributes.components.proposals_#{component.id}")
+          expect(component_data[:@class]).to eq("Decidim::Component")
+          expect(component_data[:attributes][:name]).to eq("#{serializer.id}.attributes.components.proposals_#{component.id}.attributes.name")
+        end
+
+        it "saves the serialized data to disk" do
+          Dir.mktmpdir do |dir|
+            expect { serializer.save!(dir) }.not_to raise_error
+
+            base_path = File.join(dir, serializer.id)
+            expect(File).to exist(File.join(base_path, "data.json"))
+            expect(File).to exist(File.join(base_path, "demo.json"))
+
+            data_content = JSON.parse(File.read(File.join(base_path, "data.json")), symbolize_names: true)
+            expect(data_content).to eq(data)
+
+            demo_content = JSON.parse(File.read(File.join(base_path, "demo.json")), symbolize_names: true)
+            expect(demo_content).to eq(demo)
+
+            serializer.translations.each_key do |lang|
+              lang_file = File.join(base_path, "locales", "#{lang}.yml")
+              expect(File).to exist(lang_file)
+              lang_content = YAML.load_file(lang_file)[lang]
+
+              expect(lang_content[serializer.id]).to eq(serializer.translations[lang][serializer.id])
+            end
+          end
+        end
+      end
+    end
+  end
+end

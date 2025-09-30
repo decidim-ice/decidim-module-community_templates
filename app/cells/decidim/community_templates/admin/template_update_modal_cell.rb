@@ -9,12 +9,7 @@ module Decidim
         end
 
         def template
-          @template ||= begin
-            match = catalog.templates.find { |t| t.id == model.template_id }
-            raise ActiveRecord::RecordNotFound, "Template ##{model.template_id} not found" if match.nil?
-
-            match
-          end
+          model
         end
 
         def public_url
@@ -22,7 +17,7 @@ module Decidim
         end
 
         def modal_title
-          template.title
+          template.name
         end
 
         def space
@@ -43,13 +38,17 @@ module Decidim
           form_for modal_form,
                    url: decidim_admin_community_templates.template_source_path(template.id),
                    html: {
-                     :class => "form form-defaults js-template-modal-form",
+                     :class => "form form-defaults js-template-modal-form template-modal-form--update",
                      "data-source" => space.to_global_id,
                      "data-remote" => true
                    },
-                   method: :put do |f|
+                   method: form_method do |f|
             block.call(f)
           end
+        end
+
+        def form_method
+          "PUT"
         end
 
         def modal_modifier

@@ -2,13 +2,13 @@
 <% in_catalog = Decidim::CommunityTemplates::GitMirror.instance.writable? %>
 <div class="template_success_modal">
   <h3 class="template_success_modal__title" id="dialog-title-template-create-<%= source_record.id %>" data-dialog-title>
-    <%= t("title", title: template_source.title, scope: i18n_scope) %>
+    <%= t("title", title: template.name, scope: i18n_scope) %>
   </h3>
   <% if in_catalog %>
     <div class="template_success_modal__section form__wrapper">
       <div class="row column">
         <label><%= t("in_catalog", scope: i18n_scope) %></label>
-        <%= link_to t("view_catalog", scope: i18n_scope), decidim_admin_community_templates.community_templates_path(anchor: "TemplateCard#{template_source.id}"), class: "template_success_modal__catalog_link" %>
+        <%= link_to t("view_catalog", scope: i18n_scope), decidim_admin_community_templates.community_templates_path(anchor: "TemplateCard#{template.id}"), class: "template_success_modal__catalog_link" %>
       </div>
     </div>
   <% end %>
@@ -17,8 +17,8 @@
         <label for="template-js-public-url">
           <%= t("public_url", scope: i18n_scope) %>
           <div class="template-modal__public_link_container">
-            <%= link_to template_source.public_url(current_organization.host), target: "_blank", class:"template-modal__public_link" do %>
-              <span id="template-js-public-url" class="template-modal__public_link_text"><%= template_source.public_url(current_organization.host) %></span>
+            <%= link_to template.public_url(current_organization.host), target: "_blank", class:"template-modal__public_link" do %>
+              <span id="template-js-public-url" class="template-modal__public_link_text"><%= template.public_url(current_organization.host) %></span>
             <% end %>
             <%= link_to "#", class: "template-modal__public_link_icon", "data-clipboard-target" => "template-js-public-url" do %>
               <%= icon "file-copy-line" %>

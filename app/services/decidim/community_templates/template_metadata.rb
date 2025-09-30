@@ -5,20 +5,20 @@ module Decidim
     ##
     # Hold data about a template.
     # Offer read/write method to handle files in a specific template folder.
-    class Template
+    class TemplateMetadata
       include ActiveModel::Model
       include Decidim::AttributeObject::Model
       UUID_REGEX = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i
 
       attribute :default_locale, String, default: I18n.default_locale.to_s
       attribute :id, String
-      attribute :title, String
-      attribute :short_description, String
+      attribute :name, String
+      attribute :description, String
       attribute :version, String
       attribute :author, String
       attribute :links, Array[String]
-      attribute :source_type, String
-      attribute :community_template_version, String
+      attribute :@class, String
+      attribute :community_templates_version, String
       attribute :decidim_version, String
       attribute :archived_at, DateTime
       attribute :owned, Boolean, default: false
@@ -26,16 +26,18 @@ module Decidim
       attribute :created_at, DateTime, default: -> { Time.current }
 
       validates :id, presence: true, format: { with: UUID_REGEX }
-      validates :title, presence: true
-      validates :short_description, presence: true
+      validates :name, presence: true
+      validates :description, presence: true
       validates :version, presence: true
       validates :author, presence: true
-      validates :source_type, presence: true, inclusion: { in: Decidim::CommunityTemplates.serializers.map { |serializer| serializer[:model] } }
-      validates :community_template_version, presence: true
+      validates :@class, presence: true, inclusion: { in: Decidim::CommunityTemplates.serializers.map { |serializer| serializer[:model] } }
+      validates :community_templates_version, presence: true
       validates :decidim_version, presence: true
       validates :created_at, presence: true
       validates :updated_at, comparison: { greater_than_or_equal_to: :created_at }, allow_nil: true, if: -> { created_at.present? }
-      validate :link_well_formed
+      validate :validate_link_well_formed
+      alias template_id id
+      alias template_id= id=
 
       def archived?
         archived_at.present?
@@ -46,59 +48,43 @@ module Decidim
         links_array.map { |l| l.strip.chomp("/") }
       end
 
-      def data
-        raise NotImplementedError, "TODO: implement a TemplateData service"
-      end
-
-      def demo
-        raise NotImplementedError, "TODO: implement a TemplateDemo service"
-      end
-
       def compatible?
-        Decidim.version >= decidim_version && community_template_version <= Decidim::CommunityTemplates::VERSION
+        Decidim.version >= decidim_version && community_templates_version <= Decidim::CommunityTemplates::VERSION
       end
 
       def public_url(host)
         "https://#{host}/catalog/#{id}"
       end
 
-      def self.from_path(template_path)
-        manifest_path = template_path.join("manifest.json")
-        raise "Manifest file not found at #{manifest_path}" unless manifest_path.exist?
-
-        manifest = JSON.parse(File.read(manifest_path))
-        model = new(
-          **manifest,
-          owned: Decidim::CommunityTemplates::TemplateSource.exists?(template_id: manifest["id"].to_s)
-        )
-        model.validate!
-        model
+      def self.find(template_id)
+        from_path(Decidim::CommunityTemplates.catalog_path.join(template_id))
       end
 
-      def write(catalog_path)
+      def self.from_path(template_path)
+        parsed_template = TemplateParser.new(template_path)
+        template = parsed_template.template
+        template.validate!
+        template
+      end
+
+      def metadatas
         raise ActiveModel::ValidationError, self unless valid?
         return unless owned?
 
-        template_path = catalog_path.join(id)
-        self.created_at ||= Time.current
-        self.updated_at = Time.current
-
-        FileUtils.mkdir_p(template_path)
-        File.write(template_path.join("manifest.json"), JSON.pretty_generate(as_json))
-        Rails.logger.info("Template wrote #{id} to #{catalog_path}")
+        as_json.merge(
+          created_at: created_at || Time.current,
+          updated_at: updated_at || Time.current
+        )
       end
 
       def delete(catalog_path)
         return unless owned?
 
-        in_use = Decidim::CommunityTemplates::TemplateSource.exists?(template_id: id)
-        return if in_use
-
         template_path = catalog_path.join(id)
         FileUtils.rm_rf(template_path)
       end
 
-      def link_well_formed
+      def validate_link_well_formed
         return if normalized_links.blank?
 
         normalized_links.each do |link|

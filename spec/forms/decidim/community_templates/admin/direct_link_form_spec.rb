@@ -9,14 +9,14 @@ module Decidim
         let(:organization) { create(:organization) }
         let(:user) { create(:user, organization: organization) }
         let(:form) { described_class.new }
-        let(:valid_uuid) { "4aa438f0-cd09-4074-b936-2d4cfce60611" }
+        let(:valid_uuid) { "00605f97-a5d6-4464-9c7e-5bc5d5840212" }
         let(:fixture_path) { Decidim::CommunityTemplates::Engine.root.join("spec", "fixtures", "catalog_test", "valid", valid_uuid) }
-        let(:valid_manifest) do
-          File.read(fixture_path.join("manifest.json"))
+        let(:valid_data) do
+          File.read(fixture_path.join("data.json"))
         end
 
         before do
-          allow(Net::HTTP).to receive(:get_response).and_return(double(code: "200", body: valid_manifest))
+          allow(Net::HTTP).to receive(:get_response).and_return(double(code: "200", body: valid_data))
         end
 
         it "is invalid if the link is not a https:// link" do
@@ -55,17 +55,17 @@ module Decidim
           allow(Net::HTTP).to receive(:get_response).and_return(double(code: "200", body: {
             id: valid_uuid,
             title: "Invalid Template",
-            short_description: "Invalid Template",
+            description: "Invalid Template",
             version: "1.0.0",
             author: "Invalid Template",
             links: ["invalid"],
-            source_type: "invalid",
-            community_template_version: "1.0.0",
+            "@class": "invalid",
+            community_templates_version: "1.0.0",
             decidim_version: "1.0.0"
           }.to_json))
           form.link = "https://example.com/#{valid_uuid}"
           expect(form).to be_invalid
-          expect(form.errors.full_messages).to include(/Source type is not included in the list/)
+          expect(form.errors.full_messages).to include(/@class is not included in the list/)
         end
 
         it "is valid if the link ends with a valid uuid" do

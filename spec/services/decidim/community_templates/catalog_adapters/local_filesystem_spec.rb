@@ -5,7 +5,7 @@ require "spec_helper"
 module Decidim
   module CommunityTemplates
     module CatalogAdapters
-      describe LocalFilesystem, type: :model do
+      describe LocalFilesystem do
         let(:tmp_dir) { Dir.mktmpdir }
         let(:adapter) { described_class.new(path: tmp_dir) }
 

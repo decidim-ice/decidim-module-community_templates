@@ -12,6 +12,7 @@ module Decidim
         resources :community_templates, only: [:index], controller: "community_templates", as: :community_templates
         resources :template_sources, only: [:create, :update], controller: "template_sources"
         resources :import_from_link, only: [:new, :create], controller: "import_from_link", as: :import_from_link
+        resources :template_usages, only: [:create], controller: "template_usages"
         resources :templates do
           collection do
             get "download/:id", to: "templates#download", as: :download

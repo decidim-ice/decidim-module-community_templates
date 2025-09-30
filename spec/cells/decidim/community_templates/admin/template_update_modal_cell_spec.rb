@@ -9,9 +9,8 @@ module Decidim
         controller Decidim::ParticipatoryProcesses::Admin::ParticipatoryProcessesController
         def reload_catalog
           fixture_file_path = Decidim::CommunityTemplates::Engine.root.join("spec", "fixtures", "catalog_test", "valid")
-          catalog = Decidim::CommunityTemplates::Catalog.from_path(fixture_file_path)
-          catalog.templates.each { |t| t.owned = true }
-          catalog.write(Decidim::CommunityTemplates.catalog_path)
+          FileUtils.rm_rf(Decidim::CommunityTemplates.catalog_path)
+          FileUtils.cp_r(fixture_file_path, Decidim::CommunityTemplates.catalog_path)
           Decidim::CommunityTemplates::Catalog.from_path(Decidim::CommunityTemplates.catalog_path)
         end
 
@@ -21,7 +20,7 @@ module Decidim
 
         let(:catalog) { reload_catalog }
 
-        let(:my_cell) { cell("decidim/community_templates/admin/template_update_modal", template_source, form: form) }
+        let(:my_cell) { cell("decidim/community_templates/admin/template_update_modal", template, form: form) }
         let(:template) { catalog.templates.first }
         let(:form) { Decidim::CommunityTemplates::Admin::TemplateSourceForm.new(source_id: participatory_process.to_global_id, template: template.attributes) }
         let(:template_source) { create(:community_template_source, template_id: template.id) }
@@ -48,10 +47,10 @@ module Decidim
         end
 
         it "have fields for the template form" do
-          expect(subject).to have_field("template_source[template][title]", with: template.title)
+          expect(subject).to have_field("template_source[template][name]", with: template.name)
           expect(subject).to have_field("template_source[template][author]", with: template.author)
           expect(subject).to have_field("template_source[template][links]")
-          expect(subject).to have_field("template_source[template][short_description]")
+          expect(subject).to have_field("template_source[template][description]")
         end
 
         it "have a disabled select field for the source_id" do
@@ -68,10 +67,10 @@ module Decidim
             )
           end
 
-          let(:my_cell) { cell("decidim/community_templates/admin/template_update_modal", template_source, form: form) }
+          let(:my_cell) { cell("decidim/community_templates/admin/template_update_modal", template, form: form) }
 
           it "uses the form passed as option" do
-            expect(subject).to have_field("template_source[template][title]", with: another_template.title)
+            expect(subject).to have_field("template_source[template][name]", with: another_template.name)
             expect(subject).to have_field("template_source[template][author]", with: another_template.author)
           end
 

@@ -4,19 +4,47 @@ module Decidim
   module CommunityTemplates
     module Admin
       class TemplateForm < Decidim::Form
-        attribute :participatory_space_id, String
+        include TranslatableAttributes
 
-        validates :participatory_space_id, presence: true
+        attribute :id, String
+        translatable_attribute :name, String
+        translatable_attribute :description, String
+        attribute :version, String
+
+        validates :id, presence: true
+        validates :name, translatable_presence: true, if: ->(form) { form.id.present? && form.participatory_space }
+        validates :description, translatable_presence: true, if: ->(form) { form.id.present? && form.participatory_space }
+        validates :version, presence: true, if: ->(form) { form.id.present? && form.participatory_space }
+
         validate :valid_participatory_space
         validate :serializer_present
         validate :same_organization
 
         def participatory_space
-          @space ||= GlobalID::Locator.locate(participatory_space_id)
+          @space ||= begin
+            GlobalID::Locator.locate(id)
+          rescue StandardError
+            nil
+          end
         end
 
         def serializer
           @serializer ||= Decidim::CommunityTemplates.serializer_registry.find(participatory_space.class.name)&.serializer_class
+        end
+
+        # If name is not explicitly set, use the participatory space title
+        def name
+          return super if super.present?
+
+          participatory_space.title if participatory_space
+        end
+
+        def metadata
+          {
+            name: name,
+            description: description,
+            version: version
+          }
         end
 
         private

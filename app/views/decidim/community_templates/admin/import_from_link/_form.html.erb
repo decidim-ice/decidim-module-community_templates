@@ -24,22 +24,22 @@ end
 
           <%= render partial: "decidim/view_model/community_templates/design/catalog_summary", locals: {
             id: "Catalog#{form.template_id}",
-            title: form.title,
+            title: form.name,
             metadatas: [
               form.version,
               form.author,
               *form.links.map { |link| link_to(host_for(link), normalize_url(link), "data-external" => true) }
             ],
-            content: form.short_description_html
+            content: form.description_html
           } %>
         </div>
         <div class="template-direct-link__actions-section">
           <a href="#" class="template-direct-link__link">
             <%= t("try_demo_button", scope: i18n_scope) %>
           </a>
-          <a href="#" class="template-direct-link__link">
+          <%= button_to decidim_admin_community_templates.template_usages_path, method: :post, class: "template-direct-link__link" do %>
             <%= t("install_button", scope: i18n_scope) %>
-          </a>
+          <% end %>
         </div>
       <% else %>
         <div class="template-direct-link__form-section">

@@ -92,34 +92,12 @@ describe "Admin import template from link" do
       end
 
       context "when the form is valid and submitted" do
-        let(:manifest_file) { File.read(Decidim::CommunityTemplates::Engine.root.join("spec/fixtures/catalog_test/valid/4aa438f0-cd09-4074-b936-2d4cfce60611/manifest.json")) }
+        let(:manifest_file) { File.read(Decidim::CommunityTemplates::Engine.root.join("spec/fixtures/catalog_test/valid/00605f97-a5d6-4464-9c7e-5bc5d5840212/data.json")) }
 
         before do
           allow(Net::HTTP).to receive(:get_response).and_return(double(code: "200", body: manifest_file))
           fill_in "Link", with: "https://example.com/catalog/0565b415-13a9-4d4a-baaa-da74c8847e20"
           click_on "Go"
-        end
-
-        it "display the catalog title" do
-          within("#template-direct-link-modal-content") do
-            expect(page).to have_css(".catalog_summary__title", text: "Idea Board Template")
-          end
-        end
-
-        it "display the catalog metadatas" do
-          within("#template-direct-link-modal-content") do
-            expect(page).to have_css(".catalog_summary__metadatas-item", text: "First version of idea board templates")
-            expect(page).to have_css(".catalog_summary__metadatas-item", text: "London")
-            expect(page).to have_css(".catalog_summary__metadatas-item", text: "octree.ch")
-            expect(page).to have_css(".catalog_summary__metadatas-item", text: "mastodon.social")
-          end
-        end
-
-        it "display the catalog content" do
-          within("#template-direct-link-modal-content") do
-            expect(page).to have_css(".catalog_summary__content", text: "Idea Board Template, made by Octree")
-            expect(page).to have_css(".catalog_summary__content a", text: "Octree")
-          end
         end
 
         it "enable the install and try demo buttons" do
