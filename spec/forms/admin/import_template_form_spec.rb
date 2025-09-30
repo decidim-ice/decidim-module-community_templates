@@ -26,7 +26,7 @@ module Decidim
 
         describe "#parser" do
           it "returns a TemplateParser instance with correct path and locales" do
-            allow(subject).to receive(:template_path).and_return("spec/fixtures/template_test")
+            allow(form).to receive(:template_path).and_return("spec/fixtures/template_test")
             parser = form.parser
             expect(parser).to be_a(Decidim::CommunityTemplates::TemplateParser)
           end

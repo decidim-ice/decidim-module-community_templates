@@ -5,10 +5,52 @@ require "spec_helper"
 module Decidim
   module CommunityTemplates
     describe TemplateParser do
-      let(:template_path) { "spec/fixtures/template_test" }
       let(:locales) { %w(en ca) }
-      let(:parser) { described_class.new(template_path, locales) }
-      let(:data) { parser.data }
+      let(:parser) { described_class.new(data:, translations:, locales:) }
+      let(:data) do
+        {
+          "id" => "pp-template-001",
+          "class" => "Decidim::ParticipatoryProcess",
+          "name" => "pp-template-001.metadata.name",
+          "description" => "pp-template-001.metadata.description",
+          "version" => "1.0.0",
+          "decidim_version" => "0.30.1",
+          "community_templates_version" => "0.0.1",
+          "original_id" => 1,
+          "attributes" => {
+            "title" => "pp-template-001.attributes.title",
+            "description" => "pp-template-001.attributes.description"
+          }
+        }
+      end
+      let(:translations) do
+        {
+          "en" => {
+            "pp-template-001" => {
+              "metadata" => {
+                "name" => "Participatory process template",
+                "description" => "A template for participatory processes"
+              },
+              "attributes" => {
+                "title" => "Participatory process title",
+                "description" => "Participatory process description"
+              }
+            }
+          },
+          "ca" => {
+            "pp-template-001" => {
+              "metadata" => {
+                "name" => "Plantilla de procés participatiu",
+                "description" => "Una plantilla per a processos participatius"
+              },
+              "attributes" => {
+                "title" => "Títol del procés participatiu",
+                "description" => "Descripció del procés participatiu"
+              }
+            }
+          }
+        }
+      end
       let(:metadata) { parser.metadata }
       let(:attributes) { parser.attributes }
       let(:demo) { parser.demo }

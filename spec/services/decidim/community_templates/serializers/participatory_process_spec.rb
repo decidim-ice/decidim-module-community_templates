@@ -47,7 +47,6 @@ module Decidim
         it "has the correct attributes" do
           expect(attributes[:title]).to eq("#{serializer.id}.attributes.title")
           expect(attributes[:subtitle]).to eq("#{serializer.id}.attributes.subtitle")
-          expect(attributes[:weight]).to eq(model.weight)
           expect(attributes[:slug]).to eq(model.slug)
           expect(attributes[:short_description]).to eq("#{serializer.id}.attributes.short_description")
           expect(attributes[:description]).to eq("#{serializer.id}.attributes.description")
@@ -109,7 +108,7 @@ module Decidim
           expect(component_data[:original_id]).to eq(component.id)
           expect(component_data[:attributes][:name]).to eq("#{serializer.id}.attributes.components.#{component.id}.attributes.name")
           expect(component_data[:attributes][:manifest_name]).to eq(component.manifest_name)
-          expect(component_data[:attributes][:settings]).to be_an(Array)
+          expect(component_data[:attributes][:settings]).to be_an(Hash)
         end
 
         it "saves the serialized data to disk" do

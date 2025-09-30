@@ -44,13 +44,13 @@ module Decidim
       def method_missing(method, *args, &)
         if method.to_s.start_with?("model_")
           key = method.to_s.sub("model_", "")
-          if attributes.has_key?(key)
-            value = attributes[key]
-            # If an array of locales is given as argument, return a hash with translations
-            return translation_for(value) unless args.first.is_a?(Array)
+          return nil unless attributes.has_key?(key)
 
-            return all_translations_for(value, args.first)
-          end
+          value = attributes[key]
+          # If an array of locales is given as argument, return a hash with translations
+          return translation_for(value) unless args.first.is_a?(Array)
+
+          return all_translations_for(value, args.first)
         end
         super
       end

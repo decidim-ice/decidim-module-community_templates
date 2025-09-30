@@ -25,7 +25,7 @@ module Decidim
             promoted: parser.model_promoted
           )
 
-          parser.attributes["components"].each do |component_data|
+          parser.attributes["components"]&.each do |component_data|
             component_parser = TemplateParser.new(
               data: component_data,
               translations: parser.translations,
