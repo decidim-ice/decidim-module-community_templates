@@ -3,12 +3,15 @@
 require "spec_helper"
 
 describe "Admin templates" do
-  let(:organization) { create(:organization) }
+  let(:organization) { create(:organization, available_locales: ["en", "ca", "pt-BR"]) }
   let!(:participatory_process) { create(:participatory_process, :with_steps, organization:) }
   let!(:user) { create(:user, :admin, :confirmed, organization:) }
 
+  def process_path(process)
+    Decidim::EngineRouter.admin_proxy(process).edit_participatory_process_path(process)
+  end
+
   before do
-    organization.update(available_locales: ["en", "ca", "pt-BR"])
     switch_to_host(organization.host)
     login_as user, scope: :user
 
@@ -23,6 +26,8 @@ describe "Admin templates" do
   end
 
   context "when managing templates" do
+    let(:last_participatory_process) { Decidim::ParticipatoryProcess.last }
+
     before do
       # clear the local templates folder
       FileUtils.rm_rf(Decidim::CommunityTemplates.local_path)
@@ -58,7 +63,8 @@ describe "Admin templates" do
         click_on "Create the new participatory space"
 
         expect(page).to have_content("The participatory space has been created successfully.")
-        expect(Decidim::ParticipatoryProcess.last.title).to eq({ "en" => "Participatory process title", "ca" => "Títol del procés participatiu", "pt-BR" => "Título do processo participativo" })
+        expect(page).to have_current_path process_path(last_participatory_process), ignore_query: true
+        expect(last_participatory_process.title).to eq({ "en" => "Participatory process title", "ca" => "Títol del procés participatiu", "pt-BR" => "Título do processo participativo" })
       end
     end
 
