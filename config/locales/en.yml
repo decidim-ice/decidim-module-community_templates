@@ -24,6 +24,12 @@ en:
           local_templates: Local templates
           manage_catalogs: Manage catalogs
         templates:
+          apply:
+            demo: Include demo data
+            error: There was an error importing the template. %{errors}
+            submit: Create the new participatory space
+            success: The participatory space has been created successfully.
+            title: Create space from template
           create:
             error: There was an error creating the template. %{errors}
             success: The template has been created successfully.

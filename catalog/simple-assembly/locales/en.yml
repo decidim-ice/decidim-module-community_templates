@@ -1,5 +1,8 @@
 en:
   2025-0001-0001-0001:
+    metadata:
+      name: A simple assembly
+      description: This is a simple assembly for testing purposes.
     attributes:
       title: A simple assembly
       description: This is a simple assembly for testing purposes.

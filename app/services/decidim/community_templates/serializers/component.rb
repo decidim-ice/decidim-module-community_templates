@@ -9,18 +9,16 @@ module Decidim
             manifest_name: model.manifest_name,
             name: i18n_field(:name),
             settings:,
-            weight: model.weight,
-            permissions: model.permissions,
-            visible: model.visible
+            weight: model.weight
           }
         end
 
         def settings
-          [:global, :step].flat_map do |scope|
+          [:global, :step].index_with do |scope|
             model.manifest.settings(scope).attributes.map do |type, value|
               {
                 type: type.to_s,
-                value: value.translated? ? i18n_field(type, model.settings[type], "attributes.settings") : model.settings[type]
+                value: value.translated? ? i18n_field(type, model.settings[type], "settings") : model.settings[type]
               }
             end
           end

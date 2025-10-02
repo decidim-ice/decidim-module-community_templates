@@ -3,9 +3,13 @@
 require "spec_helper"
 
 describe "Admin templates" do
-  let(:organization) { create(:organization) }
+  let(:organization) { create(:organization, available_locales: ["en", "ca", "pt-BR"]) }
   let!(:participatory_process) { create(:participatory_process, :with_steps, organization:) }
   let!(:user) { create(:user, :admin, :confirmed, organization:) }
+
+  def process_path(process)
+    Decidim::EngineRouter.admin_proxy(process).edit_participatory_process_path(process)
+  end
 
   before do
     switch_to_host(organization.host)
@@ -22,6 +26,8 @@ describe "Admin templates" do
   end
 
   context "when managing templates" do
+    let(:last_participatory_process) { Decidim::ParticipatoryProcess.last }
+
     before do
       # clear the local templates folder
       FileUtils.rm_rf(Decidim::CommunityTemplates.local_path)
@@ -35,7 +41,7 @@ describe "Admin templates" do
 
     context "when there are external templates" do
       before do
-        path = "#{Decidim::CommunityTemplates.local_path}/external/template_1"
+        path = "#{Decidim::CommunityTemplates.local_path}/external/pp-template-001"
         FileUtils.mkdir_p(path)
         FileUtils.cp_r("spec/fixtures/template_test", path)
       end
@@ -47,6 +53,18 @@ describe "Admin templates" do
         expect(page).to have_content("A template for participatory processes")
         expect(page).to have_content("1.0.0")
         expect(page).to have_content("Apply in a new participatory space")
+      end
+
+      it "imports an external template" do
+        click_on "External templates"
+        click_on "Apply in a new participatory space"
+
+        check "Include demo data"
+        click_on "Create the new participatory space"
+
+        expect(page).to have_content("The participatory space has been created successfully.")
+        expect(page).to have_current_path process_path(last_participatory_process), ignore_query: true
+        expect(last_participatory_process.title).to eq({ "en" => "Participatory process title", "ca" => "Títol del procés participatiu", "pt-BR" => "Título do processo participativo" })
       end
     end
 
@@ -61,8 +79,8 @@ describe "Admin templates" do
       select translated_attribute(participatory_process.title), from: "Select the participatory space you want to use as a template"
       click_on "Create the new template"
 
-      fill_in_i18n(:template_name, "#template-name-tabs", { "ca" => "Nom del template", "es" => "Nombre de la plantilla", "en" => "Template name" })
-      fill_in_i18n(:template_description, "#template-description-tabs", { "ca" => "Descripció del template", "es" => "Descripción de la plantilla", "en" => "Template description" })
+      fill_in_i18n(:template_name, "#template-name-tabs", { "ca" => "Nom del template", "en" => "Template name" })
+      fill_in_i18n(:template_description, "#template-description-tabs", { "ca" => "Descripció del template", "en" => "Template description" })
       fill_in "Version", with: "1.0.0"
       click_on "Create the new template"
 

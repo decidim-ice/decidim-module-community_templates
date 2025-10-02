@@ -8,7 +8,6 @@ module Decidim
           {
             title: i18n_field(:title),
             subtitle: i18n_field(:subtitle),
-            weight: model.weight,
             slug: model.slug,
             short_description: i18n_field(:short_description),
             description: i18n_field(:description),

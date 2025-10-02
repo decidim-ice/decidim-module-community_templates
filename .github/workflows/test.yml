@@ -11,6 +11,7 @@ env:
   RUBY_VERSION: 3.3.4
   NODE_VERSION: 22.14.0
   SHAKAPACKER_RUNTIME_COMPILE: "false"
+  DECIDIM_AVAILABLE_LOCALES: en,ca,es,pt-BR
 
 jobs:
   test:
@@ -60,7 +61,7 @@ jobs:
           chrome-version: 136.0.7103.92
 
       - run: |
-          sudo apt install wkhtmltopdf imagemagick 7zip
+          sudo apt-get update; sudo apt-get -f install wkhtmltopdf imagemagick p7zip
 
       - name: Setup Database
         run: bundle exec rake test_app

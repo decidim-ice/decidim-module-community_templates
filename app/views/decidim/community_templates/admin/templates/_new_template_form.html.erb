@@ -26,11 +26,11 @@
       </div>
 
       <div class="row column">
-        <%= f.translated :text_field, :name, label: t("decidim.community_templates.admin.templates.new.metadata.name") %>
+        <%= f.translated :text_field, :name, label: t("decidim.community_templates.admin.templates.new.metadata.name"), aria: { label: :name } %>
       </div>
 
       <div class="row column">
-        <%= f.translated :text_area, :description, label: t("decidim.community_templates.admin.templates.new.metadata.description"), placeholder: t("decidim.community_templates.admin.templates.new.metadata.description_placeholder") %>
+        <%= f.translated :text_area, :description, label: t("decidim.community_templates.admin.templates.new.metadata.description"), placeholder: t("decidim.community_templates.admin.templates.new.metadata.description_placeholder"), aria: { label: :description } %>
       </div>
 
       <div class="row column">
