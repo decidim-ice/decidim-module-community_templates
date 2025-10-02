@@ -47,6 +47,132 @@ Decidim::CommunityTemplates.configure do |config|
 end
 ```
 
+## Templating specification
+
+This module allows you to create, export, and import templates for Decidim participatory spaces. Templates are structured as directories containing JSON data files, translations, and assets.
+
+### Template Structure
+
+A template is organized as a folder with the following structure:
+
+```
+template-id/
+├── data.json           # Main template data and metadata
+├── demo.json           # Optional demo data
+├── locales/            # Translation files
+│   ├── en.yml
+│   ├── es.yml
+│   └── ...
+└── assets/             # Static assets (images, documents, etc.)
+    └── demo.jpg
+```
+
+### Template Files
+
+#### `data.json`
+Contains the template metadata and model attributes:
+
+```json
+{
+  "id": "pp-template-001",
+  "class": "Decidim::ParticipatoryProcess",
+  "original_id": 1,
+  "name": "pp-template-001.metadata.name",
+  "description": "pp-template-001.metadata.description",
+  "version": "1.0.0",
+  "decidim_version": "0.30.1",
+  "community_templates_version": "0.0.1",
+  "attributes": {
+    "title": "pp-template-001.attributes.title",
+    "subtitle": "pp-template-001.attributes.subtitle",
+    "short_description": "pp-template-001.attributes.short_description",
+    "description": "pp-template-001.attributes.description"
+  }
+}
+```
+
+- `id`: Unique template identifier
+- `class`: Decidim model class name (e.g., `Decidim::ParticipatoryProcess`)
+- `name`/`description`: Reference keys for translated metadata
+- `attributes`: Model-specific attributes with translation keys. For non-translatable fields the value applies directly.
+
+#### Translation Files (`locales/*.yml`)
+Contains all translatable content, note that this follow the same specification as the I18n standard Rails library:
+
+```yaml
+en:
+  pp-template-001:
+    metadata:
+      name: "Community Participation Template"
+      description: "A template for community engagement processes"
+    attributes:
+      title: "Community Voices Initiative"
+      subtitle: "Engaging citizens in local decision-making"
+      short_description: "Join us in shaping our community's future"
+      description: "A comprehensive participatory process..."
+```
+
+#### `demo.json` (Optional)
+Contains demo data for testing and preview purposes.
+
+#### `assets/` (Optional)
+Static files like images, documents, or other resources referenced by the template.
+
+### Creating Templates
+
+Templates can be created programmatically using serializers:
+
+```ruby
+# Export a participatory process as a template
+serializer = Decidim::CommunityTemplates::Serializers::ParticipatoryProcess.init(
+  model: participatory_process,
+  metadata: {
+    name: { en: "My Template", es: "Mi Plantilla" },
+    description: { en: "Template description", es: "Descripción de la plantilla" },
+    version: "1.0.0"
+  },
+  locales: [:en, :es],
+  with_manifest: true
+)
+
+# Save to filesystem
+serializer.save!("/path/to/templates")
+```
+
+### Importing Templates
+
+Templates can be imported using the admin interface or programmatically:
+
+```ruby
+# Parse a template
+parser = Decidim::CommunityTemplates::TemplateParser.new(
+  data: {
+    "id": "some-id",
+    ...
+  },
+  translations: {
+    "en" => {
+      "some-id" => {
+        ...
+      }
+    }
+  },
+  locales: ["en", "es"]
+)
+
+# Import the template
+importer = Decidim::CommunityTemplates::Importers::ParticipatoryProcess.new(
+  parser, organization, user
+)
+importer.import!
+```
+
+A helper class for parsing the files generated in a template folder is also available:
+
+```ruby
+parser = TemplateExtractor.parse("/path/to/templates/some-id", ["en", "es"])
+```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/decidim-ice/decidim-module-community_templates.

@@ -38,7 +38,7 @@ module Decidim
         translations
       end
 
-      # A unique identifier for the serialized object
+      # A unique random identifier with very low collision probability for the serialized object
       def id
         return metadata[:id] if metadata[:id].present?
 
@@ -117,17 +117,17 @@ module Decidim
         id.split(".")
       end
 
-      def i18n_field(field)
-        value = model.send(field)
+      def i18n_field(field, value = nil, prefix = "attributes")
+        value ||= model.send(field)
         unless value.is_a?(Hash)
           value = {
             locales.first => value
           }
         end
+        
+        translations.deep_merge!(hash_to_i18n(value, field, prefix))
 
-        translations.deep_merge!(hash_to_i18n(value, field))
-
-        "#{id}.attributes.#{field}"
+        "#{id}.#{prefix}.#{field}"
       end
 
       def hash_to_i18n(hash, field, prefix = "attributes")

@@ -3,15 +3,19 @@
 module Decidim
   module CommunityTemplates
     class TemplateParser
-      def initialize(template_path, locales = Decidim.available_locales.map(&:to_s))
-        @template_path = template_path
-        @translations_path = File.join(@template_path, "locales")
+      def initialize(data:, translations: {}, locales: Decidim.available_locales.map(&:to_s))
+        @data = data
+        @translations = translations
         @locales = locales
       end
 
-      attr_reader :template_path, :translations_path, :locales
+      attr_reader :data, :translations, :locales
 
       delegate :id, :name, :description, :version, :author, :links, :source_type, to: :template
+
+      def model_class
+        @model_class ||= metadata["@class"].constantize
+      end
 
       def template
         @template ||= TemplateMetadata.new(
@@ -30,19 +34,6 @@ module Decidim
         )
       end
 
-      def translations
-        @translations ||= if Dir.exist?(@translations_path)
-                            locales.each_with_object({}) do |lang, hash|
-                              file = File.join(@translations_path, "#{lang}.yml")
-                              next unless File.exist?(file)
-
-                              hash[lang] = YAML.load_file(file)[lang] || {}
-                            end
-                          else
-                            {}
-                          end
-      end
-
       def metadata
         data.except("attributes")
       end
@@ -51,10 +42,18 @@ module Decidim
         data["attributes"] || {}
       end
 
+      # if an array of locales is given, it will return a hash with the translations
+      # otherwise it will return the translation in the first locale available
       def method_missing(method, *args, &)
         if method.to_s.start_with?("model_")
           key = method.to_s.sub("model_", "")
-          return translation_for(attributes[key]) if attributes.has_key?(key)
+          return nil unless attributes.has_key?(key)
+
+          value = attributes[key]
+          # If an array of locales is given as argument, return a hash with translations
+          return translation_for(value) unless args.first.is_a?(Array)
+
+          return all_translations_for(value, args.first)
         end
         super
       end
@@ -67,24 +66,16 @@ module Decidim
         super
       end
 
-      def data
-        @data ||= JSON.parse(File.read(File.join(@template_path, "data.json")))
-      end
-
-      def demo
-        @demo ||= if File.exist?(File.join(@template_path, "demo.json"))
-                    JSON.parse(File.read(File.join(@template_path, "demo.json")))
-                  else
-                    {}
-                  end
+      def all_translations_for(field, locales)
+        locales.index_with do |locale|
+          translations.dig(locale, *field.to_s.split(".")) || ""
+        end
       end
 
       def translation_for(field)
-        return unless field
+        return unless field && field.is_a?(String)
 
-        find_translation(field) || metadata[field]
-      rescue StandardError
-        metadata[field]
+        find_translation(field) || field
       end
 
       private

@@ -45,7 +45,21 @@ module Decidim
 
         it "has the correct attributes" do
           expect(attributes[:title]).to eq("#{serializer.id}.attributes.title")
+          expect(attributes[:subtitle]).to eq("#{serializer.id}.attributes.subtitle")
+          expect(attributes[:slug]).to eq(model.slug)
+          expect(attributes[:short_description]).to eq("#{serializer.id}.attributes.short_description")
           expect(attributes[:description]).to eq("#{serializer.id}.attributes.description")
+          expect(attributes[:announcement]).to eq("#{serializer.id}.attributes.announcement")
+          expect(attributes[:start_date]).to eq(model.start_date.iso8601)
+          expect(attributes[:end_date]).to eq(model.end_date.iso8601)
+          expect(attributes[:developer_group]).to eq("#{serializer.id}.attributes.developer_group")
+          expect(attributes[:local_area]).to eq("#{serializer.id}.attributes.local_area")
+          expect(attributes[:meta_scope]).to eq("#{serializer.id}.attributes.meta_scope")
+          expect(attributes[:target]).to eq("#{serializer.id}.attributes.target")
+          expect(attributes[:participatory_scope]).to eq("#{serializer.id}.attributes.participatory_scope")
+          expect(attributes[:participatory_structure]).to eq("#{serializer.id}.attributes.participatory_structure")
+          expect(attributes[:private_space]).to eq(model.private_space)
+          expect(attributes[:promoted]).to eq(model.promoted)
         end
 
         it "generates translations" do
@@ -60,8 +74,26 @@ module Decidim
           attributes_en = serializer.translations["en"][serializer.id]["attributes"]
           expect(attributes_ca["title"]).to eq(model.title["ca"])
           expect(attributes_en["title"]).to eq(model.title["en"])
+          expect(attributes_ca["subtitle"]).to eq(model.subtitle["ca"])
+          expect(attributes_en["subtitle"]).to eq(model.subtitle["en"])
+          expect(attributes_ca["short_description"]).to eq(model.short_description["ca"])
+          expect(attributes_en["short_description"]).to eq(model.short_description["en"])
           expect(attributes_ca["description"]).to eq(model.description["ca"])
           expect(attributes_en["description"]).to eq(model.description["en"])
+          expect(attributes_ca["announcement"]).to eq(model.announcement["ca"])
+          expect(attributes_en["announcement"]).to eq(model.announcement["en"])
+          expect(attributes_ca["developer_group"]).to eq(model.developer_group["ca"])
+          expect(attributes_en["developer_group"]).to eq(model.developer_group["en"])
+          expect(attributes_ca["local_area"]).to eq(model.local_area["ca"])
+          expect(attributes_en["local_area"]).to eq(model.local_area["en"])
+          expect(attributes_ca["meta_scope"]).to eq(model.meta_scope["ca"])
+          expect(attributes_en["meta_scope"]).to eq(model.meta_scope["en"])
+          expect(attributes_ca["target"]).to eq(model.target["ca"])
+          expect(attributes_en["target"]).to eq(model.target["en"])
+          expect(attributes_ca["participatory_scope"]).to eq(model.participatory_scope["ca"])
+          expect(attributes_en["participatory_scope"]).to eq(model.participatory_scope["en"])
+          expect(attributes_ca["participatory_structure"]).to eq(model.participatory_structure["ca"])
+          expect(attributes_en["participatory_structure"]).to eq(model.participatory_structure["en"])
           expect(attributes_ca["components"]["proposals_#{component.id}"]["attributes"]["name"]).to eq(component.name["ca"])
           expect(attributes_en["components"]["proposals_#{component.id}"]["attributes"]["name"]).to eq(component.name["en"])
         end
@@ -72,7 +104,10 @@ module Decidim
           component_data = attributes[:components].first
           expect(component_data[:id]).to eq("#{serializer.id}.attributes.components.proposals_#{component.id}")
           expect(component_data[:@class]).to eq("Decidim::Component")
+          expect(component_data[:original_id]).to eq(component.id)
           expect(component_data[:attributes][:name]).to eq("#{serializer.id}.attributes.components.proposals_#{component.id}.attributes.name")
+          expect(component_data[:attributes][:manifest_name]).to eq(component.manifest_name)
+          expect(component_data[:attributes][:settings]).to be_an(Hash)
         end
 
         it "saves the serialized data to disk" do

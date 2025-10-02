@@ -15,6 +15,7 @@ module Decidim
         resources :template_usages, only: [:create], controller: "template_usages"
         resources :templates do
           collection do
+            get "apply/:id", to: "templates#apply", as: :apply
             get "download/:id", to: "templates#download", as: :download
           end
         end

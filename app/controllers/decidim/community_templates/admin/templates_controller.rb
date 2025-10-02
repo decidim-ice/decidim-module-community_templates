@@ -29,6 +29,11 @@ module Decidim
           return redirect_to templates_path, alert: t(".serializer_not_found") if @form.serializer.blank?
         end
 
+        # shows the template details, and allows to import it into the current organization (or a tenant if demo mode)
+        def apply
+          @form = form(ImportTemplateForm).from_params(params)
+        end
+
         # creates a new template from a participatory space and passed metadata
         def create
           @form = form(TemplateForm).from_params(params)
@@ -41,6 +46,22 @@ module Decidim
             on(:invalid) do |errors|
               flash.now[:alert] = I18n.t("decidim.community_templates.admin.templates.create.error", errors:)
               render :new
+            end
+          end
+        end
+
+        # imports a template into the current organization (or a tenant if demo mode)
+        def update
+          @form = form(ImportTemplateForm).from_params(params)
+
+          ImportTemplate.call(@form) do
+            on(:ok) do |participatory_space|
+              redirect_to participatory_space_path(participatory_space), notice: I18n.t("decidim.community_templates.admin.templates.apply.success")
+            end
+
+            on(:invalid) do |errors|
+              flash.now[:alert] = I18n.t("decidim.community_templates.admin.templates.apply.error", errors:)
+              render :apply
             end
           end
         end
@@ -77,9 +98,16 @@ module Decidim
         def templates
           locales = ([I18n.locale.to_s, current_organization.default_locale.to_s] + current_organization.available_locales.map(&:to_s)).uniq
 
-          Dir.glob("#{Decidim::CommunityTemplates.catalog_path}/#{tab_path}/*/data.json").map do |template_file|
-            TemplateParser.new(File.dirname(template_file), locales)
+          TemplateExtractor.collection_from("#{Decidim::CommunityTemplates.local_path}/#{tab_path}", locales).map do |item|
+            {
+              path: item[:path].gsub(%r{^#{Decidim::CommunityTemplates.local_path}/}, ""),
+              parser: item[:parser]
+            }
           end
+        end
+
+        def participatory_space_path(participatory_space)
+          Decidim::EngineRouter.admin_proxy(participatory_space).send("edit_#{participatory_space.manifest.route_name}_path", participatory_space.slug)
         end
       end
     end
