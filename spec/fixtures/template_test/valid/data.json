@@ -1,6 +1,6 @@
 {
   "id": "pp-template-001",
-  "class": "Decidim::ParticipatoryProcess",
+  "@class": "Decidim::ParticipatoryProcess",
   "original_id": 1,
   "name": "pp-template-001.metadata.name",
   "description": "pp-template-001.metadata.description",

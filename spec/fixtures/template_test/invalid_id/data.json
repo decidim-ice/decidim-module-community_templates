@@ -9,6 +9,8 @@
   "community_templates_version": "0.0.1",
   "attributes": {
     "title": "pp-template-001.attributes.title",
+    "subtitle": "pp-template-001.attributes.subtitle",
+    "short_description": "pp-template-001.attributes.short_description",
     "description": "pp-template-001.attributes.description"
   }
 }

@@ -5,13 +5,12 @@ require "spec_helper"
 module Decidim
   module CommunityTemplates
     describe TemplateParser do
-      let(:template_path) { "spec/fixtures/template_test/valid" }
       let(:locales) { %w(en ca) }
       let(:parser) { described_class.new(data:, translations:, locales:) }
       let(:data) do
         {
           "id" => "pp-template-001",
-          "class" => "Decidim::ParticipatoryProcess",
+          "@class" => "Decidim::ParticipatoryProcess",
           "name" => "pp-template-001.metadata.name",
           "description" => "pp-template-001.metadata.description",
           "version" => "1.0.0",
@@ -70,7 +69,7 @@ module Decidim
         expect(metadata["version"]).to eq("1.0.0")
         expect(metadata["decidim_version"]).to eq("0.30.1")
         expect(metadata["community_templates_version"]).to eq("0.0.1")
-        expect(metadata["class"]).to eq("Decidim::ParticipatoryProcess")
+        expect(metadata["@class"]).to eq("Decidim::ParticipatoryProcess")
         expect(metadata["original_id"]).to eq(1)
       end
 

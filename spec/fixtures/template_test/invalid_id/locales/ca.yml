@@ -6,3 +6,5 @@ ca:
     attributes:
       title: Títol del procés participatiu
       description: Descripció del procés participatiu
+      subtitle: Subtítol del procés participatiu
+      short_description: Descripció breu del procés participatiu

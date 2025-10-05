@@ -1,7 +1,7 @@
 <% if Decidim::CommunityTemplates.enabled? %>
-  <% 
-  space = process 
-  template_match = Decidim::CommunityTemplates::TemplateSource.find_by(source: space) 
+  <%
+  space = process
+  template_match = Decidim::CommunityTemplates::TemplateSource.find_by(source: space)
   form = Decidim::CommunityTemplates::Admin::TemplateSourceForm.new(
     source_id: space.to_global_id,
     template: template_match ? template_match.template : Decidim::CommunityTemplates::TemplateMetadata.new

@@ -28,4 +28,3 @@ var $form = $(`.form.js-template-modal-form[data-source="<%= source_record.to_gl
   $form.html($content.find(".form").html());
   document.dispatchEvent(new CustomEvent("remote-modal:loaded", { detail: node }));
 <% end %>
-

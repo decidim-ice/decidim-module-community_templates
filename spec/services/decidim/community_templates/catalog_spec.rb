@@ -61,10 +61,10 @@ module Decidim
           expect(loaded_catalog.templates.size).to eq(1)
         end
 
-        it "call TemplateParser.new for each template" do
-          allow(TemplateParser).to receive(:new).and_call_original
+        it "call TemplateExtractor.parse for each template" do
+          allow(TemplateExtractor).to receive(:parse).and_call_original
           Catalog.from_path(fixtures_path)
-          expect(TemplateParser).to have_received(:new).with(fixtures_path.join("00605f97-a5d6-4464-9c7e-5bc5d5840212"))
+          expect(TemplateExtractor).to have_received(:parse).with(fixtures_path.join("00605f97-a5d6-4464-9c7e-5bc5d5840212"))
         end
       end
     end

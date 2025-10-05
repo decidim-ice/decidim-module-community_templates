@@ -14,11 +14,17 @@ module Decidim
       delegate :id, :name, :description, :version, :author, :links, :source_type, to: :template
 
       def model_class
+        return nil if metadata.blank?
+
         @model_class ||= metadata["@class"].constantize
       end
 
       def template
-        @template ||= TemplateMetadata.new(
+        @template ||= TemplateMetadata.new(template_attributes)
+      end
+
+      def template_attributes
+        @template_attributes ||= {
           id: metadata["id"],
           name: translation_for(metadata["name"]),
           description: translation_for(metadata["description"]),
@@ -31,7 +37,7 @@ module Decidim
           archived_at: metadata["archived_at"],
           updated_at: metadata["updated_at"],
           created_at: metadata["created_at"]
-        )
+        }
       end
 
       def metadata
@@ -68,7 +74,7 @@ module Decidim
 
       def all_translations_for(field, locales)
         locales.index_with do |locale|
-          translations.dig(locale, *field.to_s.split(".")) || ""
+          translations.dig(locale.to_s, *field.to_s.split(".")) || ""
         end
       end
 
@@ -82,7 +88,7 @@ module Decidim
 
       def find_translation(field)
         locales.each do |locale|
-          value = translations.dig(locale, *field.split("."))
+          value = translations.dig(locale.to_s, *field.split("."))
           return value if value
         end
         nil

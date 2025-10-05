@@ -1,8 +1,5 @@
 <%
-form ||= begin
-  importer = Decidim::CommunityTemplates::DirectLinkImporter.new(params)
-  importer.form
-end
+form ||= Decidim::CommunityTemplates::Admin::DirectLinkForm.from_params(params)
 i18n_scope = "decidim.community_templates.admin.direct_link_modal"
 def host_for(url)
   URI.parse(normalize_url(url)).host

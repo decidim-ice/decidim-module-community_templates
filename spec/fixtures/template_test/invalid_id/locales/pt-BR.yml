@@ -1,0 +1,10 @@
+"pt-BR":
+  pp-template-001:
+    metadata:
+      name: Template de processo participativo
+      description: Um modelo para processos participativos
+    attributes:
+      title: Título do processo participativo
+      description: Descrição do processo participativo
+      subtitle: Subtítulo do processo participativo
+      short_description: Descrição curta do processo participativo

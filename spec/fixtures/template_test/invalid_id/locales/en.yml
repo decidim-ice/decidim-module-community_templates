@@ -6,3 +6,5 @@ en:
     attributes:
       title: Participatory process title
       description: Participatory process description
+      subtitle: Participatory process subtitle
+      short_description: Participatory process short description

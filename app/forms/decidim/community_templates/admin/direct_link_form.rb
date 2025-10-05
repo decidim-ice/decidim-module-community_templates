@@ -7,12 +7,13 @@ module Decidim
         attribute :link, String
 
         validates :link, presence: true
+
+        validate :validate_manifest_file
         validate :validate_link_secure
         validate :validate_link_ends_with_uuid
         validate :validate_coherence
-        validate :validate_manifest_file
         validate :validate_template
-        delegate :id, :name, :description, :version, :author, :links, to: :template
+        delegate :name, :description, :version, :author, :links, to: :template
 
         alias template_id id
         def self.from_params(params)
@@ -20,8 +21,22 @@ module Decidim
           new(strong_params[:direct_link])
         end
 
+        def id
+          @id ||= template&.id
+        end
+
         def template
-          @template ||= Decidim::CommunityTemplates::TemplateMetadata.new(manifest_file || {})
+          @template ||= parser&.template || TemplateMetadata.new
+        end
+
+        def parser
+          return nil if normalized_link.blank?
+
+          @parser ||= TemplateParser.new(
+            data: extractor.data,
+            translations: extractor.translations,
+            locales: Decidim.available_locales.map(&:to_s)
+          )
         end
 
         def description_html
@@ -29,7 +44,7 @@ module Decidim
         end
 
         def has_manifest?
-          @manifest_file.present?
+          manifest_file.present?
         end
 
         private
@@ -46,32 +61,12 @@ module Decidim
           @normalized_link ||= (link || "").chomp("/")
         end
 
-        ##
-        # Fetch a path from the given link
-        def fetch_path(path)
-          return nil if link_error? || normalized_link.blank?
-
-          # standard ruby library calls, no external dependencies
-          uri = URI.parse(normalized_link + path)
-          response = Net::HTTP.get_response(uri)
-          return JSON.parse(response.body) if response.code == "200"
-
-          nil
-        rescue StandardError => e
-          Rails.logger.error("Error fetching path #{path} from #{normalized_link}: #{e.message}")
-          nil
-        end
-
         def i18n_scope
           "decidim.community_templates.admin.direct_link_modal"
         end
 
         def manifest_file
-          @manifest_file ||= fetch_path("/manifest.json")
-        end
-
-        def data_file
-          @data_file ||= fetch_path("/data.json")
+          @manifest_file ||= extractor&.data
         end
 
         def folder_name
@@ -104,7 +99,7 @@ module Decidim
         end
 
         def validate_manifest_file
-          errors.add(:link, I18n.t("errors.manifest_file_not_found", scope: i18n_scope)) unless manifest_file
+          errors.add(:link, I18n.t("errors.manifest_file_not_found", scope: i18n_scope)) unless has_manifest?
         end
 
         def validate_template
@@ -115,6 +110,15 @@ module Decidim
               errors.add(:base, message)
             end
           end
+        end
+
+        def extractor
+          return nil if normalized_link.blank?
+
+          @extractor ||= Decidim::CommunityTemplates::HttpTemplateExtractor.init(
+            template_path: normalized_link,
+            locales: Decidim.available_locales.map(&:to_s)
+          )
         end
       end
     end

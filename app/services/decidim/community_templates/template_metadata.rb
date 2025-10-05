@@ -61,7 +61,7 @@ module Decidim
       end
 
       def self.from_path(template_path)
-        parsed_template = TemplateParser.new(template_path)
+        parsed_template = TemplateExtractor.parse(template_path)
         template = parsed_template.template
         template.validate!
         template

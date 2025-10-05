@@ -13,7 +13,7 @@ module Decidim
 
         describe "#template_path" do
           it "returns the correct template path" do
-            allow(Decidim::CommunityTemplates).to receive(:local_path).and_return("/tmp/templates")
+            allow(Decidim::CommunityTemplates).to receive(:catalog_path).and_return("/tmp/templates")
             expect(form.template_path).to eq("/tmp/templates/folder_123")
           end
         end
@@ -26,7 +26,7 @@ module Decidim
 
         describe "#parser" do
           it "returns a TemplateParser instance with correct path and locales" do
-            allow(form).to receive(:template_path).and_return("spec/fixtures/template_test")
+            allow(form).to receive(:template_path).and_return("spec/fixtures/template_test/valid")
             parser = form.parser
             expect(parser).to be_a(Decidim::CommunityTemplates::TemplateParser)
           end

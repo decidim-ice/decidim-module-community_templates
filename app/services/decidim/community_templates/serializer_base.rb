@@ -124,7 +124,7 @@ module Decidim
             locales.first => value
           }
         end
-        
+
         translations.deep_merge!(hash_to_i18n(value, field, prefix))
 
         "#{id}.#{prefix}.#{field}"

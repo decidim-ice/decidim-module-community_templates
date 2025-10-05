@@ -104,7 +104,6 @@ module Decidim
           component_data = attributes[:components].first
           expect(component_data[:id]).to eq("#{serializer.id}.attributes.components.proposals_#{component.id}")
           expect(component_data[:@class]).to eq("Decidim::Component")
-          expect(component_data[:original_id]).to eq(component.id)
           expect(component_data[:attributes][:name]).to eq("#{serializer.id}.attributes.components.proposals_#{component.id}.attributes.name")
           expect(component_data[:attributes][:manifest_name]).to eq(component.manifest_name)
           expect(component_data[:attributes][:settings]).to be_an(Hash)

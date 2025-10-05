@@ -11,12 +11,11 @@ describe "Participatory processes template tab" do
   before do
     allow(Decidim::CommunityTemplates).to receive(:enabled?).and_return(true)
     switch_to_host(organization.host)
-    login_as user, scope: :user
-    visit decidim_admin_community_templates.community_templates_path
-    # Place a valid catalog in the catalog folder
     FileUtils.rm_rf(Decidim::CommunityTemplates.catalog_path)
     FileUtils.cp_r(fixture_path, Decidim::CommunityTemplates.catalog_path)
     Decidim::CommunityTemplates::Catalog.from_path(Decidim::CommunityTemplates.catalog_path)
+    login_as user, scope: :user
+    visit decidim_admin_community_templates.community_templates_path
   end
 
   it "<title> the page with Community Templates" do

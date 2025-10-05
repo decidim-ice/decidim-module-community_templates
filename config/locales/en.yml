@@ -146,15 +146,8 @@ en:
         templates:
           apply:
             demo: Include demo data
-            error: There was an error importing the template. %{errors}
             submit: Create the new participatory space
-            success: The participatory space has been created successfully.
             title: Create space from template
-          create:
-            error: There was an error creating the template. %{errors}
-            success: The template has been created successfully.
-          download:
-            error: There was an error generating the template zip file.
           index:
             create_template: Create the new template
             new_from_space: Create a new template from a participatory space
@@ -169,10 +162,6 @@ en:
               title: Template Metadata
               version: Version
               version_placeholder: e.g. 1.0.0
-            participatory_space_not_found: The selected participatory space could
-              not be found.
-            serializer_not_found: There is no serializer for the selected participatory
-              space.
             title: Create a new template
           no_external_templates: There are no templates. Please download some from
             a catalog.

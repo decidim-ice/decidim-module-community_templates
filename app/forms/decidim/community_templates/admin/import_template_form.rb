@@ -8,7 +8,7 @@ module Decidim
         attribute :demo, Boolean, default: false
 
         def template_path
-          @template_path ||= "#{Decidim::CommunityTemplates.local_path}/#{id}"
+          @template_path ||= "#{Decidim::CommunityTemplates.catalog_path}/#{id}"
         end
 
         def locales

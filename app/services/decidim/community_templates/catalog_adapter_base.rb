@@ -19,12 +19,6 @@ module Decidim
         raise NotImplementedError
       end
 
-      def import!(path)
-        collection.each do |zip_file|
-          Zipper.extract_to(zip_file, path)
-        end
-      end
-
       def name
         metadata["name"]
       end

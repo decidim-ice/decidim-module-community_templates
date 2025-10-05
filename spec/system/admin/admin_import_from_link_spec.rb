@@ -58,12 +58,12 @@ describe "Admin import template from link" do
         end
       end
 
-      it "displays error if manifest.json file is not found" do
+      it "displays error if data.json file is not found" do
         allow(Net::HTTP).to receive(:get_response).and_return(double(code: "404", body: ""))
         fill_in "Link", with: "https://example.com"
         click_on "Go"
         within("#template-direct-link-modal-content") do
-          expect(page).to have_content("Does not looks like a valid template link")
+          expect(page).to have_content(/Manifest file not found/)
         end
       end
 
@@ -92,18 +92,28 @@ describe "Admin import template from link" do
       end
 
       context "when the form is valid and submitted" do
-        let(:manifest_file) { File.read(Decidim::CommunityTemplates::Engine.root.join("spec/fixtures/catalog_test/valid/00605f97-a5d6-4464-9c7e-5bc5d5840212/data.json")) }
+        let(:data_file) { File.read(Decidim::CommunityTemplates::Engine.root.join("spec/fixtures/catalog_test/valid/00605f97-a5d6-4464-9c7e-5bc5d5840212/data.json")) }
+        let(:locale_file) { File.read(Decidim::CommunityTemplates::Engine.root.join("spec/fixtures/catalog_test/valid/00605f97-a5d6-4464-9c7e-5bc5d5840212/locales/en.yml")) }
+        let(:catalog_url) { "https://example.com/catalog/00605f97-a5d6-4464-9c7e-5bc5d5840212" }
 
         before do
-          allow(Net::HTTP).to receive(:get_response).and_return(double(code: "200", body: manifest_file))
-          fill_in "Link", with: "https://example.com/catalog/0565b415-13a9-4d4a-baaa-da74c8847e20"
+          allow(Net::HTTP).to receive(:get_response).with(URI.parse("#{catalog_url}/data.json")).and_return(double(code: "200", body: data_file))
+          I18n.available_locales.each do |locale|
+            allow(Net::HTTP).to receive(:get_response).with(URI.parse("#{catalog_url}/locales/#{locale}.yml")).and_return(double(code: "200", body: locale_file))
+          end
+          fill_in "Template Link", with: catalog_url
           click_on "Go"
         end
 
         it "enable the install and try demo buttons" do
           within("#template-direct-link-modal-content") do
-            expect(page).to have_css("a.template-direct-link__link")
-            expect(page).to have_no_css(".template-direct-link__link--disabled")
+          expect(page).to have_button("Install")
+          expect(page).to have_no_css(".template-direct-link__link--disabled")
+          end
+          within(".template-direct-link__form-section") do
+            expect(page).to have_css(".catalog_summary__title", text: "Idea Board Template")
+            expect(page).to have_css(".catalog_summary__metadatas-item", text: /v0\.1/)
+            expect(page).to have_css(".catalog_summary__content", text: /ask participants for ideas/)
           end
         end
 

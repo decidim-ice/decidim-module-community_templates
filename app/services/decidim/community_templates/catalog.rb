@@ -18,7 +18,9 @@ module Decidim
           child.directory? && child.basename.to_s.match?(TemplateMetadata::UUID_REGEX)
         end
         templates = template_dirs.map do |template_path|
-          TemplateParser.new(template_path).template
+          TemplateExtractor.parse(
+            template_path
+          ).template
         end
         model = new(
           templates: templates || []

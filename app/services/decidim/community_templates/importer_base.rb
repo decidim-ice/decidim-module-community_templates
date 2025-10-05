@@ -26,7 +26,6 @@ module Decidim
         base_slug = text.to_s.parameterize
         slug = base_slug
         count = 2
-
         while parser.model_class.unscoped.exists?(slug:, organization:)
           slug = "#{base_slug}-#{count}"
           count += 1
