@@ -46,7 +46,6 @@ module Decidim
           end
         end
 
-
         context "when no space left on device (ENOSPC)" do
           before do
             allow(File).to receive(:read).and_raise(Errno::ENOSPC)
@@ -179,6 +178,7 @@ module Decidim
 
         context "when template is valid" do
           let(:template_path) { "spec/fixtures/template_test/valid" }
+
           it "is valid" do
             expect(extractor).to be_valid
           end

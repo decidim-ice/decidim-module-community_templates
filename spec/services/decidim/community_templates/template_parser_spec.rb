@@ -113,6 +113,189 @@ module Decidim
           expect(parser.model_description).to eq("Descripció del procés participatiu")
         end
       end
+
+      context "when data is nil or empty" do
+        let(:data) { nil }
+
+        it "handles nil data gracefully" do
+          expect { parser.metadata }.to raise_error(NoMethodError)
+          expect { parser.attributes }.to raise_error(NoMethodError)
+        end
+      end
+
+      context "when data has no attributes" do
+        let(:data) do
+          {
+            "id" => "853330aa-0771-4218-8afe-1b199676fbc2",
+            "@class" => "Decidim::ParticipatoryProcess"
+          }
+        end
+
+        it "returns empty attributes hash" do
+          expect(parser.attributes).to eq({})
+        end
+
+        it "handles missing model attributes gracefully" do
+          expect(parser.model_title).to be_nil
+          expect(parser.model_description).to be_nil
+        end
+      end
+
+      context "when @class is invalid" do
+        let(:data) do
+          {
+            "id" => "853330aa-0771-4218-8afe-1b199676fbc2",
+            "@class" => "NonExistent::Class"
+          }
+        end
+
+        it "raises NameError for invalid class" do
+          expect { parser.model_class }.to raise_error(NameError)
+        end
+      end
+
+      context "when @class is nil" do
+        let(:data) do
+          {
+            "id" => "853330aa-0771-4218-8afe-1b199676fbc2",
+            "@class" => nil
+          }
+        end
+
+        it "returns nil for model_class" do
+          expect(parser.model_class).to be_nil
+        end
+      end
+
+      context "when metadata is blank" do
+        let(:data) { {} }
+
+        it "returns nil for model_class" do
+          expect(parser.model_class).to be_nil
+        end
+      end
+
+      context "when translations are missing" do
+        let(:translations) { {} }
+
+        it "falls back to field keys when translations missing" do
+          expect(parser.name).to eq("853330aa-0771-4218-8afe-1b199676fbc2.metadata.name")
+          expect(parser.description).to eq("853330aa-0771-4218-8afe-1b199676fbc2.metadata.description")
+        end
+
+        it "falls back to field keys for model attributes" do
+          expect(parser.model_title).to eq("853330aa-0771-4218-8afe-1b199676fbc2.attributes.title")
+          expect(parser.model_description).to eq("853330aa-0771-4218-8afe-1b199676fbc2.attributes.description")
+        end
+      end
+
+      context "when translations are malformed" do
+        let(:translations) do
+          {
+            "en" => {
+              "853330aa-0771-4218-8afe-1b199676fbc2" => {
+                "metadata" => {
+                  "name" => nil,
+                  "description" => ""
+                }
+              }
+            }
+          }
+        end
+
+        it "handles nil and empty translations" do
+          expect(parser.name).to eq("853330aa-0771-4218-8afe-1b199676fbc2.metadata.name")
+          expect(parser.description).to eq("853330aa-0771-4218-8afe-1b199676fbc2.metadata.description")
+        end
+      end
+
+      context "when field is not a string" do
+        let(:data) do
+          {
+            "id" => "853330aa-0771-4218-8afe-1b199676fbc2",
+            "@class" => "Decidim::ParticipatoryProcess",
+            "name" => 123,
+            "description" => nil,
+            "attributes" => {
+              "title" => %w(array value),
+              "description" => { "hash" => "value" }
+            }
+          }
+        end
+
+        it "handles non-string field values" do
+          expect(parser.name).to eq(123)
+          expect(parser.description).to be_nil
+          expect(parser.model_title).to eq(%w(array value))
+          expect(parser.model_description).to eq({ "hash" => "value" })
+        end
+      end
+
+      context "when locales array is empty" do
+        let(:locales) { [] }
+
+        it "handles empty locales gracefully" do
+          expect(parser.name).to eq("853330aa-0771-4218-8afe-1b199676fbc2.metadata.name")
+          expect(parser.model_title).to eq("853330aa-0771-4218-8afe-1b199676fbc2.attributes.title")
+        end
+      end
+
+      context "when field path is malformed" do
+        let(:data) do
+          {
+            "id" => "853330aa-0771-4218-8afe-1b199676fbc2",
+            "@class" => "Decidim::ParticipatoryProcess",
+            "attributes" => {
+              "title" => "853330aa-0771-4218-8afe-1b199676fbc2.attributes.title"
+            }
+          }
+        end
+        let(:translations) do
+          {
+            "en" => {
+              "853330aa-0771-4218-8afe-1b199676fbc2" => {
+                "attributes" => {
+                  "title" => "Translated title"
+                }
+              }
+            }
+          }
+        end
+
+        it "handles malformed field paths in translations" do
+          expect(parser.model_title).to eq("Translated title")
+        end
+      end
+
+      context "when calling non-existent model methods" do
+        it "raises NoMethodError for undefined model methods" do
+          expect { parser.model_nonexistent_field }.to raise_error(NoMethodError)
+        end
+
+        it "responds correctly to respond_to_missing?" do
+          expect(parser.respond_to?(:model_title)).to be true
+          expect(parser.respond_to?(:model_description)).to be true
+          expect(parser.respond_to?(:model_nonexistent)).to be false
+        end
+      end
+
+      context "when all_translations_for receives invalid locales" do
+        it "handles nil locales gracefully" do
+          expect { parser.all_translations_for("field", nil) }.to raise_error(NoMethodError)
+        end
+
+        it "handles non-array locales" do
+          expect { parser.all_translations_for("field", "en") }.to raise_error(NoMethodError)
+        end
+      end
+
+      context "when translation_for receives non-string field" do
+        it "returns the field as-is for non-string values" do
+          expect(parser.translation_for(123)).to eq(123)
+          expect(parser.translation_for(nil)).to be_nil
+          expect(parser.translation_for({})).to eq({})
+        end
+      end
     end
   end
 end
