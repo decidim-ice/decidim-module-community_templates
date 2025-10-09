@@ -16,6 +16,11 @@ module Decidim
 
           transaction do
             importer.import!
+            TemplateUse.create!(
+              template_id: form.id,
+              organization: organization,
+              resource: importer.object
+            )
           end
           broadcast(:ok, importer.object)
         rescue StandardError => e

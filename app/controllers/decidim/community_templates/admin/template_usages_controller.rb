@@ -7,7 +7,7 @@ module Decidim
         def create
           Decidim::CommunityTemplates::TemplateMetadata.find(template_id)
           form = ImportTemplateForm.new(id: template_id).with_context(current_organization:, current_user:)
-          ImportTemplate.call(form) do |_on|
+          ImportTemplate.call(form) do
             on(:ok) do |object|
               flash[:notice] = I18n.t("decidim.community_templates.admin.template_usages.create.success")
               redirect_to ResourceLocatorPresenter.new(object).edit
