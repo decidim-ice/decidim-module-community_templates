@@ -46,6 +46,62 @@ module Decidim
           end
         end
 
+
+        context "when no space left on device (ENOSPC)" do
+          before do
+            allow(File).to receive(:read).and_raise(Errno::ENOSPC)
+          end
+
+          it "is invalid due to no space" do
+            expect(extractor).to be_invalid
+            expect(extractor.errors[:base]).to include(I18n.t("no_space", scope: extractor.i18n_scope))
+          end
+        end
+
+        context "when permission denied (EACCES)" do
+          before do
+            allow(File).to receive(:read).and_raise(Errno::EACCES)
+          end
+
+          it "is invalid due to permission denied" do
+            expect(extractor).to be_invalid
+            expect(extractor.errors[:base]).to include(I18n.t("permission_denied", scope: extractor.i18n_scope))
+          end
+        end
+
+        context "when file name too long (ENAMETOOLONG)" do
+          before do
+            allow(File).to receive(:read).and_raise(Errno::ENAMETOOLONG)
+          end
+
+          it "is invalid due to name too long" do
+            expect(extractor).to be_invalid
+            expect(extractor.errors[:base]).to include(I18n.t("name_too_long", scope: extractor.i18n_scope))
+          end
+        end
+
+        context "when read-only filesystem (EROFS)" do
+          before do
+            allow(File).to receive(:read).and_raise(Errno::EROFS)
+          end
+
+          it "is invalid due to read-only filesystem" do
+            expect(extractor).to be_invalid
+            expect(extractor.errors[:base]).to include(I18n.t("read_only_filesystem", scope: extractor.i18n_scope))
+          end
+        end
+
+        context "when unknown file system error occurs" do
+          before do
+            allow(File).to receive(:read).and_raise(StandardError.new("Unknown error"))
+          end
+
+          it "is invalid due to unknown error" do
+            expect(extractor).to be_invalid
+            expect(extractor.errors[:base]).to include(I18n.t("unknown", scope: extractor.i18n_scope))
+          end
+        end
+
         context "when data.json contains invalid template metadata" do
           let(:template_path) { "spec/fixtures/template_test/invalid_id" }
 
@@ -122,6 +178,7 @@ module Decidim
         end
 
         context "when template is valid" do
+          let(:template_path) { "spec/fixtures/template_test/valid" }
           it "is valid" do
             expect(extractor).to be_valid
           end
