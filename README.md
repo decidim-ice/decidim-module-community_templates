@@ -74,19 +74,19 @@ Contains the template metadata and model attributes:
 
 ```json
 {
-  "id": "pp-template-001",
+  "id": "853330aa-0771-4218-8afe-1b199676fbc2",
   "class": "Decidim::ParticipatoryProcess",
   "original_id": 1,
-  "name": "pp-template-001.metadata.name",
-  "description": "pp-template-001.metadata.description",
+  "name": "853330aa-0771-4218-8afe-1b199676fbc2.metadata.name",
+  "description": "853330aa-0771-4218-8afe-1b199676fbc2.metadata.description",
   "version": "1.0.0",
   "decidim_version": "0.30.1",
   "community_templates_version": "0.0.1",
   "attributes": {
-    "title": "pp-template-001.attributes.title",
-    "subtitle": "pp-template-001.attributes.subtitle",
-    "short_description": "pp-template-001.attributes.short_description",
-    "description": "pp-template-001.attributes.description"
+    "title": "853330aa-0771-4218-8afe-1b199676fbc2.attributes.title",
+    "subtitle": "853330aa-0771-4218-8afe-1b199676fbc2.attributes.subtitle",
+    "short_description": "853330aa-0771-4218-8afe-1b199676fbc2.attributes.short_description",
+    "description": "853330aa-0771-4218-8afe-1b199676fbc2.attributes.description"
   }
 }
 ```
@@ -101,7 +101,7 @@ Contains all translatable content, note that this follow the same specification 
 
 ```yaml
 en:
-  pp-template-001:
+  853330aa-0771-4218-8afe-1b199676fbc2:
     metadata:
       name: "Community Participation Template"
       description: "A template for community engagement processes"

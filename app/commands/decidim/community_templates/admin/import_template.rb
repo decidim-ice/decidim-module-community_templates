@@ -25,13 +25,7 @@ module Decidim
         private
 
         def importer
-          @importer ||= "Decidim::CommunityTemplates::Importers::#{importer_class}".constantize.new(form.parser, organization, user, demo: form.demo)
-        end
-
-        # a very naive way to get the importer class from the metadata
-        # we might want to create a registry of importers instead
-        def importer_class
-          form.parser.metadata["class"].split("::").last
+          @importer ||= form.importer.new(form.parser, organization, user)
         end
       end
     end

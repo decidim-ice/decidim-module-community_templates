@@ -31,7 +31,7 @@ module Decidim
               translations: parser.translations,
               locales: parser.locales
             )
-            Decidim::CommunityTemplates::Importers::Component.new(component_parser, organization, user, parent: self, demo:).import!
+            Decidim::CommunityTemplates::Importers::Component.new(component_parser, organization, user, parent: self).import!
           end
           @object
         end

@@ -6,7 +6,18 @@ module Decidim
       class TemplateUsagesController < Decidim::CommunityTemplates::Admin::ApplicationController
         def create
           Decidim::CommunityTemplates::TemplateMetadata.find(template_id)
-          raise "Not Implemented"
+          form = ImportTemplateForm.new(id: template_id).with_context(current_organization:, current_user:)
+          ImportTemplate.call(form) do |_on|
+            on(:ok) do |object|
+              flash[:notice] = I18n.t("decidim.community_templates.admin.template_usages.create.success")
+              redirect_to ResourceLocatorPresenter.new(object).edit
+            end
+
+            on(:invalid) do |_error_message|
+              flash[:alert] = I18n.t("decidim.community_templates.admin.template_usages.create.error")
+              redirect_back fallback_location: decidim_admin.root_path
+            end
+          end
         end
 
         private

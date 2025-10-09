@@ -2,6 +2,9 @@
 
 module Decidim
   module CommunityTemplates
+    ##
+    # Extract a template from a directory <catalog_path>/<id>
+    #
     class TemplateExtractor
       include ActiveModel::Model
       include Decidim::AttributeObject::Model
@@ -9,6 +12,8 @@ module Decidim
       attribute :locales, Array[String]
       validates :template_path, presence: true
       validates :locales, inclusion: { in: Decidim.available_locales.map(&:to_s) }
+      validate :validate_template_path
+      validate :validate_data
 
       def translations_path
         return nil unless dir_exists?(template_path)
@@ -28,6 +33,9 @@ module Decidim
 
       def data
         @data ||= JSON.parse(read_file("data.json"))
+      rescue JSON::ParserError
+        errors.add(:base, I18n.t("unknown", scope: i18n_scope))
+        {}
       end
 
       def translations
@@ -71,7 +79,10 @@ module Decidim
       end
 
       def read_file(path)
-        File.read(File.join(template_path, path))
+        content = File.read(File.join(template_path, path))
+        raise "Empty file" if content.blank?
+
+        content
       rescue StandardError => e
         case e
         when Errno::ENOENT
@@ -94,6 +105,24 @@ module Decidim
         return {} unless File.exist?(File.join(template_path, path))
 
         YAML.load_file(File.join(template_path, path))
+      end
+
+      private
+
+      def validate_template_path
+        return if dir_exists?(template_path)
+
+        errors.add(:base, I18n.t("template_path_not_found", scope: i18n_scope))
+      end
+
+      def validate_data
+        return errors.add(:base, I18n.t("data_blank", scope: i18n_scope)) if data.blank? || data.empty?
+
+        metas = TemplateMetadata.new(data)
+        metas.validate
+        metas.errors.full_messages.each do |message|
+          errors.add(:base, I18n.t("malformed_data", scope: i18n_scope, error_message: message))
+        end
       end
     end
   end

@@ -11,6 +11,11 @@ en:
               must_be_after_created_at: Updated at must be after created at
         decidim/community_templates/template_metadata:
           attributes:
+            data:
+              blank: is empty
+            importer_class:
+              importer_class_not_found: is not found. Can't import this template,
+                try to upgrade your installation
             links:
               bad_format: must be valid links starting with https://
         template:
@@ -71,6 +76,8 @@ en:
           public_link_placeholder: https://example.com/catalog/1234-5678-9012-3456-7890-1234-5678-9012
           template_link_label: Template Link
           try_demo_button: Try demo
+        import_from_link:
+          success: The template has been imported successfully.
         menu:
           community_templates: Community templates
           create_template: Create template
@@ -82,8 +89,12 @@ en:
         template_create:
           cancel_button: Cancel
           errors:
+            data_blank: Server error, contact your administrator. (Manifest file is
+              blank)
             file_not_found: 'Server error, contact your administrator. (File not found:
               catalog or template directory do not exist)'
+            malformed_data: 'Server error, contact your administrator. (Malformed
+              data: %{error_message})'
             name_too_long: 'Server error, contact your administrator. (File name too
               long: template directory name is too long)'
             no_space: 'Server error, contact your administrator. (No space left on
@@ -92,6 +103,8 @@ en:
               denied: catalog directory is not writable)'
             read_only_filesystem: Server error, contact your administrator. (Catalog
               directory is read only)
+            template_path_not_found: Server error, contact your administrator. (Template
+              path not found)
             unknown: 'Server error, contact your administrator. (Unknown error: %{error})'
           source_id_help_text: The template will be an anonymized copy of this. No
             user data will be made public.
@@ -143,6 +156,10 @@ en:
             user data will be made public. This can not be changed.
           submit_button: Share update
           title: Community template
+        template_usages:
+          create:
+            error: There was an error importing the template.
+            success: The template has been imported successfully.
         templates:
           apply:
             demo: Include demo data

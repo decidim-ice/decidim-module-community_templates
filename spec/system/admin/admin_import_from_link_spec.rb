@@ -62,7 +62,7 @@ describe "Admin import template from link" do
         allow(Net::HTTP).to receive(:get_response).and_return(double(code: "404", body: ""))
         fill_in "Link", with: "https://example.com"
         click_on "Go"
-        within("#template-direct-link-modal-content") do
+        within("#template-direct-link-modal-content .form-error.is-visible.template-direct-link__input") do
           expect(page).to have_content(/Manifest file not found/)
         end
       end
@@ -107,8 +107,8 @@ describe "Admin import template from link" do
 
         it "enable the install and try demo buttons" do
           within("#template-direct-link-modal-content") do
-          expect(page).to have_button("Install")
-          expect(page).to have_no_css(".template-direct-link__link--disabled")
+            expect(page).to have_button("Install")
+            expect(page).to have_no_css(".template-direct-link__link--disabled")
           end
           within(".template-direct-link__form-section") do
             expect(page).to have_css(".catalog_summary__title", text: "Idea Board Template")

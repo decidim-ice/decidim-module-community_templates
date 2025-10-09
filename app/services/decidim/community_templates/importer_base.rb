@@ -3,15 +3,14 @@
 module Decidim
   module CommunityTemplates
     class ImporterBase
-      def initialize(parser, organization, user, demo: false, parent: nil)
+      def initialize(parser, organization, user, parent: nil)
         @parser = parser
         @organization = organization
         @user = user
-        @demo = demo
         @parent = parent
       end
 
-      attr_reader :parser, :organization, :user, :demo, :parent, :object
+      attr_reader :parser, :organization, :user, :parent, :object
 
       def import!
         raise NotImplementedError, "You must implement the import! method in your importer"

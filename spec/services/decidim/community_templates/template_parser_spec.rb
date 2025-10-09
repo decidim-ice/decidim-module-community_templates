@@ -9,24 +9,24 @@ module Decidim
       let(:parser) { described_class.new(data:, translations:, locales:) }
       let(:data) do
         {
-          "id" => "pp-template-001",
+          "id" => "853330aa-0771-4218-8afe-1b199676fbc2",
           "@class" => "Decidim::ParticipatoryProcess",
-          "name" => "pp-template-001.metadata.name",
-          "description" => "pp-template-001.metadata.description",
+          "name" => "853330aa-0771-4218-8afe-1b199676fbc2.metadata.name",
+          "description" => "853330aa-0771-4218-8afe-1b199676fbc2.metadata.description",
           "version" => "1.0.0",
           "decidim_version" => "0.30.1",
           "community_templates_version" => "0.0.1",
           "original_id" => 1,
           "attributes" => {
-            "title" => "pp-template-001.attributes.title",
-            "description" => "pp-template-001.attributes.description"
+            "title" => "853330aa-0771-4218-8afe-1b199676fbc2.attributes.title",
+            "description" => "853330aa-0771-4218-8afe-1b199676fbc2.attributes.description"
           }
         }
       end
       let(:translations) do
         {
           "en" => {
-            "pp-template-001" => {
+            "853330aa-0771-4218-8afe-1b199676fbc2" => {
               "metadata" => {
                 "name" => "Participatory process template",
                 "description" => "A template for participatory processes"
@@ -38,7 +38,7 @@ module Decidim
             }
           },
           "ca" => {
-            "pp-template-001" => {
+            "853330aa-0771-4218-8afe-1b199676fbc2" => {
               "metadata" => {
                 "name" => "Plantilla de procés participatiu",
                 "description" => "Una plantilla per a processos participatius"
@@ -59,13 +59,13 @@ module Decidim
       it "returns metadata correctly" do
         expect(metadata).to be_a(Hash)
 
-        expect(metadata["id"]).to eq("pp-template-001")
+        expect(metadata["id"]).to eq("853330aa-0771-4218-8afe-1b199676fbc2")
         expect(parser.name).to eq("Participatory process template")
         expect(parser.description).to eq("A template for participatory processes")
         expect(parser.version).to eq("1.0.0")
 
-        expect(metadata["name"]).to eq("pp-template-001.metadata.name")
-        expect(metadata["description"]).to eq("pp-template-001.metadata.description")
+        expect(metadata["name"]).to eq("853330aa-0771-4218-8afe-1b199676fbc2.metadata.name")
+        expect(metadata["description"]).to eq("853330aa-0771-4218-8afe-1b199676fbc2.metadata.description")
         expect(metadata["version"]).to eq("1.0.0")
         expect(metadata["decidim_version"]).to eq("0.30.1")
         expect(metadata["community_templates_version"]).to eq("0.0.1")
@@ -82,8 +82,8 @@ module Decidim
 
         expect(parser.model_title).to eq("Participatory process title")
         expect(parser.model_description).to eq("Participatory process description")
-        expect(attributes["title"]).to eq("pp-template-001.attributes.title")
-        expect(attributes["description"]).to eq("pp-template-001.attributes.description")
+        expect(attributes["title"]).to eq("853330aa-0771-4218-8afe-1b199676fbc2.attributes.title")
+        expect(attributes["description"]).to eq("853330aa-0771-4218-8afe-1b199676fbc2.attributes.description")
       end
 
       it "returns translations correctly for the model translatable fields" do
@@ -100,7 +100,7 @@ module Decidim
         it "returns metadata correctly" do
           expect(metadata).to be_a(Hash)
 
-          expect(metadata["id"]).to eq("pp-template-001")
+          expect(metadata["id"]).to eq("853330aa-0771-4218-8afe-1b199676fbc2")
           expect(parser.name).to eq("Plantilla de procés participatiu")
           expect(parser.description).to eq("Una plantilla per a processos participatius")
           expect(metadata["version"]).to eq("1.0.0")

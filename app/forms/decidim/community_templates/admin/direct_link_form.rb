@@ -13,6 +13,7 @@ module Decidim
         validate :validate_link_ends_with_uuid
         validate :validate_coherence
         validate :validate_template
+        validate :validate_importer_class, if: -> { template.present? }
         delegate :name, :description, :version, :author, :links, to: :template
 
         alias template_id id
@@ -30,13 +31,27 @@ module Decidim
         end
 
         def parser
-          return nil if normalized_link.blank?
+          return nil if normalized_link.blank? || extractor.blank?
 
           @parser ||= TemplateParser.new(
             data: extractor.data,
             translations: extractor.translations,
             locales: Decidim.available_locales.map(&:to_s)
           )
+        end
+
+        def importer_class
+          @importer_class ||= "Decidim::CommunityTemplates::Importers::#{template.attributes["@class"]&.demodulize}"
+        end
+
+        def importer
+          @importer ||= importer_class.constantize if importer?
+        end
+
+        def importer?
+          template && template.attributes["@class"].present? && importer_class.present? && Object.const_defined?(importer_class)
+        rescue NameError
+          false
         end
 
         def description_html
@@ -48,6 +63,15 @@ module Decidim
         end
 
         private
+
+        def validate_importer_class
+          return if importer?
+
+          errors.add(:importer_class, I18n.t(
+                                        "importer_class_not_found",
+                                        scope: "activemodel.errors.models.decidim/community_templates/template_metadata.attributes.importer_class"
+                                      ))
+        end
 
         def markdown_to_html(text)
           markdown.render(text).html_safe
@@ -119,6 +143,8 @@ module Decidim
             template_path: normalized_link,
             locales: Decidim.available_locales.map(&:to_s)
           )
+        rescue ActiveModel::ValidationError
+          nil
         end
       end
     end

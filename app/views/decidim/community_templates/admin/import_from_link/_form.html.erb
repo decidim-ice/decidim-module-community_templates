@@ -18,7 +18,6 @@ end
       <% if form.has_manifest? %>
         <%= f.hidden_field :link, value: form.link %>
         <div class="template-direct-link__form-section">
-
           <%= render partial: "decidim/view_model/community_templates/design/catalog_summary", locals: {
             id: "Catalog#{form.template_id}",
             title: form.name,
@@ -34,9 +33,7 @@ end
           <a href="#" class="template-direct-link__link">
             <%= t("try_demo_button", scope: i18n_scope) %>
           </a>
-          <%= button_to decidim_admin_community_templates.template_usages_path, method: :post, class: "template-direct-link__link" do %>
-            <%= t("install_button", scope: i18n_scope) %>
-          <% end %>
+          <%= f.submit t("install_button", scope: i18n_scope), value: "install", class: "template-direct-link__link" %>
         </div>
       <% else %>
         <div class="template-direct-link__form-section">
@@ -56,7 +53,7 @@ end
                 </a>
               </span>
             </div>
-            <%= f.submit t("go_button", scope: i18n_scope), class: "button button__lg template-direct-link__button" %>
+            <%= f.submit t("go_button", scope: i18n_scope), value: "fetch", class: "button button__lg template-direct-link__button" %>
           </div>
         </div>
         <div class="template-direct-link__actions-section">

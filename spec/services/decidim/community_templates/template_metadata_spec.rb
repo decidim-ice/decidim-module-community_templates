@@ -100,7 +100,7 @@ module Decidim
         let(:template) { create(:template_metadata) }
 
         it "raises an error if the manifest.json is malformatted" do
-          expect { TemplateMetadata.from_path(fixtures_path.join("malformatted")) }.to raise_error(JSON::ParserError)
+          expect { TemplateMetadata.from_path(fixtures_path.join("malformatted")) }.to raise_error(ActiveModel::ValidationError)
         end
 
         it "ignores extra fields" do
