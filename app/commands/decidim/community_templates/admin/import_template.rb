@@ -15,6 +15,9 @@ module Decidim
           return broadcast(:invalid, form.errors.full_messages.to_sentence) if form.invalid?
 
           transaction do
+            template_id = form.id
+            metas = Decidim::CommunityTemplates::TemplateMetadata.find(template_id)
+            metas.validate!
             importer.import!
             TemplateUse.create!(
               template_id: form.id,

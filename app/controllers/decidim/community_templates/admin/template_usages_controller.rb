@@ -5,7 +5,6 @@ module Decidim
     module Admin
       class TemplateUsagesController < Decidim::CommunityTemplates::Admin::ApplicationController
         def create
-          Decidim::CommunityTemplates::TemplateMetadata.find(template_id)
           form = ImportTemplateForm.new(id: template_id).with_context(current_organization:, current_user:)
           ImportTemplate.call(form) do
             on(:ok) do |object|
@@ -23,7 +22,7 @@ module Decidim
         private
 
         def template_id
-          params.require(:template_id)
+          @template_id ||= params.require(:template_id)
         end
       end
     end

@@ -3,69 +3,80 @@
   "@class": "Decidim::ParticipatoryProcess",
   "attributes": {
     "title": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.title",
+    "subtitle": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.subtitle",
+    "short_description": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.short_description",
     "description": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.description",
     "components": [
       {
         "id": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.accountability_1",
         "@class": "Decidim::Component",
         "attributes": {
-          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.accountability_1.attributes.name"
+          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.accountability_1.attributes.name",
+          "manifest_name": "accountability"
         }
       },
       {
         "id": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.blogs_2",
         "@class": "Decidim::Component",
         "attributes": {
-          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.blogs_2.attributes.name"
+          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.blogs_2.attributes.name",
+          "manifest_name": "blogs"
         }
       },
       {
         "id": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.budgets_3",
         "@class": "Decidim::Component",
         "attributes": {
-          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.budgets_3.attributes.name"
+          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.budgets_3.attributes.name",
+          "manifest_name": "budgets"
         }
       },
       {
         "id": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.debates_4",
         "@class": "Decidim::Component",
         "attributes": {
-          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.debates_4.attributes.name"
+          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.debates_4.attributes.name",
+          "manifest_name": "debates"
         }
       },
       {
         "id": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.meetings_5",
         "@class": "Decidim::Component",
         "attributes": {
-          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.meetings_5.attributes.name"
+          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.meetings_5.attributes.name",
+          "manifest_name": "meetings"
         }
       },
       {
         "id": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.pages_6",
         "@class": "Decidim::Component",
         "attributes": {
-          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.pages_6.attributes.name"
+          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.pages_6.attributes.name",
+          "manifest_name": "pages"
         }
       },
       {
         "id": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.proposals_7",
         "@class": "Decidim::Component",
         "attributes": {
-          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.proposals_7.attributes.name"
+          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.proposals_7.attributes.name",
+          "manifest_name": "proposals"
         }
       },
       {
         "id": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.sortitions_8",
         "@class": "Decidim::Component",
         "attributes": {
-          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.sortitions_8.attributes.name"
+          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.sortitions_8.attributes.name",
+          "manifest_name": "sortitions"
         }
       },
       {
         "id": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.surveys_9",
         "@class": "Decidim::Component",
         "attributes": {
-          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.surveys_9.attributes.name"
+          "name": "00605f97-a5d6-4464-9c7e-5bc5d5840212.attributes.components.surveys_9.attributes.name",
+          "manifest_name": "surveys"
         }
       }
     ]

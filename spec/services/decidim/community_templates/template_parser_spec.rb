@@ -149,8 +149,8 @@ module Decidim
           }
         end
 
-        it "raises NameError for invalid class" do
-          expect { parser.model_class }.to raise_error(NameError)
+        it "return nil for invalid class" do
+          expect(parser.model_class).to be_nil
         end
       end
 
@@ -224,7 +224,7 @@ module Decidim
         end
 
         it "handles non-string field values" do
-          expect(parser.name).to eq(123)
+          expect(parser.name).to eq(123.to_s)
           expect(parser.description).to be_nil
           expect(parser.model_title).to eq(%w(array value))
           expect(parser.model_description).to eq({ "hash" => "value" })

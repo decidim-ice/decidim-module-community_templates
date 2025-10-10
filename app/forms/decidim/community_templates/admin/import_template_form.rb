@@ -10,7 +10,6 @@ module Decidim
         validates :id, format: { with: TemplateMetadata::UUID_REGEX }
         validates :importer_class, presence: true
         validate :validate_importer_class
-        validate :validate_parser
 
         def template_path
           @template_path ||= "#{Decidim::CommunityTemplates.catalog_path}/#{id}"
@@ -52,14 +51,6 @@ module Decidim
                                         scope: "activemodel.errors.models.decidim/community_templates/template_metadata.attributes.importer_class",
                                         importer_class: importer_class
                                       ))
-        end
-
-        def validate_parser
-          return if parser.valid?
-
-          parser.errors.full_messages.each do |message|
-            errors.add(:parser, message)
-          end
         end
       end
     end

@@ -20,6 +20,14 @@ module Decidim
         organization.available_locales
       end
 
+      def required!(field, value)
+        valid = value && value.present?
+        valid &&= !value.empty? if value.is_a?(Array) || value.is_a?(Hash)
+        raise "Value for #{field} is required" unless valid
+
+        value
+      end
+
       def slugify(text)
         text = text.values.first if text.is_a?(Hash)
         base_slug = text.to_s.parameterize

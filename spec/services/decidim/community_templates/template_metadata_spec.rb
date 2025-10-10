@@ -76,9 +76,33 @@ module Decidim
         end
       end
 
+      describe "#normalized_links" do
+        it "removes duplicates" do
+          template.links = ["https://duplicated.com", "https://duplicated.com/"]
+          expect(template.normalized_links).to eq(["https://duplicated.com"])
+        end
+
+        it "removes trailing slashes" do
+          template.links = ["https://example.com/"]
+          expect(template.normalized_links).to eq(["https://example.com"])
+        end
+
+        it "extract csv links" do
+          template.links = ["https://example.com/,https://new.com"]
+          expect(template.normalized_links).to eq(["https://example.com", "https://new.com"])
+        end
+
+        it "strips spaces" do
+          template.links = [" https://example.com ", "  https://new.com  , https://example2.com/  "]
+          expect(template.normalized_links).to eq(["https://example.com", "https://new.com", "https://example2.com"])
+        end
+      end
+
       describe "#as_json" do
-        it "does not include owned attribute" do
-          expect(template.as_json).not_to include("owned")
+        it "normalize links" do
+          template.links = ["https://example.com/", "https://duplicated.com", "https://duplicated.com/", "https://duplicated.com/", "https://example.com/,   https://new.com/"]
+
+          expect(template.as_json).to include("links" => ["https://example.com", "https://duplicated.com", "https://new.com"])
         end
       end
 

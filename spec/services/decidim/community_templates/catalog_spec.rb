@@ -6,7 +6,7 @@ module Decidim
   module CommunityTemplates
     describe Catalog do
       let(:organization) { create(:organization) }
-      let(:catalog) { create(:catalog, templates: create_list(:template_metadata, 1, :owned, organization:)) }
+      let(:catalog) { create(:catalog, templates: create_list(:template_metadata, 1, organization:)) }
 
       it "is valid with all attributes defined" do
         expect(catalog).to be_valid
@@ -31,7 +31,7 @@ module Decidim
 
       describe "#active_templates" do
         it "returns the not archived templates" do
-          catalog = create(:catalog, templates: create_list(:template_metadata, 3, :owned) + create_list(:template_metadata, 1, :archived))
+          catalog = create(:catalog, templates: create_list(:template_metadata, 3) + create_list(:template_metadata, 1, :archived))
           expect(catalog.active_templates.size).to eq(3)
         end
       end

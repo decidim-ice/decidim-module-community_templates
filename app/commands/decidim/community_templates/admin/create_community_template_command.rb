@@ -21,7 +21,6 @@ module Decidim
               template_id: form.template.id,
               organization: organization
             )
-            form.template.owned = true
             # Retrieve serializer for the source
             serializer = Decidim::CommunityTemplates::Serializers::ParticipatoryProcess.init(
               model: form.source,

@@ -10,30 +10,32 @@ module Decidim
 
         let(:user) { create(:user, :confirmed, :admin, organization:) }
         let(:organization) { create(:organization) }
-        let(:template_metadata) { create(:template_metadata, organization:) }
-        let(:template_id) { template_metadata.id }
+        let(:valid_template_id) { "00605f97-a5d6-4464-9c7e-5bc5d5840212" }
+        let(:invalid_template_id) { "invalid_id" }
+        let(:fixture_path) { Engine.root.join("spec/fixtures/catalog_test/valid") }
 
         before do
+          allow(Decidim::CommunityTemplates).to receive(:catalog_path).and_return(fixture_path)
           request.env["decidim.current_organization"] = user.organization
           sign_in user, scope: :user
         end
 
         describe "POST #create" do
-          let(:params) { { template_id: template_id } }
-
           context "when the import is successful" do
+            let(:params) { { template_id: valid_template_id } }
+
             before do
-              # Mock the form to be valid and return a proper importer
-              allow_any_instance_of(Decidim::CommunityTemplates::Admin::ImportTemplateForm).to receive(:valid?).and_return(true)
-              allow_any_instance_of(Decidim::CommunityTemplates::Admin::ImportTemplateForm).to receive(:importer).and_return(
-                double("Importer", new: double("ImporterInstance", import!: true, object: create(:participatory_process, organization:)))
-              )
-              allow(Decidim::CommunityTemplates::TemplateMetadata).to receive(:find).and_call_original
+              # Create a template source for the valid fixture
+              create(:community_template_source, template_id: valid_template_id, organization:)
             end
 
-            it "finds the template metadata" do
+            it "validates the template metadata" do
+              mocked = Decidim::CommunityTemplates::TemplateMetadata.find(valid_template_id)
+              allow(mocked).to receive(:validate!).and_call_original
+              allow(Decidim::CommunityTemplates::TemplateMetadata).to receive(:find).and_return(mocked)
               post :create, params: params
-              expect(Decidim::CommunityTemplates::TemplateMetadata).to have_received(:find).with(template_id)
+              expect(Decidim::CommunityTemplates::TemplateMetadata).to have_received(:find).with(valid_template_id)
+              expect(mocked).to have_received(:validate!)
             end
 
             it "sets success flash message" do
@@ -46,7 +48,7 @@ module Decidim
               expect(response).to have_http_status(:redirect)
             end
 
-            it "create a new space" do
+            it "creates a new space" do
               expect do
                 post :create, params: params
               end.to change(Decidim::ParticipatoryProcess, :count).by(1)
@@ -60,14 +62,8 @@ module Decidim
             end
           end
 
-          context "when the import fails" do
-            before do
-              # Mock the form to be invalid
-              allow_any_instance_of(Decidim::CommunityTemplates::Admin::ImportTemplateForm).to receive(:valid?).and_return(false)
-              allow_any_instance_of(Decidim::CommunityTemplates::Admin::ImportTemplateForm).to receive(:errors).and_return(
-                double("Errors", full_messages: ["Template is invalid"])
-              )
-            end
+          context "when the import fails due to invalid template" do
+            let(:params) { { template_id: "invalid_template_id" } }
 
             it "sets error flash message" do
               post :create, params: params
@@ -88,15 +84,14 @@ module Decidim
             end
           end
 
-          context "when template metadata is not found" do
-            before do
-              allow(Decidim::CommunityTemplates::TemplateMetadata).to receive(:find).with(template_id).and_raise(ActiveRecord::RecordNotFound)
-            end
+          context "when template metadata parsing fails" do
+            let(:non_existent_id) { SecureRandom.uuid }
+            let(:params) { { template_id: non_existent_id } }
 
-            it "raises ActiveRecord::RecordNotFound" do
-              expect do
-                post :create, params: params
-              end.to raise_error(ActiveRecord::RecordNotFound)
+            it "handles template parsing errors gracefully" do
+              post :create, params: params
+              expect(flash[:alert]).to eq(I18n.t("decidim.community_templates.admin.template_usages.create.error"))
+              expect(response).to redirect_to(%r{/admin})
             end
           end
         end
@@ -104,8 +99,8 @@ module Decidim
         describe "private methods" do
           describe "#template_id" do
             it "returns the template_id from params" do
-              controller.params = ActionController::Parameters.new(template_id: template_id)
-              expect(controller.send(:template_id)).to eq(template_id)
+              controller.params = ActionController::Parameters.new(template_id: valid_template_id)
+              expect(controller.send(:template_id)).to eq(valid_template_id)
             end
           end
         end

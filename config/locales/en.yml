@@ -55,13 +55,6 @@ en:
           update_template: Update template
         catalog:
           empty_catalog: Template Catalog is empty
-        catalogs:
-          index:
-            import: Import
-            title: Available catalogs
-          show:
-            imported_successfully: The catalog has been imported successfully.
-            not_found: The selected catalog could not be found.
         direct_link_modal:
           cancel_button: Close
           errors:

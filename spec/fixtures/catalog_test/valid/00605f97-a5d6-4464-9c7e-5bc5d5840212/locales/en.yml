@@ -4,6 +4,8 @@ en:
     attributes:
       title: Dolorum et nemo id ut.
       description: "<p>Aut labore veritatis. Quam sit sint. Sed error possimus.</p>"
+      subtitle: "Nemo id ut"
+      short_description: "<p>Aut labore veritatis. Quam sit sint. Sed error possimus.</p>"
       components:
         accountability_1:
           attributes:

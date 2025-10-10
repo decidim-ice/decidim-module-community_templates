@@ -43,15 +43,6 @@ module Decidim
         end
       end
 
-      initializer "decidim-community_templates.catalog_adapters" do |_app|
-        Decidim::CommunityTemplates.catalog_sources.each do |key, config|
-          Decidim::CommunityTemplates.catalog_registry.register(key) do |manifest|
-            manifest.adapter = config[:adapter]
-            manifest.options = config[:options] || {}
-          end
-        end
-      end
-
       initializer "decidim-community_templates.serializers" do |_app|
         Decidim::CommunityTemplates.serializers.each do |config|
           Decidim::CommunityTemplates.serializer_registry.register(config[:model]) do |manifest|

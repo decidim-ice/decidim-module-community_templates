@@ -21,7 +21,6 @@ module Decidim
       attribute :community_templates_version, String
       attribute :decidim_version, String
       attribute :archived_at, DateTime
-      attribute :owned, Boolean, default: false
       attribute :updated_at, DateTime
       attribute :created_at, DateTime, default: -> { Time.current }
 
@@ -36,6 +35,7 @@ module Decidim
       validates :created_at, presence: true
       validates :updated_at, comparison: { greater_than_or_equal_to: :created_at }, allow_nil: true, if: -> { created_at.present? }
       validate :validate_link_well_formed
+
       alias template_id id
       alias template_id= id=
 
@@ -44,8 +44,8 @@ module Decidim
       end
 
       def normalized_links
-        links_array = links.map { |l| l.split(", ") }.flatten
-        links_array.map { |l| l.strip.chomp("/") }
+        links_array = links.map { |l| l.split(",") }.flatten
+        links_array.map { |l| l.strip.chomp("/") }.uniq
       end
 
       def compatible?
@@ -69,7 +69,6 @@ module Decidim
 
       def metadatas
         raise ActiveModel::ValidationError, self unless valid?
-        return unless owned?
 
         as_json.merge(
           created_at: created_at || Time.current,
@@ -78,8 +77,6 @@ module Decidim
       end
 
       def delete(catalog_path)
-        return unless owned?
-
         template_path = catalog_path.join(id)
         FileUtils.rm_rf(template_path)
       end
@@ -102,7 +99,6 @@ module Decidim
       def as_json(*)
         json = super
         json["links"] = normalized_links
-        json.delete("owned")
         json
       end
     end

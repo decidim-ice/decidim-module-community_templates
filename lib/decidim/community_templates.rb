@@ -10,7 +10,6 @@ module Decidim
   module CommunityTemplates
     include ActiveSupport::Configurable
 
-    autoload :CatalogManifest, "decidim/community_templates/catalog_manifest"
     autoload :SerializerManifest, "decidim/community_templates/serializer_manifest"
     autoload :GitMirror, "decidim/community_templates/git_mirror"
     autoload :GitSettings, "decidim/community_templates/git_settings"
@@ -25,19 +24,6 @@ module Decidim
         password: ENV.fetch("TEMPLATE_GIT_PASSWORD", ""),
         author_name: ENV.fetch("TEMPLATE_GIT_AUTHOR_NAME", "Decidim Community Templates"),
         author_email: ENV.fetch("TEMPLATE_GIT_AUTHOR_EMAIL", "decidim-community-templates@example.org")
-      }
-    end
-
-    # Path where the module's built-in templates are stored.
-    config_accessor :catalog_sources do
-      {
-        default: {
-          adapter: :local_filesystem,
-          options: {
-            path: Decidim::CommunityTemplates::Engine.root.join("catalog"),
-            label: "Demo templates"
-          }
-        }
       }
     end
 
@@ -69,10 +55,6 @@ module Decidim
 
     def self.enabled?
       git_settings[:url].present?
-    end
-
-    def self.catalog_registry
-      @catalog_registry ||= ManifestRegistry.new("community_templates/catalogs")
     end
 
     def self.serializer_registry

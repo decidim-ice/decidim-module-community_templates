@@ -23,6 +23,32 @@ module Decidim
           end
         end
 
+        describe "#required" do
+          it "raises an error if the value is blank" do
+            expect { importer.required!(:name, nil) }.to raise_error(RuntimeError, /name is required/)
+          end
+
+          it "raises an error if the value is empty" do
+            expect { importer.required!(:name, "") }.to raise_error(RuntimeError, /name is required/)
+          end
+
+          it "raises an error if the value is an empty array" do
+            expect { importer.required!(:name, []) }.to raise_error(RuntimeError, /name is required/)
+          end
+
+          it "raises an error if the value is an empty hash" do
+            expect { importer.required!(:name, {}) }.to raise_error(RuntimeError, /name is required/)
+          end
+
+          it "returns the value if it is present" do
+            expect(importer.required!(:name, "Name")).to eq("Name")
+          end
+
+          it "returns the value if it is an non-empty array" do
+            expect(importer.required!(:name, ["Name"])).to eq(["Name"])
+          end
+        end
+
         describe "#slugify" do
           it "parameterizes the given text" do
             expect(importer.slugify("Test Process")).to eq("test-process")

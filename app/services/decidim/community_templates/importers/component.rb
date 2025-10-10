@@ -5,17 +5,18 @@ module Decidim
     module Importers
       class Component < ImporterBase
         def import!
-          @object = Decidim::Component.create!(
+          component_attributes = {
             participatory_space: parent.object,
-            name: parser.model_name(locales),
-            manifest_name: parser.model_manifest_name,
+            name: required!(:name, parser.model_name(locales)),
+            manifest_name: required!(:manifest_name, parser.model_manifest_name),
             settings:,
             weight: parser.model_weight
-          )
+          }.compact
+          @object = Decidim::Component.create!(component_attributes)
         end
 
         def settings
-          return {} unless parser.model_settings(locales).is_a?(Hash)
+          return nil unless parser.model_settings(locales).is_a?(Hash)
 
           parser.attributes["settings"].dup.transform_values do |scoped_settings|
             scoped_settings.each do |setting|
