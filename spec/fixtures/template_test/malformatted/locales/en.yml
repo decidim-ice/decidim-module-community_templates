@@ -1,0 +1,9 @@
+          THIS IS A MALFORMED YAML FILE
+en:
+  853330aa-0771-4218-8afe-1b199676fbc2:
+    metadata:
+      name: Participatory process template
+      description: A template for participatory processes
+    attributes:
+      title: Participatory process title
+      description: Participatory process description

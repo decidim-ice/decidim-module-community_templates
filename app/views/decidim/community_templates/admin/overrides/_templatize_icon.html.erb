@@ -1,16 +1,23 @@
 <% if Decidim::CommunityTemplates.enabled? %>
-  <% template_match = Decidim::CommunityTemplates::TemplateSource.find_by(source: process) %>
+  <%
+  space = process
+  template_match = Decidim::CommunityTemplates::TemplateSource.find_by(source: space)
+  form = Decidim::CommunityTemplates::Admin::TemplateSourceForm.new(
+    source_id: space.to_global_id,
+    template: template_match ? template_match.template : Decidim::CommunityTemplates::TemplateMetadata.new
+  )
+  %>
 
   <%= icon_link_to "link",
-                   decidim_participatory_processes.participatory_process_path(process),
+                   decidim_participatory_processes.participatory_process_path(space),
                    template_match ? t("actions.update_template", scope: "decidim.community_templates.admin") : t("actions.new_template", scope: "decidim.community_templates.admin"),
                    class: "action-icon--templatize",
                    target: "_blank",
-                   data: { "external-link": false, "dialog-open": template_match ? "template-update-#{template_match.id}" : "template-create-#{process.id}" } %>
+                   data: { "external-link": false, "dialog-open": "modal-template-#{space.id}" } %>
 
   <% if template_match %>
-    <%= cell "decidim/community_templates/admin/template_update_modal", template_match %>
+    <%= cell "decidim/community_templates/admin/template_update_modal", template_match.template, form: %>
   <% else %>
-    <%= cell "decidim/community_templates/admin/template_create_modal", process %>
+    <%= cell "decidim/community_templates/admin/template_create_modal", space, form: %>
   <% end %>
 <% end %>

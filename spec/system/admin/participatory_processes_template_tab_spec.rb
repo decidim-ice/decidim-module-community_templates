@@ -11,12 +11,11 @@ describe "Participatory processes template tab" do
   before do
     allow(Decidim::CommunityTemplates).to receive(:enabled?).and_return(true)
     switch_to_host(organization.host)
+    FileUtils.rm_rf(Decidim::CommunityTemplates.catalog_path)
+    FileUtils.cp_r(fixture_path, Decidim::CommunityTemplates.catalog_path)
+    Decidim::CommunityTemplates::Catalog.from_path(Decidim::CommunityTemplates.catalog_path)
     login_as user, scope: :user
     visit decidim_admin_community_templates.community_templates_path
-    # Place a valid catalog in the catalog folder
-    catalog = Decidim::CommunityTemplates::Catalog.from_path(fixture_path)
-    catalog.templates.each { |t| t.owned = true }
-    catalog.write(Decidim::CommunityTemplates.catalog_path)
   end
 
   it "<title> the page with Community Templates" do
@@ -49,13 +48,13 @@ describe "Participatory processes template tab" do
 
   it "parses markdown content in template card" do
     within(".template-card__intro", text: "Idea Board Template") do
-      expect(page).to have_css(".template-card__content a", text: "Octree")
+      expect(page).to have_css(".catalog_summary__content a", text: "Octree")
     end
   end
 
   it "displays only host for links" do
     within(".template-card__intro", text: "Idea Board Template") do
-      expect(page).to have_css(".template-card__metadatas-item a[href='https://octree.ch']", text: "octree.ch")
+      expect(page).to have_css(".catalog_summary__metadatas-item a[href='https://octree.ch']", text: "octree.ch")
     end
   end
 

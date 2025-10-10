@@ -5,7 +5,7 @@ require "git"
 FactoryBot.define do
   factory :git_settings, class: "Decidim::CommunityTemplates::GitSettings" do
     skip_create
-    repo_url { Faker::Internet.url(scheme: "https") }
+    repo_url { "#{Faker::Internet.url(scheme: "https")}.git" }
     repo_branch { "main" }
     repo_username { Faker::Internet.username }
     repo_password { Faker::Internet.password }

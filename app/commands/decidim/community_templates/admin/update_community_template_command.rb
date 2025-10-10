@@ -4,17 +4,29 @@ module Decidim
   module CommunityTemplates
     module Admin
       class UpdateCommunityTemplateCommand < Decidim::Command
-        attr_reader :form
+        attr_reader :form, :organization
 
-        def initialize(form)
+        def initialize(form, organization)
           @form = form
+          @organization = organization
         end
 
         def call
           return broadcast(:invalid) if form.invalid?
 
-          form.template.owned = true
-          form.template.write(Decidim::CommunityTemplates.catalog_path)
+          serializer = Decidim::CommunityTemplates::Serializers::ParticipatoryProcess.init(
+            model: form.source,
+            locales: [organization.default_locale],
+            with_manifest: true,
+            metadata: form.template.as_json
+          )
+          serializer.metadata_translations!
+          serializer.save!(Decidim::CommunityTemplates.catalog_path)
+
+          match = Decidim::CommunityTemplates::TemplateSource.find_by(source: form.source, organization:)
+          match.update(updated_at: Time.current)
+
+          GitSyncronizerJob.perform_now
           broadcast(:ok)
         rescue StandardError => e
           Rails.logger.error("[Decidim::CommunityTemplates] Error updating template: #{e.message}")

@@ -48,10 +48,15 @@ module Decidim
 
       ##
       # Ensure there is at least one commit in the repository.
+      # We use this to setup a standard repository.
       def tada_commit
-        File.write(catalog_path.join("manifest.json").to_s, "{}")
-        git.add(catalog_path.join("manifest.json").to_s)
-        git.commit(":tada: Add empty manifest.json")
+        tada_commit_fixture = Engine.root.join("lib", "decidim", "community_templates", "tada_commit")
+        tada_commit_fixture.children.select { |child| child.extname == ".md" }.each do |file|
+          file_path = catalog_path.join(file.basename).to_s
+          File.write(file_path, file.read)
+          git.add(file_path)
+        end
+        git.commit_all(":tada: Add empty manifest.json")
       end
 
       ##

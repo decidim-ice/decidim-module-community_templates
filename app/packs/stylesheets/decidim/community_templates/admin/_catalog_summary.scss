@@ -1,0 +1,33 @@
+.catalog_summary {
+
+  &__title {
+    @extend .h3;
+    @apply mb-2;
+    line-height: 1.2;  
+  }
+  &__metadatas {
+    @apply flex flex-row;
+    color: var(--cm-gray-900);
+    line-height: 1;
+    gap: 0.5rem;
+  }
+  &__metadatas-item a {
+    @apply text-secondary;
+    &:hover {
+     @apply opacity-80 underline;
+    }
+  }
+
+
+  &__content {
+    @apply mt-4;
+    max-width: 40rem;
+    color: var(--cm-gray-900);
+    a {
+      @apply text-secondary;
+      &:hover {
+        @apply opacity-80 underline;
+      }  
+    }
+  }
+}

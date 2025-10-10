@@ -9,16 +9,18 @@ module Decidim
       include ActiveModel::Model
       include Decidim::AttributeObject::Model
 
-      attribute :templates, Array[Template]
+      attribute :templates, Array[TemplateMetadata]
       validate :templates_are_valid
 
       def self.from_path(path)
         template_dirs = path.children.select do |child|
           # must be a directory in a uuid format
-          child.directory? && child.basename.to_s.match?(Template::UUID_REGEX)
+          child.directory? && child.basename.to_s.match?(TemplateMetadata::UUID_REGEX)
         end
         templates = template_dirs.map do |template_path|
-          Template.from_path(template_path)
+          TemplateExtractor.parse(
+            template_path
+          ).template
         end
         model = new(
           templates: templates || []
@@ -31,22 +33,11 @@ module Decidim
         templates.reject(&:archived?)
       end
 
-      def write(path)
-        raise ActiveModel::ValidationError, self unless valid?
-
-        FileUtils.mkdir_p(path)
-        # Write the templates, one folder per template
-        templates.each do |template|
-          template.write(path)
-        end
-        Rails.logger.info("Catalog wrote #{templates.size} templates to #{path}")
-      end
-
       private
 
       def templates_are_valid
         templates.each do |template|
-          next errors.add(:templates, :invalid) unless template.is_a?(Template)
+          next errors.add(:templates, :invalid) unless template.is_a?(TemplateMetadata)
 
           errors.add(:templates, :invalid) unless template.valid?
         end

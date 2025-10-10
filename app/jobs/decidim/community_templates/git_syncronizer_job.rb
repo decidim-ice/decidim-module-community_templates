@@ -7,7 +7,7 @@ module Decidim
       discard_on Decidim::CommunityTemplates::GitError
       retry_on Git::Error, wait: 1.minute, attempts: 3
       def perform
-        return if CommunityTemplates.git_settings[:url].blank?
+        return unless CommunityTemplates.enabled?
 
         # Be sure to apply configuration to current git
         GitCatalogNormalizer.call
@@ -15,13 +15,31 @@ module Decidim
         git_mirror = GitMirror.instance
         git_mirror.validate!
 
-        if git_mirror.git.status.untracked.size.positive?
-          git_mirror.git.add(all: true)
-          # Commit changes
-          git_mirror.git.commit(message: "Update community templates")
-          git_mirror.push!
-        end
+        git_mirror.push! if git_mirror.writable?
+
         git_mirror.pull
+
+        reload_public_files!
+      end
+
+      private
+
+      def reload_public_files!
+        # Create a public/catalog.swp the time to copy files, and then replace the original
+        public_catalog_path = Rails.public_path.join("catalog")
+        swap_dir = "#{public_catalog_path}.swp"
+        FileUtils.rm_rf(swap_dir)
+        FileUtils.mkdir_p(swap_dir)
+        # Go over every directory that matches uuid and copy it to the swap directory
+        Dir.glob(Decidim::CommunityTemplates.catalog_path.children.select do |d|
+          d.directory? && d.basename.to_s.match?(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
+        end).each do |dir|
+          FileUtils.cp_r(dir, swap_dir)
+        end
+
+        # Replace the original catalog with the swap directory
+        FileUtils.rm_rf(public_catalog_path)
+        FileUtils.mv(swap_dir, public_catalog_path)
       end
     end
   end

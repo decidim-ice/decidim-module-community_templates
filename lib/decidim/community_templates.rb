@@ -10,7 +10,6 @@ module Decidim
   module CommunityTemplates
     include ActiveSupport::Configurable
 
-    autoload :CatalogManifest, "decidim/community_templates/catalog_manifest"
     autoload :SerializerManifest, "decidim/community_templates/serializer_manifest"
     autoload :GitMirror, "decidim/community_templates/git_mirror"
     autoload :GitSettings, "decidim/community_templates/git_settings"
@@ -28,19 +27,6 @@ module Decidim
       }
     end
 
-    # Path where the module's built-in templates are stored.
-    config_accessor :catalog_sources do
-      {
-        default: {
-          adapter: :local_filesystem,
-          options: {
-            path: Decidim::CommunityTemplates::Engine.root.join("catalog"),
-            label: "Demo templates"
-          }
-        }
-      }
-    end
-
     config_accessor :serializers do
       [
         {
@@ -50,33 +36,25 @@ module Decidim
       ]
     end
 
-    # Path where local templates are stored.
+    # Path where templates are stored.
     # If this folder doesn't exist, it will be created automatically.
     # Note that you might want to ensure persistence of this folder if you're using
     # a containerized deployment (e.g. use a volume in Docker).
     # Unless starting with "/", this path is relative to Rails.root.
-    config_accessor :local_templates_path do
-      "community_templates"
+    config_accessor :catalog_dir do
+      "catalog"
     end
 
-    def self.local_path
-      if Decidim::CommunityTemplates.local_templates_path.start_with?("/")
-        Pathname.new(Decidim::CommunityTemplates.local_templates_path)
+    def self.catalog_path
+      if Decidim::CommunityTemplates.catalog_dir.to_s.start_with?("/")
+        Pathname.new(Decidim::CommunityTemplates.catalog_dir)
       else
-        Rails.root.join(Decidim::CommunityTemplates.local_templates_path)
+        Rails.root.join(Decidim::CommunityTemplates.catalog_dir)
       end
     end
 
     def self.enabled?
       git_settings[:url].present?
-    end
-
-    def self.catalog_path
-      Rails.public_path.join("catalog")
-    end
-
-    def self.catalog_registry
-      @catalog_registry ||= ManifestRegistry.new("community_templates/catalogs")
     end
 
     def self.serializer_registry

@@ -17,8 +17,8 @@ module Decidim
           expect(subject).to have_css("form[data-remote='true']")
         end
 
-        it "use a template-create-<participatory_process.id> as modal id" do
-          expect(subject).to have_css("#template-create-#{participatory_process.id}")
+        it "use a modal-template-<participatory_process.id> as modal id" do
+          expect(subject).to have_css("#modal-template-#{participatory_process.id}")
         end
 
         it "have a POST form" do
@@ -33,14 +33,14 @@ module Decidim
         end
 
         it "is closable" do
-          expect(subject).to have_css("[data-dialog-close='template-create-#{participatory_process.id}']")
+          expect(subject).to have_css("[data-dialog-close='modal-template-#{participatory_process.id}']")
         end
 
         it "have fields for the template form" do
-          expect(subject).to have_field("template_source[template][title]")
+          expect(subject).to have_field("template_source[template][name]")
           expect(subject).to have_field("template_source[template][author]")
           expect(subject).to have_field("template_source[template][links]")
-          expect(subject).to have_field("template_source[template][short_description]")
+          expect(subject).to have_field("template_source[template][description]")
         end
 
         it "have a disabled select field for the source_id" do
@@ -49,13 +49,14 @@ module Decidim
 
         context "when passing form as option" do
           let(:another_template) do
-            Decidim::CommunityTemplates::Template.new(
-              title: "Another Template",
+            Decidim::CommunityTemplates::TemplateMetadata.new(
+              name: "Another Template",
               author: "Another Author",
               links: ["https://example.com"],
-              short_description: "Another Short Description"
+              description: "Another Short Description"
             )
           end
+
           let(:form) do
             Decidim::CommunityTemplates::Admin::TemplateSourceForm.new(
               source_id: participatory_process.id,
@@ -66,7 +67,7 @@ module Decidim
           let(:my_cell) { cell("decidim/community_templates/admin/template_create_modal", participatory_process, form: form) }
 
           it "uses the form passed as option" do
-            expect(subject).to have_field("template_source[template][title]", with: another_template.title)
+            expect(subject).to have_field("template_source[template][name]", with: another_template.name)
             expect(subject).to have_field("template_source[template][author]", with: another_template.author)
           end
 

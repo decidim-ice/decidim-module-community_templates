@@ -2,15 +2,39 @@
   <div class="row column pt-4">
     <div class="item_show__header">
       <h2 class="item_show__header-title">
-        <%= t("decidim.community_templates.admin.templates.index.new_from_space") %>
+        <%= t("decidim.community_templates.admin.templates.new.title") %>
       </h2>
     </div>
   </div>
 
   <div class="form__wrapper">
-    <%= decidim_form_for(@template_form, html: { class: "form-defaults form new_template" }, url: decidim_admin_community_templates.templates_path) do |f| %>
+    <div class="row column">
+      <div class="card__grid-grid">
+        <div class="card__grid-item">
+          TODO: show info about existing templates for this participatory space. Maybe allow to override/delete them?
+           </div>
+        <%= card_for @form.participatory_space %>
+      </div>
+    </div>
+
+    <%= decidim_form_for(@form, html: { class: "form-defaults form new_template" }, url: templates_path) do |f| %>
+
+      <%= f.hidden_field :id %>
+
       <div class="row column">
-        <%= f.select :participatory_space_id, grouped_options_for_select(participatory_spaces.transform_values(&:invert)), include_blank: true, label: t("decidim.community_templates.admin.templates.index.select_participatory_space") %>
+        <h3 class="h4"><%= t("decidim.community_templates.admin.templates.new.metadata.title") %></h3>
+      </div>
+
+      <div class="row column">
+        <%= f.translated :text_field, :name, label: t("decidim.community_templates.admin.templates.new.metadata.name"), aria: { label: :name } %>
+      </div>
+
+      <div class="row column">
+        <%= f.translated :text_area, :description, label: t("decidim.community_templates.admin.templates.new.metadata.description"), placeholder: t("decidim.community_templates.admin.templates.new.metadata.description_placeholder"), aria: { label: :description } %>
+      </div>
+
+      <div class="row column">
+        <%= f.text_field :version, label: t("decidim.community_templates.admin.templates.new.metadata.version"), placeholder: t("decidim.community_templates.admin.templates.new.metadata.version_placeholder") %>
       </div>
 
       <div class="row column">
