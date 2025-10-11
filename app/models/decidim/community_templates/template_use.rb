@@ -7,7 +7,7 @@ module Decidim
       belongs_to :organization, class_name: "Decidim::Organization", foreign_key: "decidim_organization_id"
       belongs_to :resource, polymorphic: true
 
-      validates :template_id, presence: true, uniqueness: true
+      validates :template_id, presence: true
 
       validate :resource_type_allowed
       validate :resource_not_changed, if: :persisted?

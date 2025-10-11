@@ -22,8 +22,16 @@ module Decidim
             participatory_structure: i18n_field(:participatory_structure),
             private_space: model.private_space,
             promoted: model.promoted,
-            components:
+            components:,
+            hero_image:
           }
+        end
+
+        def hero_image
+          return nil if model.hero_image&.attachment.blank?
+
+          attachment = model.hero_image.attachment
+          reference_asset(attachment)
         end
 
         def components

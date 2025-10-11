@@ -3,13 +3,16 @@
 module Decidim
   module CommunityTemplates
     class TemplateParser
-      def initialize(data:, translations: {}, locales: Decidim.available_locales.map(&:to_s))
+      def initialize(data:, assets:, translations: {}, locales: Decidim.available_locales.map(&:to_s))
+        raise ArgumentError, "Invalid parameter assets. Must be an array" if assets.nil? || !assets.is_a?(Array)
+
         @data = data
         @translations = translations
         @locales = locales
+        @assets = assets
       end
 
-      attr_reader :data, :translations, :locales
+      attr_reader :data, :translations, :locales, :assets
 
       delegate :id, :name, :description, :version, :author, :links, :source_type, to: :template
 

@@ -7,6 +7,10 @@ describe "Admin import template from link" do
   let!(:participatory_process) { create(:participatory_process, :with_steps, organization:) }
   let!(:user) { create(:user, :admin, :confirmed, organization:) }
 
+  before do
+    allow(Decidim::CommunityTemplates).to receive(:catalog_path).and_return(Pathname.new(Dir.mktmpdir))
+  end
+
   context "when the community templates are disabled" do
     before do
       allow(Decidim::CommunityTemplates).to receive(:enabled?).and_return(false)
@@ -93,13 +97,25 @@ describe "Admin import template from link" do
 
       context "when the form is valid and submitted" do
         let(:data_file) { File.read(Decidim::CommunityTemplates::Engine.root.join("spec/fixtures/catalog_test/valid/00605f97-a5d6-4464-9c7e-5bc5d5840212/data.json")) }
+        let(:assets_file) { File.read(Decidim::CommunityTemplates::Engine.root.join("spec/fixtures/catalog_test/valid/00605f97-a5d6-4464-9c7e-5bc5d5840212/assets.json")) }
+        let(:city_image) { File.read(Decidim::CommunityTemplates::Engine.root.join("spec/fixtures/catalog_test/valid/00605f97-a5d6-4464-9c7e-5bc5d5840212/assets/m0nidedltelows9rmtzsz0k5vhziut09")) }
         let(:locale_file) { File.read(Decidim::CommunityTemplates::Engine.root.join("spec/fixtures/catalog_test/valid/00605f97-a5d6-4464-9c7e-5bc5d5840212/locales/en.yml")) }
         let(:catalog_url) { "https://example.com/catalog/00605f97-a5d6-4464-9c7e-5bc5d5840212" }
 
         before do
-          allow(Net::HTTP).to receive(:get_response).with(URI.parse("#{catalog_url}/data.json")).and_return(double(code: "200", body: data_file))
+          allow(Decidim::CommunityTemplates::HttpTemplateExtractor).to receive(:fetch).with(
+            "#{catalog_url}/data.json"
+          ).and_return(data_file)
+          allow(Decidim::CommunityTemplates::HttpTemplateExtractor).to receive(:fetch).with(
+            "#{catalog_url}/assets.json"
+          ).and_return(assets_file)
+          allow(Decidim::CommunityTemplates::HttpTemplateExtractor).to receive(:fetch).with(
+            "#{catalog_url}/assets/m0nidedltelows9rmtzsz0k5vhziut09"
+          ).and_return(city_image)
           I18n.available_locales.each do |locale|
-            allow(Net::HTTP).to receive(:get_response).with(URI.parse("#{catalog_url}/locales/#{locale}.yml")).and_return(double(code: "200", body: locale_file))
+            allow(Decidim::CommunityTemplates::HttpTemplateExtractor).to receive(:fetch).with(
+              "#{catalog_url}/locales/#{locale}.yml"
+            ).and_return(locale_file)
           end
           fill_in "Template Link", with: catalog_url
           click_on "Go"

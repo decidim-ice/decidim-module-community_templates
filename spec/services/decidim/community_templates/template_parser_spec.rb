@@ -6,7 +6,7 @@ module Decidim
   module CommunityTemplates
     describe TemplateParser do
       let(:locales) { %w(en ca) }
-      let(:parser) { described_class.new(data:, translations:, locales:) }
+      let(:parser) { described_class.new(data:, translations:, locales:, assets:) }
       let(:data) do
         {
           "id" => "853330aa-0771-4218-8afe-1b199676fbc2",
@@ -54,7 +54,21 @@ module Decidim
       let(:metadata) { parser.metadata }
       let(:attributes) { parser.attributes }
       let(:demo) { parser.demo }
-      let(:assets) { parser.assets }
+      let(:assets) do
+        [
+          {
+            id: "m0nidedltelows9rmtzsz0k5vhziut09",
+            "@class": "ActiveStorage::Attachment",
+            attributes: {
+              content_type: "image/jpeg",
+              name: "hero_image",
+              record_type: "Decidim::ParticipatoryProcess",
+              filename: "m0nidedltelows9rmtzsz0k5vhziut09",
+              extension: "jpg"
+            }
+          }
+        ]
+      end
 
       it "returns metadata correctly" do
         expect(metadata).to be_a(Hash)
@@ -112,6 +126,12 @@ module Decidim
           expect(parser.model_title).to eq("Títol del procés participatiu")
           expect(parser.model_description).to eq("Descripció del procés participatiu")
         end
+      end
+
+      it "returns assets correctly" do
+        expect(parser.assets).to be_an(Array)
+        expect(parser.assets.first).to be_a(Hash)
+        expect(parser.assets.first[:id]).to eq("m0nidedltelows9rmtzsz0k5vhziut09")
       end
 
       context "when data is nil or empty" do

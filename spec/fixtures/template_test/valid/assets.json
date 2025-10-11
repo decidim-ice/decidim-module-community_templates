@@ -1,0 +1,15 @@
+{
+  "assets": [
+    {
+      "id": "image_checksum",
+      "attributes": {
+        "@class": "ActiveStorage::Attachment",
+        "content_type": "image/jpeg",
+        "name": "hero_image",
+        "record_type": "Decidim::ParticipatoryProcess",
+        "filename": "image_checksum",
+        "extension": "jpg"
+      }
+    }
+  ]
+}
