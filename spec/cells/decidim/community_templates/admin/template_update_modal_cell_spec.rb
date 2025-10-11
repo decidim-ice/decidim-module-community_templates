@@ -9,6 +9,7 @@ module Decidim
         controller Decidim::ParticipatoryProcesses::Admin::ParticipatoryProcessesController
         def reload_catalog
           fixture_file_path = Decidim::CommunityTemplates::Engine.root.join("spec", "fixtures", "catalog_test", "valid")
+          allow(Decidim::CommunityTemplates).to receive(:catalog_path).and_return(Pathname.new(Dir.mktmpdir))
           FileUtils.rm_rf(Decidim::CommunityTemplates.catalog_path)
           FileUtils.cp_r(fixture_file_path, Decidim::CommunityTemplates.catalog_path)
           Decidim::CommunityTemplates::Catalog.from_path(Decidim::CommunityTemplates.catalog_path)

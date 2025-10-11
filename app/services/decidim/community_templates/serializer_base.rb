@@ -16,7 +16,6 @@ module Decidim
         @attributes = {}
         # Array: implement if necessary to include demo data
         @demo = []
-        # Array: implement if necessary to include assets (e.g., images)
         @assets = []
       end
 
@@ -74,9 +73,7 @@ module Decidim
         # TODO
       end
 
-      def assets!
-        # TODO
-      end
+      def assets!; end
 
       def json_files
         {
@@ -95,13 +92,7 @@ module Decidim
           File.write(file_path, JSON.pretty_generate(content))
         end
 
-        assets.each do |asset_path|
-          next unless File.exist?(asset_path)
-
-          dest_path = File.join(path, "assets", File.basename(asset_path))
-          FileUtils.mkdir_p(File.dirname(dest_path))
-          FileUtils.cp(asset_path, dest_path)
-        end
+        save_assets!(path)
 
         translations.each do |lang, texts|
           lang_path = File.join(path, "locales")
@@ -111,10 +102,38 @@ module Decidim
         end
       end
 
+      delegate :as_json, to: :data
+
       private
 
+      def save_assets!(path)
+        assets_dir = Pathname.new(File.join(path, "assets"))
+        FileUtils.mkdir_p(assets_dir)
+        file_path = File.join(path, "assets.json")
+        File.write(file_path, JSON.pretty_generate({
+                                                     assets: @assets.as_json
+                                                   }))
+
+        FileUtils.chdir(assets_dir) do
+          used_filenames = @assets.map do |serializer|
+            File.open(serializer.filename, "wb") do |file|
+              serializer.blob.download do |content|
+                file.write(content)
+              end
+            end
+            serializer.filename
+          end
+
+          # Remove unused filenames
+          unused_filenames = assets_dir.children.map { |file| File.basename(file) } - used_filenames
+          unused_filenames.each do |filename|
+            FileUtils.rm(filename)
+          end
+        end
+      end
+
       def id_parts
-        id.split(".")
+        id.to_s.split(".")
       end
 
       def i18n_field(field, value = nil, prefix = "attributes")
@@ -139,8 +158,21 @@ module Decidim
       end
 
       def append_serializer(serializer_class, model, prefix)
-        serializer = serializer_class.init(model:, metadata: { id: "#{id}.attributes.#{prefix}" }, locales:)
+        inject_serializer(serializer_class, model, "#{id}.attributes.#{prefix}")
+      end
+
+      def reference_asset(attachment)
+        inject_serializer(
+          Serializers::Attachment,
+          attachment,
+          Serializers::Attachment.filename(attachment)
+        )[:id]
+      end
+
+      def inject_serializer(serializer_class, model, serializer_id)
+        serializer = serializer_class.init(model:, metadata: { id: serializer_id }, locales:)
         translations.deep_merge!(serializer.translations)
+        @assets += serializer.assets
         serializer.data
       end
     end

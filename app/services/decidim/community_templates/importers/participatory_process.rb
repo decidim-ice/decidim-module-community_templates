@@ -25,15 +25,18 @@ module Decidim
             promoted: parser.model_promoted
           }.compact
           @object = Decidim::ParticipatoryProcess.create!(participatory_process_attributes)
+
           parser.attributes["components"]&.each do |component_data|
             template_parser_attributes = {
               data: component_data,
               translations: parser.translations,
-              locales: parser.locales
+              locales: parser.locales,
+              assets: parser.assets
             }.compact
             component_parser = TemplateParser.new(**template_parser_attributes)
             Decidim::CommunityTemplates::Importers::Component.new(component_parser, organization, user, parent: self).import!
           end
+          attach!(parser.attributes["hero_image"], "hero_image") if parser.attributes["hero_image"]
           @object
         end
       end

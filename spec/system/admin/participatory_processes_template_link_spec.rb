@@ -7,6 +7,10 @@ describe "Participatory processes template link" do
   let!(:participatory_process) { create(:participatory_process, :with_steps, organization:) }
   let!(:user) { create(:user, :admin, :confirmed, organization:) }
 
+  before do
+    allow(Decidim::CommunityTemplates).to receive(:catalog_path).and_return(Pathname.new(Dir.mktmpdir))
+  end
+
   context "when the community templates are disabled" do
     before do
       allow(Decidim::CommunityTemplates).to receive(:enabled?).and_return(false)

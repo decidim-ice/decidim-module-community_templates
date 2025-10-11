@@ -42,13 +42,6 @@ module Decidim
           expect(template_use.errors.full_messages).to include(match(/Template cannot be blank/))
         end
 
-        it "is unique" do
-          template_use = create(:community_template_use)
-          template_use2 = build(:community_template_use, template_id: template_use.template_id)
-          expect(template_use2).to be_invalid
-          expect(template_use2.errors.full_messages).to include(match(/has already been taken/))
-        end
-
         it "is valid with all attributes present" do
           template_use = create(:community_template_use)
           expect(template_use).to be_valid

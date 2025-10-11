@@ -8,6 +8,7 @@ describe "Create template from participatory process" do
   let!(:user) { create(:user, :admin, :confirmed, organization:) }
 
   before do
+    allow(Decidim::CommunityTemplates).to receive(:catalog_path).and_return(Pathname.new(Dir.mktmpdir))
     allow(Decidim::CommunityTemplates).to receive(:enabled?).and_return(true)
     git_mirror = Decidim::CommunityTemplates::GitMirror.instance
     allow(Decidim::CommunityTemplates::GitMirror).to receive(:instance).and_return(git_mirror)

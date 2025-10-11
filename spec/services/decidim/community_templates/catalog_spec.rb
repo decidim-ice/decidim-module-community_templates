@@ -8,6 +8,10 @@ module Decidim
       let(:organization) { create(:organization) }
       let(:catalog) { create(:catalog, templates: create_list(:template_metadata, 1, organization:)) }
 
+      before do
+        allow(Decidim::CommunityTemplates).to receive(:catalog_path).and_return(Pathname.new(Dir.mktmpdir))
+      end
+
       it "is valid with all attributes defined" do
         expect(catalog).to be_valid
       end

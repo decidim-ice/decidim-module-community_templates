@@ -9,6 +9,7 @@ describe "Participatory processes template tab" do
   let(:fixture_path) { Decidim::CommunityTemplates::Engine.root.join("spec", "fixtures", "catalog_test", "valid") }
 
   before do
+    allow(Decidim::CommunityTemplates).to receive(:catalog_path).and_return(Pathname.new(Dir.mktmpdir))
     allow(Decidim::CommunityTemplates).to receive(:enabled?).and_return(true)
     switch_to_host(organization.host)
     FileUtils.rm_rf(Decidim::CommunityTemplates.catalog_path)

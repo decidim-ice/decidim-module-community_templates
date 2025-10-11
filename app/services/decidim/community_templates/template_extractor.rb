@@ -38,6 +38,23 @@ module Decidim
         {}
       end
 
+      def assets
+        @assets ||= begin
+          assets_content = JSON.parse(read_file("assets.json"))
+          (assets_content["assets"] || []).map do |asset|
+            asset["attributes"]["@local_path"] = locate_asset(asset)
+            asset
+          end
+        end
+      rescue JSON::ParserError
+        errors.add(:base, I18n.t("unknown", scope: i18n_scope))
+        []
+      end
+
+      def locate_asset(asset)
+        File.join(template_path, "assets", asset["id"])
+      end
+
       def translations
         return {} unless dir_exists?(translations_path)
 
@@ -60,7 +77,8 @@ module Decidim
         @parser_attributes ||= {
           data: data,
           translations: translations,
-          locales: locales
+          locales: locales,
+          assets: assets
         }
       end
 
