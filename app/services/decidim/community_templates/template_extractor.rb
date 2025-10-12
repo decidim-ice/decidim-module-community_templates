@@ -52,6 +52,8 @@ module Decidim
       end
 
       def locate_asset(asset)
+        return nil unless asset && asset["id"]
+
         File.join(template_path, "assets", asset["id"])
       end
 

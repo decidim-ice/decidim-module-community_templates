@@ -26,9 +26,11 @@ module Decidim
           @filename ||= self.class.filename(model)
         end
 
-        def self.filename(model)
-          base64_checksum = Base64.urlsafe_encode64(model.blob.checksum.to_s)
-          base64_checksum.parameterize
+        def self.filename(blob_or_model)
+          blob = blob_or_model
+          blob = blob_or_model.blob unless blob_or_model.is_a?(ActiveStorage::Blob)
+          base64_checksum = Base64.urlsafe_encode64(blob.checksum.to_s)
+          "#{base64_checksum.parameterize}_#{blob_or_model.created_at.strftime("%Y%m%d%H%M%S")}.#{blob.filename.extension}"
         end
       end
     end

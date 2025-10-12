@@ -21,10 +21,10 @@ module Decidim
             expect(described_class.filename(model)).not_to include(" ")
           end
 
-          it "encode into a parameterized base64" do
+          it "encode checksum into a parameterized base64" do
             ["special+pdf", "special pdf?", "special pdf&", "special pdf(", "special pdf)", "special pdf*", "special pdf/", "special pdf@", "special pdf 👋"].each do |filename|
               allow(model.blob).to receive(:checksum).and_return(filename)
-              expect(described_class.filename(model)).to eq(Base64.urlsafe_encode64(filename).parameterize)
+              expect(described_class.filename(model)).to eq(Base64.urlsafe_encode64(filename).parameterize + "_#{model.created_at.strftime("%Y%m%d%H%M%S")}.jpeg")
             end
           end
         end

@@ -9,7 +9,8 @@ module Decidim
             manifest_name: model.manifest_name,
             name: i18n_field(:name),
             settings:,
-            weight: model.weight
+            weight: model.weight,
+            published_at: model.published_at&.iso8601
           }
         end
 

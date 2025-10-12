@@ -2,12 +2,23 @@
   "assets": [
     {
       "id": "image_checksum",
+      "@class": "ActiveStorage::Attachment",
       "attributes": {
-        "@class": "ActiveStorage::Attachment",
         "content_type": "image/jpeg",
         "name": "hero_image",
         "record_type": "Decidim::ParticipatoryProcess",
         "filename": "image_checksum",
+        "extension": "jpg"
+      }
+    },
+    {
+      "id": "image_checksum_content_block",
+      "@class": "ActiveStorage::Attachment",
+      "attributes": {
+        "content_type": "image/jpeg",
+        "name": "file",
+        "record_type": "Decidim::ContentBlock",
+        "filename": "image_checksum_content_block",
         "extension": "jpg"
       }
     }

@@ -29,7 +29,7 @@ module Decidim
           ),
           organization,
           user,
-          parent: self
+          parent: OpenStruct.new(object: object.send(field_name))
         ).import!
       end
 

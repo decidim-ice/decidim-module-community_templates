@@ -21,11 +21,14 @@ module Decidim
 
       attr_reader :model, :translations, :attributes, :assets, :metadata, :locales, :with_manifest, :data, :demo
 
+      delegate :as_json, to: :data
+
       def self.init(**args)
         serializer = new(**args)
         serializer.data!
         serializer.demo!
         serializer.assets!
+        serializer.process_translations!
         serializer
       end
 
@@ -102,7 +105,60 @@ module Decidim
         end
       end
 
-      delegate :as_json, to: :data
+      def process_translations!
+        # Check all translation and translate any active storage file with a %{filename} value
+        translations.each do |_lang, texts|
+          texts.each do |key, value|
+            texts[key] = replace_active_storage_url(value)
+          end
+        end
+      end
+
+      def replace_active_storage_url(value)
+        return value unless value.is_a?(String) || value.is_a?(Hash)
+
+        if value.is_a?(Hash)
+          transformed_values = value.map do |key, v|
+            [key, replace_active_storage_url(v)]
+          end
+          return transformed_values.to_h
+        end
+        # match the Decidim::EditorImage attachment that match the org and the url
+        # serializer the editor image in assets
+        # replace it with %{filename}
+        return value unless value.include?("/rails/active_storage/blobs/redirect")
+
+        # find all the /rails/active_storage/blobs/redirect/path in the value
+        new_value = value.dup
+        value.scan(%r{src="(/rails/active_storage/blobs/redirect/([^/]+)[^"]+)"}).each do |match|
+          # find the Decidim::EditorImage attachment that match the org and the url
+          blob = ActiveStorage::Blob.find_signed(match[1])
+          attachment_join = <<~SQL.squish
+            INNER JOIN
+              active_storage_attachments
+            ON
+              active_storage_attachments.record_type = 'Decidim::EditorImage'
+              AND active_storage_attachments.record_id = decidim_editor_images.id
+          SQL
+          blob_join = <<~SQL.squish
+            INNER JOIN active_storage_blobs
+            ON
+              active_storage_blobs.id = active_storage_attachments.blob_id
+          SQL
+          editor_image = EditorImage.joins(attachment_join)
+                                    .joins(blob_join)
+                                    .where(active_storage_blobs: { id: blob.id })
+                                    .first
+          reference_asset(editor_image.file.attachment)
+          filename = Serializers::Attachment.filename(editor_image.file)
+          i18n_key = filename.parameterize.underscore
+          link = (match[0]).to_s
+
+          # replace it with %{filename} to be populated on import
+          new_value = new_value.gsub(link, "%{#{i18n_key}}")
+        end
+        new_value
+      end
 
       private
 

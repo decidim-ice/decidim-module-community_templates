@@ -1,0 +1,59 @@
+# frozen_string_literal: true
+
+module Decidim
+  module CommunityTemplates
+    module Importers
+      class ContentBlock < ImporterBase
+        def import!
+          validate_parent!
+          content_block_attributes = {
+            scope_name: required!(:scope_name, parser.model_scope_name),
+            scoped_resource_id: parent.object.id,
+            manifest_name: required!(:manifest_name, parser.model_manifest_name),
+            settings: parser.model_settings(locales),
+            weight: required!(:weight, parser.model_weight).to_i,
+            published_at: parser.model_published_at ? Time.zone.now : nil
+          }.compact
+          @object = Decidim::ContentBlock.create!(
+            organization: parent.organization,
+            **content_block_attributes
+          )
+          import_images_container!
+          @object.images_container.save
+          @object.reload
+          @object
+        end
+
+        private
+
+        def validate_parent!
+          raise "parent.object is nil. Check the participatory space is saved. " if parent.object.nil?
+          raise "parent.object do not respond to id. Did you sent a Participatory Space" unless parent.object.respond_to?(:id)
+          raise "parent.object is not persisted" unless parent.object.persisted?
+        end
+
+        def import_images_container!
+          parser.model_images_container.map do |name, asset_id|
+            asset_data = parser.assets.find { |asset| asset["id"] == asset_id }
+            next nil unless asset_data
+
+            block_attachment = @object.images_container.send(:"#{name}")
+            attachment = Decidim::CommunityTemplates::Importers::Attachment.new(
+              TemplateParser.new(
+                data: { **asset_data, name: "file" },
+                translations: parser.translations,
+                locales: parser.locales,
+                assets: parser.assets
+              ),
+              organization,
+              user,
+              parent: OpenStruct.new(object: block_attachment)
+            ).import!
+            @object.images_container.send(:"#{name}=", attachment)
+          end.compact
+          @object.images_container.save
+        end
+      end
+    end
+  end
+end

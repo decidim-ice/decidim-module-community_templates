@@ -62,15 +62,42 @@ module Decidim
         end
 
         describe "#import!" do
-          it "creates a new participatory process with the parsed title and a unique slug" do
-            participatory_process = importer.import!
+          let!(:participatory_process) { importer.import! }
+
+          it "creates a new participatory process with the parsed title and subtitle" do
             expect(participatory_process).to be_persisted
             expect(participatory_process.title).to eq({ "ca" => "Títol del procés participatiu", "en" => "Participatory process title", "pt-BR" => "Título do processo participativo" })
             expect(participatory_process.subtitle).to eq({ "en" => "Participatory process subtitle", "ca" => "Subtítol del procés participatiu", "pt-BR" => "Subtítulo do processo participativo" })
+          end
+
+          it "creates a new participatory process with the parsed description and short description" do
             expect(participatory_process.short_description).to eq({ "en" => "Participatory process short description", "ca" => "Descripció breu del procés participatiu", "pt-BR" => "Descrição curta do processo participativo" })
             expect(participatory_process.description).to eq({ "en" => "Participatory process description", "ca" => "Descripció del procés participatiu", "pt-BR" => "Descrição do processo participativo" })
+          end
+
+          it "creates a new participatory process with the parsed slug" do
             expect(participatory_process.slug).to eq("participatory-process-title")
+          end
+
+          it "creates a new participatory process with the given organization" do
             expect(participatory_process.organization).to eq(organization)
+          end
+
+          it "creates a new participatory process with the parsed hero image" do
+            participatory_process.reload
+            expect(participatory_process.hero_image).to be_attached
+            expect(participatory_process.hero_image.attachment.filename.to_s).to eq("image_checksum.jpg")
+          end
+
+          it "creates a new participatory process with the parsed hero block" do
+            hero_block = Decidim::ContentBlock.where(scope_name: "participatory_process_homepage", manifest_name: "hero", scoped_resource_id: participatory_process.id).first
+
+            expect(hero_block).to be_persisted
+            expect(hero_block.scope_name).to eq("participatory_process_homepage")
+            expect(hero_block.manifest_name).to eq("hero")
+            expect(hero_block.weight).to eq(1)
+            expect(hero_block.images_container.background_image).to be_attached
+            expect(hero_block.images_container.background_image.attachment.filename.to_s).to eq("image_checksum_content_block.jpg")
           end
         end
       end

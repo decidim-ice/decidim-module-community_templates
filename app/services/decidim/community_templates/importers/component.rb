@@ -10,7 +10,8 @@ module Decidim
             name: required!(:name, parser.model_name(locales)),
             manifest_name: required!(:manifest_name, parser.model_manifest_name),
             settings:,
-            weight: parser.model_weight
+            weight: parser.model_weight,
+            published_at: parser.model_published_at ? Time.zone.now : nil
           }.compact
           @object = Decidim::Component.create!(component_attributes)
         end

@@ -7,6 +7,7 @@ module Decidim
     module Serializers
       describe ParticipatoryProcess do
         let(:model) { create(:participatory_process, :with_steps) }
+        let(:organization) { model.organization }
         let!(:component) { create(:proposal_component, participatory_space: model) }
         let(:serializer) do
           s = described_class.init(model:, metadata:, locales:, with_manifest:)
@@ -117,7 +118,34 @@ module Decidim
 
         it "includes hero_image" do
           expect(attributes[:hero_image]).to be_an(String)
-          expect(attributes[:hero_image]).to eq(Serializers::Attachment.filename(serializer.assets.first))
+          expect(attributes[:hero_image]).to eq(Serializers::Attachment.filename(model.hero_image))
+        end
+
+        context "with content blocks" do
+          let(:image) do
+            Rack::Test::UploadedFile.new(
+              Decidim::Dev.test_file("city.jpeg", "image/jpeg"),
+              "image/jpeg"
+            )
+          end
+          let!(:content_block) do
+            block = create(:content_block, organization:, scope_name: :participatory_process_homepage, manifest_name: :hero, scoped_resource_id: model.id)
+            block.images_container.background_image = image
+            block.save
+            block.reload
+            block
+          end
+
+          it "includes content blocks" do
+            expect(attributes[:content_blocks]).to be_an(Array)
+
+            hero_block = attributes[:content_blocks].find { |block| block[:attributes][:manifest_name] == "hero" }
+            expect(hero_block).to be_an(Hash)
+            expect(hero_block[:id]).to eq("#{serializer.id}.attributes.content_blocks.participatory_process_homepage_#{content_block.id}")
+            expect(hero_block[:attributes][:scope_name]).to eq("participatory_process_homepage")
+            expect(hero_block[:attributes][:images_container]).to be_an(Hash)
+            expect(hero_block[:attributes][:images_container][:background_image]).to be_an(String)
+          end
         end
 
         describe "#save!" do
@@ -149,7 +177,7 @@ module Decidim
             Dir.mktmpdir do |dir|
               serializer.save!(dir)
               base_path = File.join(dir, serializer.id)
-              filename = Attachment.filename(serializer.assets.first)
+              filename = Attachment.filename(model.hero_image)
               expect(File).to exist(File.join(base_path, "assets", filename))
             end
           end
