@@ -3,13 +3,18 @@
 module Decidim
   module CommunityTemplates
     class TemplateParser
-      def initialize(data:, translations: {}, locales: Decidim.available_locales.map(&:to_s))
+      def initialize(data:, assets:, translations: {}, locales: Decidim.available_locales.map(&:to_s))
+        raise ArgumentError, "Invalid parameter assets. Must be an array" if assets.nil? || !assets.is_a?(Array)
+
         @data = data
         @translations = translations
         @locales = locales
+        @assets = assets
+        @i18n_vars = {}
+        store_translations!
       end
 
-      attr_reader :data, :translations, :locales
+      attr_reader :data, :translations, :locales, :assets, :i18n_vars
 
       delegate :id, :name, :description, :version, :author, :links, :source_type, to: :template
 
@@ -44,8 +49,13 @@ module Decidim
           decidim_version: metadata["decidim_version"],
           archived_at: metadata["archived_at"],
           updated_at: metadata["updated_at"],
-          created_at: metadata["created_at"]
+          created_at: metadata["created_at"],
+          default_locale: metadata["default_locale"]
         }
+      end
+
+      def default_locale
+        metadata["default_locale"]
       end
 
       def metadata
@@ -65,7 +75,7 @@ module Decidim
           available_attributes = model_class.new.attributes.keys
           is_available = available_attributes.include?(key)
           has_value = attributes.has_key?(key)
-          unless is_available && has_value
+          unless has_value
             # Attribute name exists, but has no value
             return nil if is_available
 
@@ -93,8 +103,11 @@ module Decidim
       end
 
       def all_translations_for(field, locales)
+        default_translation = I18n.t(field, locale: default_locale, **i18n_vars)
         locales.index_with do |locale|
-          translations.dig(locale.to_s, *field.to_s.split(".")) || ""
+          I18n.with_locale(locale) do
+            I18n.t(field, default: default_translation, **i18n_vars)
+          end
         end
       end
 
@@ -104,14 +117,42 @@ module Decidim
         find_translation(field) || field
       end
 
+      def populate_i18n_vars!(organization)
+        # One per Decidim::EditorImage
+        @i18n_vars = assets.select { |asset| asset && asset.dig("attributes", "record_type") == "Decidim::EditorImage" }.to_h do |asset|
+          key = asset["id"].to_s.parameterize.underscore
+          editor_image = Decidim::EditorImage.create!(
+            author: default_author(organization),
+            organization: organization
+          )
+          editor_image.file.attach(
+            io: File.open(asset["attributes"]["@local_path"]),
+            filename: asset["attributes"]["filename"],
+            content_type: asset["attributes"]["content_type"],
+            identify: false
+          )
+          editor_image.file.save!
+          [key.to_sym, Rails.application.routes.url_helpers.rails_blob_url(editor_image.file.blob, host: organization.host)]
+        end
+      end
+
       private
 
       def find_translation(field)
+        default_translation = I18n.t(field, locale: default_locale, default: nil, **i18n_vars)
+        return field if default_translation.blank?
+
+        I18n.t(field, default: default_translation, locale: I18n.locale, **i18n_vars)
+      end
+
+      def store_translations!
         locales.each do |locale|
-          value = translations.dig(locale.to_s, *field.split("."))
-          return value if value && value.to_s.present?
+          I18n.backend.store_translations(locale, translations[locale] || {})
         end
-        nil
+      end
+
+      def default_author(organization)
+        Decidim::User.find_by(admin: true, organization:)
       end
     end
   end

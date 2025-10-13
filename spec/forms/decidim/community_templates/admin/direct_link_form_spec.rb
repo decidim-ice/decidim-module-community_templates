@@ -16,7 +16,7 @@ module Decidim
         end
 
         before do
-          allow(Net::HTTP).to receive(:get_response).and_return(double(code: "200", body: valid_data))
+          allow(Decidim::CommunityTemplates::HttpTemplateExtractor).to receive(:fetch).and_return(valid_data)
         end
 
         it "is invalid if the link is not a https:// link" do
@@ -38,21 +38,14 @@ module Decidim
         end
 
         it "is invalid if the manifest.json is not found" do
-          allow(Net::HTTP).to receive(:get_response).and_return(double(code: "404", body: ""))
-          form.link = "https://example.com/#{valid_uuid}"
-          expect(form).to be_invalid
-          expect(form.errors.full_messages).to include(/Manifest file not found/)
-        end
-
-        it "is invalid if the manifest.json redirects" do
-          allow(Net::HTTP).to receive(:get_response).and_return(double(code: "302", body: ""))
+          allow(Decidim::CommunityTemplates::HttpTemplateExtractor).to receive(:fetch).and_return(nil)
           form.link = "https://example.com/#{valid_uuid}"
           expect(form).to be_invalid
           expect(form.errors.full_messages).to include(/Manifest file not found/)
         end
 
         it "is invalid if the @class has not available importer class" do
-          allow(Net::HTTP).to receive(:get_response).and_return(double(code: "200", body: {
+          allow(Decidim::CommunityTemplates::HttpTemplateExtractor).to receive(:fetch).and_return({
             id: valid_uuid,
             "@class": "Decidim::Initiatives::Initiative",
             name: "Initiative Template",
@@ -63,14 +56,14 @@ module Decidim
             community_templates_version: "1.0.0",
             decidim_version: "1.0.0"
 
-          }.to_json))
+          }.to_json)
           form.link = "https://example.com/#{valid_uuid}"
           expect(form).to be_invalid
           expect(form.errors.full_messages).to include(/Importer class is not found/)
         end
 
         it "is invalid if the fetched template is invalid" do
-          allow(Net::HTTP).to receive(:get_response).and_return(double(code: "200", body: {
+          allow(Decidim::CommunityTemplates::HttpTemplateExtractor).to receive(:fetch).and_return({
             id: valid_uuid,
             name: "Invalid Template",
             description: "Invalid Template",
@@ -80,7 +73,7 @@ module Decidim
             "@class": "invalid",
             community_templates_version: "1.0.0",
             decidim_version: "1.0.0"
-          }.to_json))
+          }.to_json)
           form.link = "https://example.com/#{valid_uuid}"
           expect(form).to be_invalid
           expect(form.errors.full_messages).to include(/Importer class is not found/)

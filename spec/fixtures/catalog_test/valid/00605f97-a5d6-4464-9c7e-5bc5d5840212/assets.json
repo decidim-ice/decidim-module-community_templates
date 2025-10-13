@@ -1,0 +1,15 @@
+{
+  "assets": [
+    {
+      "id": "m0nidedltelows9rmtzsz0k5vhziut09",
+      "@class": "ActiveStorage::Attachment",
+      "attributes": {
+        "content_type": "image/jpeg",
+        "name": "hero_image",
+        "record_type": "Decidim::ParticipatoryProcess",
+        "filename": "m0nidedltelows9rmtzsz0k5vhziut09",
+        "extension": "jpg"
+      }
+    }
+  ]
+}

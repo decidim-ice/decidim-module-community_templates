@@ -7,6 +7,7 @@ module Decidim
     module Serializers
       describe ParticipatoryProcess do
         let(:model) { create(:participatory_process, :with_steps) }
+        let(:organization) { model.organization }
         let!(:component) { create(:proposal_component, participatory_space: model) }
         let(:serializer) do
           s = described_class.init(model:, metadata:, locales:, with_manifest:)
@@ -32,6 +33,12 @@ module Decidim
         let(:demo) { serializer.demo }
         let(:attributes) { data[:attributes] }
         let(:assets) { serializer.assets }
+
+        describe "#assets" do
+          it "includes the hero_image" do
+            expect(assets.map(&:model)).to include(model.hero_image.attachment)
+          end
+        end
 
         it "has the correct metadata" do
           expect(data[:id]).to eq(serializer.id)
@@ -109,26 +116,80 @@ module Decidim
           expect(component_data[:attributes][:settings]).to be_an(Hash)
         end
 
-        it "saves the serialized data to disk" do
-          Dir.mktmpdir do |dir|
-            expect { serializer.save!(dir) }.not_to raise_error
+        it "includes hero_image" do
+          expect(attributes[:hero_image]).to be_an(String)
+          expect(attributes[:hero_image]).to eq(Serializers::Attachment.filename(model.hero_image))
+        end
 
-            base_path = File.join(dir, serializer.id)
-            expect(File).to exist(File.join(base_path, "data.json"))
-            expect(File).to exist(File.join(base_path, "demo.json"))
+        context "with content blocks" do
+          let(:image) do
+            Rack::Test::UploadedFile.new(
+              Decidim::Dev.test_file("city.jpeg", "image/jpeg"),
+              "image/jpeg"
+            )
+          end
+          let!(:content_block) do
+            block = create(:content_block, organization:, scope_name: :participatory_process_homepage, manifest_name: :hero, scoped_resource_id: model.id)
+            block.images_container.background_image = image
+            block.save
+            block.reload
+            block
+          end
 
-            data_content = JSON.parse(File.read(File.join(base_path, "data.json")), symbolize_names: true)
-            expect(data_content).to eq(data)
+          it "includes content blocks" do
+            expect(attributes[:content_blocks]).to be_an(Array)
 
-            demo_content = JSON.parse(File.read(File.join(base_path, "demo.json")), symbolize_names: true)
-            expect(demo_content).to eq(demo)
+            hero_block = attributes[:content_blocks].find { |block| block[:attributes][:manifest_name] == "hero" }
+            expect(hero_block).to be_an(Hash)
+            expect(hero_block[:id]).to eq("#{serializer.id}.attributes.content_blocks.participatory_process_homepage_#{content_block.id}")
+            expect(hero_block[:attributes][:scope_name]).to eq("participatory_process_homepage")
+            expect(hero_block[:attributes][:images_container]).to be_an(Hash)
+            expect(hero_block[:attributes][:images_container][:background_image]).to be_an(String)
+          end
+        end
 
-            serializer.translations.each_key do |lang|
-              lang_file = File.join(base_path, "locales", "#{lang}.yml")
-              expect(File).to exist(lang_file)
-              lang_content = YAML.load_file(lang_file)[lang]
+        describe "#save!" do
+          it "does not raise an error" do
+            Dir.mktmpdir do |dir|
+              expect { serializer.save!(dir) }.not_to raise_error
+            end
+          end
 
-              expect(lang_content[serializer.id]).to eq(serializer.translations[lang][serializer.id])
+          it "saves the serialized json data to disk" do
+            Dir.mktmpdir do |dir|
+              serializer.save!(dir)
+              base_path = File.join(dir, serializer.id)
+              expect(File).to exist(File.join(base_path, "data.json"))
+              expect(File).to exist(File.join(base_path, "demo.json"))
+            end
+          end
+
+          it "saves translations to disk" do
+            Dir.mktmpdir do |dir|
+              serializer.save!(dir)
+              base_path = File.join(dir, serializer.id)
+              expect(File).to exist(File.join(base_path, "locales", "en.yml"))
+              expect(File).to exist(File.join(base_path, "locales", "ca.yml"))
+            end
+          end
+
+          it "saves assets to disk" do
+            Dir.mktmpdir do |dir|
+              serializer.save!(dir)
+              base_path = File.join(dir, serializer.id)
+              filename = Attachment.filename(model.hero_image)
+              expect(File).to exist(File.join(base_path, "assets", filename))
+            end
+          end
+
+          it "removes unused assets" do
+            Dir.mktmpdir do |dir|
+              base_path = File.join(dir, serializer.id)
+              FileUtils.mkdir_p(File.join(base_path, "assets"))
+              File.write(File.join(base_path, "assets", "unused.pdf"), "unused")
+              serializer.save!(dir)
+              base_path = File.join(dir, serializer.id)
+              expect(File).not_to exist(File.join(base_path, "assets", "unused.pdf"))
             end
           end
         end

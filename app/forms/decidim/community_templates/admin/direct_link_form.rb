@@ -36,7 +36,8 @@ module Decidim
           @parser ||= TemplateParser.new(
             data: extractor.data,
             translations: extractor.translations,
-            locales: Decidim.available_locales.map(&:to_s)
+            locales: Decidim.available_locales.map(&:to_s),
+            assets: extractor.assets
           )
         end
 

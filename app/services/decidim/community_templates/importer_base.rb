@@ -16,6 +16,23 @@ module Decidim
         raise NotImplementedError, "You must implement the import! method in your importer"
       end
 
+      def attach!(asset_id, field_name)
+        asset_data = parser.assets.find { |asset| asset["id"] == asset_id }
+        return nil unless asset_data
+
+        Decidim::CommunityTemplates::Importers::Attachment.new(
+          TemplateParser.new(
+            data: { **asset_data, name: field_name },
+            translations: parser.translations,
+            locales: parser.locales,
+            assets: parser.assets
+          ),
+          organization,
+          user,
+          parent: OpenStruct.new(object: object.send(field_name))
+        ).import!
+      end
+
       def locales
         organization.available_locales
       end

@@ -12,9 +12,10 @@ FactoryBot.define do
     decidim_version { Decidim.version }
     archived_at { nil }
     links { [] }
+    default_locale { I18n.available_locales.sample }
 
     transient do
-      organization { create(:organization, default_locale: I18n.available_locales.sample, available_locales: I18n.available_locales) }
+      organization { create(:organization, default_locale: default_locale, available_locales: I18n.available_locales) }
     end
 
     initialize_with do

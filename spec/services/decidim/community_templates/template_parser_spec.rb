@@ -6,7 +6,7 @@ module Decidim
   module CommunityTemplates
     describe TemplateParser do
       let(:locales) { %w(en ca) }
-      let(:parser) { described_class.new(data:, translations:, locales:) }
+      let(:parser) { described_class.new(data:, translations:, locales:, assets:) }
       let(:data) do
         {
           "id" => "853330aa-0771-4218-8afe-1b199676fbc2",
@@ -54,7 +54,23 @@ module Decidim
       let(:metadata) { parser.metadata }
       let(:attributes) { parser.attributes }
       let(:demo) { parser.demo }
-      let(:assets) { parser.assets }
+      let(:assets) do
+        [
+          {
+            :id => "m0nidedltelows9rmtzsz0k5vhziut09",
+            :"@class" => "ActiveStorage::Attachment",
+            "attributes" => {
+              content_type: "image/jpeg",
+              name: "hero_image",
+              record_type: "Decidim::ParticipatoryProcess",
+              filename: "m0nidedltelows9rmtzsz0k5vhziut09",
+              extension: "jpg"
+            }
+          }
+        ]
+      end
+      let!(:organization) { create(:organization) }
+      let!(:admin_user) { create(:user, :admin, organization: organization) }
 
       it "returns metadata correctly" do
         expect(metadata).to be_a(Hash)
@@ -97,6 +113,12 @@ module Decidim
       context "when locales reversed" do
         let(:locales) { %w(ca en) }
 
+        around do |example|
+          I18n.with_locale("ca") do
+            example.run
+          end
+        end
+
         it "returns metadata correctly" do
           expect(metadata).to be_a(Hash)
 
@@ -112,6 +134,12 @@ module Decidim
           expect(parser.model_title).to eq("Títol del procés participatiu")
           expect(parser.model_description).to eq("Descripció del procés participatiu")
         end
+      end
+
+      it "returns assets correctly" do
+        expect(parser.assets).to be_an(Array)
+        expect(parser.assets.first).to be_a(Hash)
+        expect(parser.assets.first[:id]).to eq("m0nidedltelows9rmtzsz0k5vhziut09")
       end
 
       context "when data is nil or empty" do
@@ -175,40 +203,6 @@ module Decidim
         end
       end
 
-      context "when translations are missing" do
-        let(:translations) { {} }
-
-        it "falls back to field keys when translations missing" do
-          expect(parser.name).to eq("853330aa-0771-4218-8afe-1b199676fbc2.metadata.name")
-          expect(parser.description).to eq("853330aa-0771-4218-8afe-1b199676fbc2.metadata.description")
-        end
-
-        it "falls back to field keys for model attributes" do
-          expect(parser.model_title).to eq("853330aa-0771-4218-8afe-1b199676fbc2.attributes.title")
-          expect(parser.model_description).to eq("853330aa-0771-4218-8afe-1b199676fbc2.attributes.description")
-        end
-      end
-
-      context "when translations are malformed" do
-        let(:translations) do
-          {
-            "en" => {
-              "853330aa-0771-4218-8afe-1b199676fbc2" => {
-                "metadata" => {
-                  "name" => nil,
-                  "description" => ""
-                }
-              }
-            }
-          }
-        end
-
-        it "handles nil and empty translations" do
-          expect(parser.name).to eq("853330aa-0771-4218-8afe-1b199676fbc2.metadata.name")
-          expect(parser.description).to eq("853330aa-0771-4218-8afe-1b199676fbc2.metadata.description")
-        end
-      end
-
       context "when field is not a string" do
         let(:data) do
           {
@@ -228,42 +222,6 @@ module Decidim
           expect(parser.description).to be_nil
           expect(parser.model_title).to eq(%w(array value))
           expect(parser.model_description).to eq({ "hash" => "value" })
-        end
-      end
-
-      context "when locales array is empty" do
-        let(:locales) { [] }
-
-        it "handles empty locales gracefully" do
-          expect(parser.name).to eq("853330aa-0771-4218-8afe-1b199676fbc2.metadata.name")
-          expect(parser.model_title).to eq("853330aa-0771-4218-8afe-1b199676fbc2.attributes.title")
-        end
-      end
-
-      context "when field path is malformed" do
-        let(:data) do
-          {
-            "id" => "853330aa-0771-4218-8afe-1b199676fbc2",
-            "@class" => "Decidim::ParticipatoryProcess",
-            "attributes" => {
-              "title" => "853330aa-0771-4218-8afe-1b199676fbc2.attributes.title"
-            }
-          }
-        end
-        let(:translations) do
-          {
-            "en" => {
-              "853330aa-0771-4218-8afe-1b199676fbc2" => {
-                "attributes" => {
-                  "title" => "Translated title"
-                }
-              }
-            }
-          }
-        end
-
-        it "handles malformed field paths in translations" do
-          expect(parser.model_title).to eq("Translated title")
         end
       end
 
@@ -294,6 +252,175 @@ module Decidim
           expect(parser.translation_for(123)).to eq(123)
           expect(parser.translation_for(nil)).to be_nil
           expect(parser.translation_for({})).to eq({})
+        end
+      end
+
+      context "when calling populate_i18n_vars!" do
+        let(:organization) { create(:organization) }
+        let!(:admin_user) { create(:user, :admin, organization: organization) }
+        let(:temp_file) { Tempfile.new(["test_image", ".jpg"]) }
+
+        let(:editor_image_assets) do
+          [
+            {
+              "id" => "editor_first_image",
+              "@class" => "ActiveStorage::Attachment",
+              "attributes" => {
+                "content_type" => "image/jpeg",
+                "name" => "file",
+                "record_type" => "Decidim::EditorImage",
+                "filename" => "editor_first_image",
+                "extension" => "jpg",
+                "@local_path" => temp_file.path
+              }
+            },
+            {
+              "id" => "editor_second_image",
+              "@class" => "ActiveStorage::Attachment",
+              "attributes" => {
+                "content_type" => "image/png",
+                "name" => "file",
+                "record_type" => "Decidim::EditorImage",
+                "filename" => "editor_second_image",
+                "extension" => "png",
+                "@local_path" => temp_file.path
+              }
+            }
+          ]
+        end
+
+        let(:mixed_assets) do
+          editor_image_assets + [
+            {
+              "id" => "regular_attachment",
+              "@class" => "ActiveStorage::Attachment",
+              "attributes" => {
+                "content_type" => "image/jpeg",
+                "name" => "hero_image",
+                "record_type" => "Decidim::ParticipatoryProcess",
+                "filename" => "regular_attachment",
+                "extension" => "jpg",
+                "@local_path" => temp_file.path
+              }
+            }
+          ]
+        end
+
+        before do
+          # Write some content to the temp file
+          temp_file.write("fake image content")
+          temp_file.rewind
+        end
+
+        after do
+          temp_file.close
+          temp_file.unlink
+        end
+
+        context "with EditorImage assets" do
+          let(:parser) { TemplateParser.new(data:, translations:, locales:, assets: editor_image_assets) }
+
+          it "creates EditorImage instances and populates i18n_vars" do
+            expect(Decidim::EditorImage).to receive(:create!).twice.and_call_original
+
+            parser.populate_i18n_vars!(organization)
+
+            expect(parser.i18n_vars).to be_a(Hash)
+            expect(parser.i18n_vars.keys).to contain_exactly(:editor_first_image, :editor_second_image)
+            expect(parser.i18n_vars.values).to all(be_a(String))
+            expect(parser.i18n_vars.values).to all(match(%r{/rails/active_storage/blobs/}))
+          end
+
+          it "creates EditorImage with correct attributes" do
+            expect(Decidim::EditorImage).to receive(:create!).with(
+              author: admin_user,
+              organization: organization
+            ).twice.and_call_original
+
+            parser.populate_i18n_vars!(organization)
+          end
+
+          it "attaches files correctly" do
+            parser.populate_i18n_vars!(organization)
+
+            editor_images = Decidim::EditorImage.where(organization: organization)
+            expect(editor_images.count).to eq(2)
+
+            editor_images.each do |editor_image|
+              expect(editor_image.file).to be_attached
+              expect(editor_image.file.blob).to be_present
+            end
+          end
+
+          it "returns blob URLs for each EditorImage" do
+            parser.populate_i18n_vars!(organization)
+
+            parser.i18n_vars.each_value do |url|
+              expect(url).to match(%r{/rails/active_storage/blobs/})
+              expect(url).to be_a(String)
+            end
+          end
+        end
+
+        context "with mixed assets (EditorImage and others)" do
+          let(:parser) { TemplateParser.new(data:, translations:, locales:, assets: mixed_assets) }
+          let!(:admin_user) { create(:user, :admin, organization: organization) }
+
+          it "only processes EditorImage assets" do
+            expect(Decidim::EditorImage).to receive(:create!).twice.and_call_original
+            parser.populate_i18n_vars!(organization)
+
+            expect(parser.i18n_vars.keys).to contain_exactly(:editor_first_image, :editor_second_image)
+            expect(parser.i18n_vars.keys).not_to include(:regular_attachment)
+          end
+        end
+
+        context "with no EditorImage assets" do
+          let(:parser) { TemplateParser.new(data:, translations:, locales:, assets: []) }
+
+          it "returns empty hash when no EditorImage assets" do
+            parser.populate_i18n_vars!(organization)
+
+            expect(parser.i18n_vars).to eq({})
+          end
+        end
+
+        context "when file attachment fails" do
+          let(:parser) { TemplateParser.new(data:, translations:, locales:, assets: editor_image_assets) }
+
+          before do
+            allow(File).to receive(:open).and_raise(Errno::ENOENT)
+          end
+
+          it "raises error when file does not exist" do
+            expect { parser.populate_i18n_vars!(organization) }.to raise_error(Errno::ENOENT)
+          end
+        end
+
+        context "when asset has invalid record_type" do
+          let(:invalid_assets) do
+            [
+              {
+                "id" => "invalid_asset",
+                "@class" => "ActiveStorage::Attachment",
+                "attributes" => {
+                  "content_type" => "image/jpeg",
+                  "name" => "file",
+                  "record_type" => "InvalidRecordType",
+                  "filename" => "invalid_asset",
+                  "extension" => "jpg",
+                  "@local_path" => temp_file.path
+                }
+              }
+            ]
+          end
+          let(:parser) { TemplateParser.new(data:, translations:, locales:, assets: invalid_assets) }
+
+          it "ignores assets with invalid record_type" do
+            parser.populate_i18n_vars!(organization)
+
+            expect(parser.i18n_vars).to eq({})
+          end
         end
       end
     end

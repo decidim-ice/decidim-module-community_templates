@@ -10,7 +10,8 @@ end
 
 desc "Generates a dummy app for testing"
 task test_app: "decidim:generate_external_test_app" do
-  ENV["RAILS_ENV"] = "test"
+  raise "Must be in development" unless Rails.env.development?
+
   # replace languages in config/initializers/decidim.rb
   system("sed -i 's/en ca es/en ca es pt-BR/' spec/decidim_dummy_app/config/initializers/decidim.rb")
 end

@@ -176,6 +176,20 @@ module Decidim
           end
         end
 
+        describe "#assets" do
+          it "add @local_path to each asset" do
+            expect(extractor.assets.size).to be > 0
+            local_path = extractor.assets.first["attributes"]["@local_path"]
+            expect(local_path).to eq(File.join(template_path, "assets", extractor.assets.first["id"]))
+          end
+
+          it "calls locate_asset for each asset" do
+            allow(extractor).to receive(:locate_asset).and_call_original
+            extractor.assets
+            expect(extractor).to have_received(:locate_asset).with(extractor.assets.first)
+          end
+        end
+
         context "when template is valid" do
           let(:template_path) { "spec/fixtures/template_test/valid" }
 

@@ -14,6 +14,21 @@
     "title": "853330aa-0771-4218-8afe-1b199676fbc2.attributes.title",
     "subtitle": "853330aa-0771-4218-8afe-1b199676fbc2.attributes.subtitle",
     "short_description": "853330aa-0771-4218-8afe-1b199676fbc2.attributes.short_description",
-    "description": "853330aa-0771-4218-8afe-1b199676fbc2.attributes.description"
+    "description": "853330aa-0771-4218-8afe-1b199676fbc2.attributes.description",
+    "hero_image": "image_checksum",
+    "content_blocks": [
+      {
+        "id": "853330aa-0771-4218-8afe-1b199676fbc2.attributes.content_blocks.participatory_process_homepage_1",
+        "@class": "Decidim::ContentBlock",
+        "attributes": {
+          "scope_name": "participatory_process_homepage",
+          "manifest_name": "hero",
+          "weight": 1,
+          "images_container": {
+            "background_image": "image_checksum_content_block"
+          }
+        }
+      }
+    ]
   }
 }

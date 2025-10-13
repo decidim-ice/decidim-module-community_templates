@@ -9,6 +9,7 @@ module Decidim
         CommunityTemplates.configure do |config|
           config.git_settings[:url] = Faker::Internet.url(scheme: "https")
         end
+        allow(Decidim::CommunityTemplates).to receive(:catalog_path).and_return(Pathname.new(Dir.mktmpdir))
       end
 
       it "does nothing if CommunityTemplates.git_settings[:url] is not set" do

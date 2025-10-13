@@ -5,6 +5,8 @@ module Decidim
     module Importers
       class ParticipatoryProcess < ImporterBase
         def import!
+          parser.populate_i18n_vars!(organization)
+
           participatory_process_attributes = {
             organization:,
             title: required!(:title, parser.model_title(locales)),
@@ -25,16 +27,29 @@ module Decidim
             promoted: parser.model_promoted
           }.compact
           @object = Decidim::ParticipatoryProcess.create!(participatory_process_attributes)
+
           parser.attributes["components"]&.each do |component_data|
             template_parser_attributes = {
               data: component_data,
               translations: parser.translations,
-              locales: parser.locales
+              locales: parser.locales,
+              assets: parser.assets
             }.compact
             component_parser = TemplateParser.new(**template_parser_attributes)
             Decidim::CommunityTemplates::Importers::Component.new(component_parser, organization, user, parent: self).import!
           end
-          @object
+          attach!(parser.attributes["hero_image"], "hero_image") if parser.attributes["hero_image"]
+          parser.attributes["content_blocks"]&.each do |content_block_data|
+            content_block_parser = TemplateParser.new(
+              data: content_block_data,
+              translations: parser.translations,
+              locales: parser.locales,
+              assets: parser.assets
+            )
+            Decidim::CommunityTemplates::Importers::ContentBlock.new(content_block_parser, organization, user, parent: self).import!
+          end
+          @object.save!
+          @object.reload
         end
       end
     end
