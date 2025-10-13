@@ -24,7 +24,8 @@ module Decidim
             promoted: model.promoted,
             components:,
             hero_image:,
-            content_blocks:
+            content_blocks:,
+            steps:
           }
         end
 
@@ -47,6 +48,12 @@ module Decidim
           )
           content_blocks.map do |content_block|
             append_serializer(Serializers::ContentBlock, content_block, "content_blocks.#{content_block.scope_name}_#{content_block.id}")
+          end
+        end
+
+        def steps
+          model.steps.map do |step|
+            append_serializer(Serializers::ProcessStep, step, "steps.#{step.id}")
           end
         end
       end
