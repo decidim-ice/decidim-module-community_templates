@@ -66,12 +66,6 @@ jobs:
       - name: Setup Database
         run:  bundle exec rake test_app
 
-      - run: |
-          cd spec/decidim_dummy_app;
-          bundle exec rails db:environment:set RAILS_ENV=test;
-          bundle exec rails db:migrate;
-          bundle exec rails db:schema:dump;
-
       - name: Run RSpec
         run: bundle exec rspec
         env:
