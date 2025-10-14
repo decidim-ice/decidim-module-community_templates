@@ -44,15 +44,7 @@ module Decidim
       def id
         return metadata[:id] if metadata[:id].present?
 
-        @id ||= begin
-          alternatives = []
-          alternatives << model.slug if model.respond_to?(:slug)
-          alternatives << model.manifest_name if model.respond_to?(:manifest_name)
-          alternatives << model.manifest.name if model.respond_to?(:manifest)
-          alternatives << model.created_at.strftime("%Y%m%d%H%M%S") if model.respond_to?(:created_at)
-
-          alternatives.find(&:present?)
-        end
+        @id ||= generate_id_from_model
       end
 
       # metadata for the serialized object, extend in subclasses using super
@@ -161,6 +153,17 @@ module Decidim
       end
 
       private
+
+      def generate_id_from_model
+        id_candidates = [
+          -> { model.slug if model.respond_to?(:slug) },
+          -> { model.manifest_name if model.respond_to?(:manifest_name) },
+          -> { model.manifest&.name if model.respond_to?(:manifest) },
+          -> { model.created_at&.strftime("%Y%m%d%H%M%S") }
+        ]
+
+        id_candidates.find(&:call)&.call
+      end
 
       def save_assets!(path)
         assets_dir = Pathname.new(File.join(path, "assets"))

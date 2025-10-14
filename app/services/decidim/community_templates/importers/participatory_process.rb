@@ -28,6 +28,32 @@ module Decidim
           }.compact
           @object = Decidim::ParticipatoryProcess.create!(participatory_process_attributes)
 
+          import_components!
+          import_hero_image!
+          import_content_blocks!
+          import_steps!
+
+          @object.save!
+          @object.reload
+        end
+
+        def import_hero_image!
+          attach!(parser.attributes["hero_image"], "hero_image") if parser.attributes["hero_image"]
+        end
+
+        def import_content_blocks!
+          parser.attributes["content_blocks"]&.each do |content_block_data|
+            content_block_parser = TemplateParser.new(
+              data: content_block_data,
+              translations: parser.translations,
+              locales: parser.locales,
+              assets: parser.assets
+            )
+            Decidim::CommunityTemplates::Importers::ContentBlock.new(content_block_parser, organization, user, parent: self).import!
+          end
+        end
+
+        def import_components!
           parser.attributes["components"]&.each do |component_data|
             template_parser_attributes = {
               data: component_data,
@@ -38,18 +64,13 @@ module Decidim
             component_parser = TemplateParser.new(**template_parser_attributes)
             Decidim::CommunityTemplates::Importers::Component.new(component_parser, organization, user, parent: self).import!
           end
-          attach!(parser.attributes["hero_image"], "hero_image") if parser.attributes["hero_image"]
-          parser.attributes["content_blocks"]&.each do |content_block_data|
-            content_block_parser = TemplateParser.new(
-              data: content_block_data,
-              translations: parser.translations,
-              locales: parser.locales,
-              assets: parser.assets
-            )
-            Decidim::CommunityTemplates::Importers::ContentBlock.new(content_block_parser, organization, user, parent: self).import!
+        end
+
+        def import_steps!
+          parser.attributes["steps"]&.each do |step_data|
+            step_parser = TemplateParser.new(data: step_data, translations: parser.translations, locales: parser.locales, assets: parser.assets)
+            Decidim::CommunityTemplates::Importers::ProcessStep.new(step_parser, organization, user, parent: self).import!
           end
-          @object.save!
-          @object.reload
         end
       end
     end
