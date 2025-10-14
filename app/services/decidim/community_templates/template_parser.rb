@@ -125,14 +125,16 @@ module Decidim
             author: default_author(organization),
             organization: organization
           )
-          editor_image.file.attach(
+          blob = ActiveStorage::Blob.create_and_upload!(
             io: File.open(asset["attributes"]["@local_path"]),
-            filename: asset["attributes"]["filename"],
+            filename: "#{asset["attributes"]["filename"]}",
             content_type: asset["attributes"]["content_type"],
-            identify: false
+            identify: false,
           )
-          editor_image.file.save!
-          [key.to_sym, Rails.application.routes.url_helpers.rails_blob_url(editor_image.file.blob, host: organization.host)]
+          if editor_image.file.attach(blob)
+            editor_image.file.save
+          end
+          [key.to_sym, Rails.application.routes.url_helpers.rails_blob_url(editor_image.file.blob, only_path: true)]
         end
       end
 

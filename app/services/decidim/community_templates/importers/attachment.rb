@@ -22,7 +22,7 @@ module Decidim
             blob
           )
           parent.object.save if parent.object.respond_to?(:save)
-          parent.object.attachment.save if parent.object.respond_to?(:attachments)
+          parent.object.attachment.save if parent.object.respond_to?(:attachment)
           @object = parent.object.blob
         end
 

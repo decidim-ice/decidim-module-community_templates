@@ -98,7 +98,7 @@ en:
               directory is read only)
             template_path_not_found: Server error, contact your administrator. (Template
               path not found)
-            unknown: 'Server error, contact your administrator. (Unknown error: %{error})'
+            unknown: 'Server error, contact your administrator. (Unknown error)'
           source_id_help_text: The template will be an anonymized copy of this. No
             user data will be made public.
           submit_button: Create & Share

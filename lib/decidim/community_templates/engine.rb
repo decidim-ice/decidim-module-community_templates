@@ -11,7 +11,10 @@ module Decidim
       end
 
       config.after_initialize do
-        Decidim::CommunityTemplates::GitSyncronizerJob.perform_later if Decidim::CommunityTemplates.enabled?
+        if Decidim::CommunityTemplates.enabled?
+          Decidim::CommunityTemplates::GitCatalogNormalizer.call
+          Decidim::CommunityTemplates::GitSyncronizerJob.perform_later
+        end
       end
 
       initializer "decidim-community_templates.git_mirror" do

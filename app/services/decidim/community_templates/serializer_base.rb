@@ -133,6 +133,7 @@ module Decidim
         value.scan(%r{src="(/rails/active_storage/blobs/redirect/([^/]+)[^"]+)"}).each do |match|
           # find the Decidim::EditorImage attachment that match the org and the url
           blob = ActiveStorage::Blob.find_signed(match[1])
+          link = (match[0]).to_s
           attachment_join = <<~SQL.squish
             INNER JOIN
               active_storage_attachments
@@ -149,15 +150,20 @@ module Decidim
                                     .joins(blob_join)
                                     .where(active_storage_blobs: { id: blob.id })
                                     .first
+          return new_value.gsub(link, "/apple-touch-icon.png") unless editor_image.present?
           reference_asset(editor_image.file.attachment)
           filename = Serializers::Attachment.filename(editor_image.file)
           i18n_key = filename.parameterize.underscore
-          link = (match[0]).to_s
 
           # replace it with %{filename} to be populated on import
           new_value = new_value.gsub(link, "%{#{i18n_key}}")
         end
         new_value
+      end
+
+      def relative_date(date)
+        return nil if date.blank?
+        Time.zone.now.to_i - date.to_i
       end
 
       private
@@ -167,11 +173,12 @@ module Decidim
         FileUtils.mkdir_p(assets_dir)
         file_path = File.join(path, "assets.json")
         File.write(file_path, JSON.pretty_generate({
-                                                     assets: @assets.as_json
+                                                     assets: @assets.select{ |serializer| serializer.attributes.present? }.as_json
                                                    }))
 
         FileUtils.chdir(assets_dir) do
           used_filenames = @assets.map do |serializer|
+            next if serializer.nil? || serializer.blob.nil?
             File.open(serializer.filename, "wb") do |file|
               serializer.blob.download do |content|
                 file.write(content)

@@ -27,6 +27,7 @@ module Decidim
           match.update(updated_at: Time.current)
 
           GitSyncronizerJob.perform_now
+          ResetOrganizationJob.perform_later
           broadcast(:ok)
         rescue StandardError => e
           Rails.logger.error("[Decidim::CommunityTemplates] Error updating template: #{e.message}")

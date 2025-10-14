@@ -13,7 +13,7 @@ module Decidim
     # This job should be run after git mirror configuration upgrade, and
     # before a mirroring.
     class GitCatalogNormalizer < ::Decidim::Command
-      delegate :repo_url, :repo_branch, :repo_author_name, :repo_author_email, :git, :catalog_path, :empty?, to: :git_mirror
+      delegate :repo_url, :repo_branch, :repo_author_name, :repo_author_email, :git, :catalog_path, :templates_count, :empty?, to: :git_mirror
       attr_reader :git_mirror
 
       def initialize
@@ -22,13 +22,13 @@ module Decidim
 
       def call
         return broadcast(:ok) unless Decidim::CommunityTemplates.enabled?
-
         clone_repository unless catalog_path.exist?
         validate!
         configure_git
-        checkout_branch
+        checkout_branch        
+        tada_commit if empty? || templates_count.zero?
+        
         # Check there is at least one commit
-        tada_commit if empty?
         broadcast(:ok)
       rescue StandardError => e
         broadcast(:error, e.message)
@@ -56,7 +56,7 @@ module Decidim
           File.write(file_path, file.read)
           git.add(file_path)
         end
-        git.commit_all(":tada: Add empty manifest.json")
+        git.commit(":tada: Add empty manifest.json")
       end
 
       ##

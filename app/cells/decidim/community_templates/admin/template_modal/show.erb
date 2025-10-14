@@ -10,6 +10,12 @@
       <%= modal_title %>
     </h3>
     <div class="form__wrapper">
+      <% if form.errors.has_key? :base %>
+        <div class="row column callout alert">
+          <%= form.errors[:base].join(", ") %>
+        </div>
+      <% end %>
+
       <div class="row column">
         <%= f.select :source_id, grouped_options_for_select(participatory_spaces.transform_values(&:invert), space_gid), {  include_blank: true }, {disabled: true, label: t("source_id", scope: i18n_form_scope) } %>
         <div class="help-text">

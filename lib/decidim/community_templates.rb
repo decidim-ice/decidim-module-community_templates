@@ -15,6 +15,8 @@ module Decidim
     autoload :GitSettings, "decidim/community_templates/git_settings"
     autoload :GitError, "decidim/community_templates/error"
     autoload :GitCatalogNormalizer, "decidim/community_templates/git_catalog_normalizer"
+    autoload :TemplateMetadata, "decidim/community_templates/template_metadata"
+    autoload :ResetOrganizationJob, "decidim/community_templates/reset_organization_job"
 
     config_accessor :git_settings do
       {
@@ -24,6 +26,15 @@ module Decidim
         password: ENV.fetch("TEMPLATE_GIT_PASSWORD", ""),
         author_name: ENV.fetch("TEMPLATE_GIT_AUTHOR_NAME", "Decidim Community Templates"),
         author_email: ENV.fetch("TEMPLATE_GIT_AUTHOR_EMAIL", "decidim-community-templates@example.org")
+      }
+    end
+    config_accessor :demo do
+      {
+        host: ENV.fetch("TEMPLATE_DEMO_HOST", "demo.example.org"),
+        name: ENV.fetch("TEMPLATE_DEMO_NAME", "Demo Organization"),
+        primary_color: ENV.fetch("TEMPLATE_DEMO_PRIMARY_COLOR", "#14342B"),
+        secondary_color: ENV.fetch("TEMPLATE_DEMO_SECONDARY_COLOR", "#006482"),
+        tertiary_color: ENV.fetch("TEMPLATE_DEMO_TERTIARY_COLOR", "#F7E733")
       }
     end
 
@@ -43,6 +54,10 @@ module Decidim
     # Unless starting with "/", this path is relative to Rails.root.
     config_accessor :catalog_dir do
       "catalog"
+    end
+
+    def self.demo_organization
+      Decidim::Organization.find_by(host: config.demo[:host])
     end
 
     def self.catalog_path

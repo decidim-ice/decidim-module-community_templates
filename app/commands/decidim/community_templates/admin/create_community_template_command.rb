@@ -32,12 +32,15 @@ module Decidim
             serializer.save!(Decidim::CommunityTemplates.catalog_path)
           end
           GitSyncronizerJob.perform_later
+          ResetOrganizationJob.perform_later
           broadcast(:ok, created_template_source)
         rescue StandardError => e
           Rails.logger.error "Error writing template: #{e.message}"
+          Rails.logger.error e.backtrace.join("\n")
           add_specific_error(e)
           # Rollback file
           form.template.delete(Decidim::CommunityTemplates.catalog_path)
+          form.id = nil
           broadcast(:invalid)
         end
 
@@ -57,7 +60,7 @@ module Decidim
           when Errno::EROFS
             form.errors.add(:base, I18n.t("read_only_filesystem", scope: i18n_scope))
           else
-            form.errors.add(:base, I18n.t("unknown", scope: i18n_scope))
+            form.errors.add(:base, I18n.t("unknown", error: error.message, scope: i18n_scope))
           end
         end
       end

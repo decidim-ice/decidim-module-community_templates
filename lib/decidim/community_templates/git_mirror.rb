@@ -97,6 +97,12 @@ module Decidim
         e.result.status.exitstatus == 128 && !!(e.result.stderr =~ /does not have any commits yet/)
       end
 
+      def templates_count
+        catalog_path.children.select do |child|
+          child.directory? && child.basename.to_s.match?(Decidim::CommunityTemplates::TemplateMetadata::UUID_REGEX)
+        end.size
+      end
+
       def git
         Git.open(catalog_path, :log => Rails.logger)
       rescue ArgumentError => e

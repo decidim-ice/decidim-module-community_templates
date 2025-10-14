@@ -26,7 +26,7 @@ module Decidim
 
         def images_container
           model.images_container.manifest_attachments.transform_values do |content_block_attachment|
-            reference_asset(content_block_attachment.file.attachment)
+            reference_asset(content_block_attachment.file.attachment) unless content_block_attachment.file.attachment.nil?
           end
         end
       end
