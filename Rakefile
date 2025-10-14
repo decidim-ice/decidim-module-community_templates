@@ -43,10 +43,8 @@ def prepare_test_files
     system("bundle exec rails db:environment:set RAILS_ENV=#{ENV["RAILS_ENV"]}") if ENV["RAILS_ENV"]
     system("bundle exec rails db:drop", exception: true)
     system("bundle exec rails db:create", exception: true)
-    if ENV["TEMPLATE_TEST_APARTMENT"]
-      system("bundle exec rails decidim_apartment:install_pg_extension")
-      system("bundle exec rails decidim_apartment:install:migrations")
-    end
+    system("bundle exec rails decidim_apartment:install_pg_extension")
+    system("bundle exec rails decidim_apartment:install:migrations")
     system("bundle exec rails db:migrate", exception: true)
 
     system("bundle exec rails db:schema:dump", exception: true)
