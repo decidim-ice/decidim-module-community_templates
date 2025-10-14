@@ -11,9 +11,7 @@ namespace :decidim do
       Rails.logger.info "Starting reset_demo task"
       Rails.logger.debug "Logger configured for rake task"
 
-      Decidim::CommunityTemplates::GitCatalogNormalizer.call
-      Decidim::CommunityTemplates::GitSyncronizerJob.perform_now
-      Decidim::CommunityTemplates::ResetOrganizationJob.perform_now
+      Decidim::CommunityTemplates::GitSyncronizer.call
     end
   end
 end

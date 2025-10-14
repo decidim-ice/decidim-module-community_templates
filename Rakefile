@@ -39,24 +39,24 @@ def prepare_test_files
     # 1. gem installed
     # 2. db created,migrated and dumped
     # 3. assets precompiled
-    system("bundle check || bundle install")
-    system("bundle exec rails db:environment:set RAILS_ENV=#{ENV["RAILS_ENV"]}") if ENV["RAILS_ENV"]
+    system("bundle check || bundle install", exception: true)
+    system("bundle exec rails db:environment:set RAILS_ENV=#{ENV["RAILS_ENV"]}", exception: true) if ENV["RAILS_ENV"]
     system("bundle exec rails db:drop", exception: true)
     system("bundle exec rails db:create", exception: true)
-    system("bundle exec rails decidim_apartment:install_pg_extension")
-    system("bundle exec rails decidim_apartment:install:migrations")
-    system("bundle exec rails db:migrate", exception: true)
-
+    system("bundle exec rails decidim_apartment:install_pg_extension", exception: true)
+    system("bundle exec rails decidim_apartment:install:migrations", exception: true)
     system("bundle exec rails db:schema:dump", exception: true)
     system("npm install", exception: true)
     system("bundle exec rails assets:precompile", exception: true)
+    # sed config.cache_classes = true to config.cache_classes = false in config/environments/test.rb
+    system("sed -i 's/config.cache_classes = true/config.cache_classes = false/' config/environments/test.rb", exception: true)
+    ENV["RAILS_ENV"] = "test"
+    system("bundle exec rails db:migrate", exception: true)
   end
 end
 
 desc "Generates a dummy app for testing"
 task :test_app do
-  raise "Must be in development" unless Rails.env.development?
-
   Bundler.with_original_env do
     generate_decidim_app(
       "spec/decidim_dummy_app",

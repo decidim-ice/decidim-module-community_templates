@@ -16,7 +16,7 @@ module Decidim
     autoload :GitError, "decidim/community_templates/error"
     autoload :GitCatalogNormalizer, "decidim/community_templates/git_catalog_normalizer"
     autoload :TemplateMetadata, "decidim/community_templates/template_metadata"
-    autoload :ResetOrganizationJob, "decidim/community_templates/reset_organization_job"
+    autoload :ResetOrganization, "decidim/community_templates/reset_organization"
 
     config_accessor :git_settings do
       {

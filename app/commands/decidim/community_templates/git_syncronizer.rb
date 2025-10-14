@@ -2,25 +2,24 @@
 
 module Decidim
   module CommunityTemplates
-    class GitSyncronizerJob < ApplicationJob
-      queue_as :default
-      discard_on Decidim::CommunityTemplates::GitError
-      retry_on Git::Error, wait: 1.minute, attempts: 3
-
-      def perform
+    class GitSyncronizer < ::Decidim::Command
+      def call
         return unless CommunityTemplates.enabled?
 
         # Be sure to apply configuration to current git
-        GitCatalogNormalizer.call
+        result = GitCatalogNormalizer.call
 
+        if result.has_key?(:invalid)
+          Rails.logger.error "Can not sync"
+          return
+        end
+        
         git_mirror = GitMirror.instance
         git_mirror.validate!
-
         git_mirror.push! if git_mirror.writable?
-
         git_mirror.pull
-
         reload_public_files!
+        Decidim::CommunityTemplates::ResetOrganization.call
       end
 
       private

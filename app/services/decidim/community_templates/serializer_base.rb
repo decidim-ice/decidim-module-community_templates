@@ -154,6 +154,7 @@ module Decidim
         new_value
       end
 
+      # return the seconds between the date and the current time
       def to_relative_date(date)
         return nil if date.blank?
 
@@ -164,7 +165,7 @@ module Decidim
                      date.to_time
                    end
 
-        Time.zone.now.to_i - time_obj.to_i
+        time_obj.to_i - Time.zone.now.to_i
       end
 
       def self.id_for_model(model)

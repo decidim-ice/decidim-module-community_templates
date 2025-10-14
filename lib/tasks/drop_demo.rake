@@ -8,7 +8,7 @@ namespace :decidim do
       $stderr.sync = true
       Rails.logger = ActiveSupport::Logger.new($stdout)
       Rails.logger.level = Logger::DEBUG
-      Decidim::CommunityTemplates::DropDemoJob.perform_now
+      Decidim::CommunityTemplates::DropDemo.call
     end
   end
 end

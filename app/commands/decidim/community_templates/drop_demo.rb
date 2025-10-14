@@ -2,8 +2,8 @@
 
 module Decidim
   module CommunityTemplates
-    class DropDemoJob < ApplicationJob
-      def perform
+    class DropDemo < ::Decidim::Command
+      def call
         Rails.logger.info("Dropping #{Decidim::CommunityTemplates.config.demo[:host]} organization")
 
         if Decidim::CommunityTemplates.apartment_compat?

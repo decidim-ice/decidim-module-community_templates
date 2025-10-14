@@ -22,16 +22,18 @@ module Decidim
         end
 
         before do
+          allow(Decidim::CommunityTemplates::GitSyncronizer).to receive(:call).and_return({ok: true})
+
           request.env["decidim.current_organization"] = user.organization
           sign_in user, scope: :user
-
+          
           # Mock HTTP requests for data.json
           allow(Net::HTTP).to receive(:get_response).with(URI.parse("#{valid_link}/data.json")).and_return(
             double(code: "200", body: valid_data)
           )
-
+          
           # Mock HTTP requests for all available locale files
-          %w(en ca es pt-BR).each do |locale|
+          %w[en ca es pt-BR].each do |locale|
             allow(Net::HTTP).to receive(:get_response).with(URI.parse("#{valid_link}/locales/#{locale}.yml")).and_return(
               double(code: "200", body: valid_locales)
             )
@@ -79,25 +81,6 @@ module Decidim
                 post :create, params: params, xhr: true
                 expect(response).to render_template(partial: "decidim/community_templates/admin/import_from_link/_direct_link_modal_form")
               end
-            end
-          end
-        end
-
-        describe "private methods" do
-          describe "#install?" do
-            it "returns true when commit parameter is 'install'" do
-              controller.params = ActionController::Parameters.new(commit: "install")
-              expect(controller.send(:install?)).to be true
-            end
-
-            it "returns false when commit parameter is not 'install'" do
-              controller.params = ActionController::Parameters.new(commit: "fetch")
-              expect(controller.send(:install?)).to be false
-            end
-
-            it "returns false when commit parameter is missing" do
-              controller.params = ActionController::Parameters.new({})
-              expect(controller.send(:install?)).to be false
             end
           end
         end

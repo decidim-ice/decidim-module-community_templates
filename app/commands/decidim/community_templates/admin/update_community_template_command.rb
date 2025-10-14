@@ -26,8 +26,8 @@ module Decidim
           match = Decidim::CommunityTemplates::TemplateSource.find_by(source: form.source, organization:)
           match.update(updated_at: Time.current)
 
-          GitSyncronizerJob.perform_now
-          ResetOrganizationJob.perform_now
+          GitSyncronizer.call
+          ResetOrganization.call
           broadcast(:ok)
         rescue StandardError => e
           Rails.logger.error("[Decidim::CommunityTemplates] Error updating template: #{e.message}")

@@ -4,11 +4,12 @@ require "spec_helper"
 
 module Decidim
   module CommunityTemplates
-    describe GitSyncronizerJob do
+    describe GitSyncronizer do
       let(:git_mirror) { create(:git_mirror, :with_commit) }
 
       before do
-        allow(GitCatalogNormalizer).to receive(:call).and_return(true)
+        allow(GitCatalogNormalizer).to receive(:call).and_return({ok: true})
+        allow(ResetOrganization).to receive(:call).and_return({ok: true})
         allow(GitMirror.instance).to receive(:pull).and_return(true)
         allow(GitMirror.instance).to receive(:push!).and_return(true)
         CommunityTemplates.configure do |config|
@@ -30,39 +31,21 @@ module Decidim
           end
 
           it "does not call GitCatalogNormalizer" do
-            described_class.perform_now
+            described_class.call
             expect(GitCatalogNormalizer).not_to have_received(:call)
           end
 
           it "does not pull from remote" do
-            described_class.perform_now
+            described_class.call
             expect(GitMirror.instance).not_to have_received(:pull)
           end
 
           it "does not push to remote" do
-            described_class.perform_now
+            described_class.call
             expect(GitMirror.instance).not_to have_received(:push!)
           end
         end
 
-        context "when git mirror is invalid" do
-          let(:git_mirror) { create(:git_mirror, :empty) }
-
-          it "discards job without enqueuing" do
-            expect(git_mirror).not_to be_valid
-            expect { described_class.perform_now }.not_to change(enqueued_jobs, :size)
-          end
-        end
-
-        context "when git pull fails" do
-          before do
-            allow(GitMirror.instance).to receive(:pull).and_raise(Git::Error.new("Authentication failed"))
-          end
-
-          it "enqueues job for retry" do
-            expect { described_class.perform_now }.to change(enqueued_jobs, :size).by(1)
-          end
-        end
 
         context "when there are untracked files" do
           let(:git_mirror) { create(:git_mirror, :with_commit) }
@@ -85,34 +68,34 @@ module Decidim
           end
 
           it "calls GitCatalogNormalizer" do
-            described_class.perform_now
+            described_class.call
             expect(GitCatalogNormalizer).to have_received(:call)
           end
 
           it "pulls from remote repository" do
-            described_class.perform_now
+            described_class.call
             expect(GitMirror.instance).to have_received(:pull)
           end
 
           it "pushes to remote repository" do
-            described_class.perform_now
+            described_class.call
             expect(GitMirror.instance).to have_received(:push!)
           end
         end
 
         context "when there are no untracked files" do
           it "calls GitCatalogNormalizer" do
-            described_class.perform_now
+            described_class.call
             expect(GitCatalogNormalizer).to have_received(:call)
           end
 
           it "pulls from remote repository" do
-            described_class.perform_now
+            described_class.call
             expect(GitMirror.instance).to have_received(:pull)
           end
 
           it "does not create commit" do
-            described_class.perform_now
+            described_class.call
             expect(git_mirror.git.log(1).execute.last.message).not_to include("Update community templates")
           end
         end

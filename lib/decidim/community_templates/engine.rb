@@ -13,7 +13,7 @@ module Decidim
       config.after_initialize do
         if Decidim::CommunityTemplates.enabled?
           Decidim::CommunityTemplates::GitCatalogNormalizer.call
-          Decidim::CommunityTemplates::GitSyncronizerJob.perform_later
+          Decidim::CommunityTemplates::GitSyncronizer.call
         end
       end
 

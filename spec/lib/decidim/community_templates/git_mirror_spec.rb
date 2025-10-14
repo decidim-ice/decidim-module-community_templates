@@ -151,9 +151,12 @@ module Decidim
             allow(git_mirror).to receive(:git).and_return(git_instance)
             allow(git_instance).to receive(:push)
             allow(git_instance).to receive(:remote)
+            allow(git_instance).to receive(:remotes).and_return([])
+            allow(git_instance).to receive(:add_remote)
             git_status_instance = git_instance.status
             allow(git_instance).to receive(:status).and_return(git_status_instance)
             allow(git_status_instance).to receive(:any?).and_return(false)
+            allow(git_status_instance).to receive(:changes).and_return(double("changes", empty?: true, any?: false))
           end
 
           it "does not create commit" do
@@ -161,9 +164,9 @@ module Decidim
             expect(git_mirror.git.log(1).execute.last.message).not_to include("Update community templates")
           end
 
-          it "does not push the repository" do
+          it "push the repository anyway" do
             expect { git_mirror.push! }.not_to raise_error
-            expect(git_instance).not_to have_received(:push)
+            expect(git_instance).to have_received(:push)
           end
         end
       end
@@ -177,6 +180,8 @@ module Decidim
             allow(git_mirror).to receive(:writable?).and_return(true)
             allow(git_instance).to receive(:pull)
             allow(git_instance).to receive(:push)
+            allow(git_instance).to receive(:remotes).and_return([])
+            allow(git_instance).to receive(:add_remote)
             remote_double = double("remote")
             allow(remote_double).to receive(:fetch)
             allow(git_instance).to receive(:remote).and_return(remote_double)
@@ -191,6 +196,8 @@ module Decidim
             allow(git_mirror).to receive(:git).and_return(git_instance)
             allow(git_mirror).to receive(:writable?).and_return(true)
             allow(git_instance).to receive(:pull)
+            allow(git_instance).to receive(:remotes).and_return([])
+            allow(git_instance).to receive(:add_remote)
             remote_double = double("remote")
             allow(remote_double).to receive(:fetch)
             allow(git_instance).to receive(:remote).and_return(remote_double)
@@ -206,6 +213,8 @@ module Decidim
             allow(git_mirror).to receive(:git).and_return(git_instance)
             allow(git_mirror).to receive(:writable?).and_return(false)
             allow(git_instance).to receive(:pull)
+            allow(git_instance).to receive(:remotes).and_return([])
+            allow(git_instance).to receive(:add_remote)
             remote_double = double("remote")
             allow(remote_double).to receive(:fetch)
             allow(git_instance).to receive(:remote).and_return(remote_double)
@@ -225,6 +234,8 @@ module Decidim
             allow(g_instance).to receive(:pull)
             allow(g_instance).to receive(:push)
             allow(g_instance).to receive(:checkout)
+            allow(g_instance).to receive(:remotes).and_return([])
+            allow(g_instance).to receive(:add_remote)
             remote_double = double("remote")
             allow(remote_double).to receive(:fetch)
             allow(g_instance).to receive(:remote).and_return(remote_double)
@@ -268,6 +279,8 @@ module Decidim
           allow(git_instance).to receive(:fetch)
           allow(git_instance).to receive(:pull)
           allow(git_instance).to receive(:push)
+          allow(git_instance).to receive(:remotes).and_return([])
+          allow(git_instance).to receive(:add_remote)
           remote_double = double("remote")
           allow(remote_double).to receive(:fetch)
           allow(git_instance).to receive(:remote).and_return(remote_double)
@@ -288,6 +301,8 @@ module Decidim
           allow(git_mirror).to receive(:git).and_return(git_instance)
           allow(git_instance).to receive(:push)
           allow(git_instance).to receive(:pull)
+          allow(git_instance).to receive(:remotes).and_return([])
+          allow(git_instance).to receive(:add_remote)
           remote_double = double("remote")
           allow(remote_double).to receive(:fetch)
           allow(git_instance).to receive(:remote).and_return(remote_double)

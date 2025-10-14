@@ -2,11 +2,9 @@
 
 module Decidim
   module CommunityTemplates
-    class ResetOrganizationJob < ApplicationJob
-      discard_on Decidim::CommunityTemplates::ResetOrganizationError
-
-      def perform
-        DropDemoJob.perform_now if Decidim::CommunityTemplates.demo_organization?
+    class ResetOrganization < ::Decidim::Command
+      def call
+        DropDemo.call if Decidim::CommunityTemplates.demo_organization?
         @organization = nil
         create_organization!
         Decidim::CommunityTemplates.with_demo_organization do |organization|
