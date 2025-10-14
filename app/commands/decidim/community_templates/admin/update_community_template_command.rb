@@ -26,8 +26,12 @@ module Decidim
           match = Decidim::CommunityTemplates::TemplateSource.find_by(source: form.source, organization:)
           match.update(updated_at: Time.current)
 
-          GitSyncronizer.call
-          ResetOrganization.call
+          if Decidim::CommunityTemplates.apartment_compat?
+            # as we are dropping shema, we can't do this in a transaction
+            Decidim::CommunityTemplates::GitSyncronizerJob.perform_later
+          else
+            Decidim::CommunityTemplates::GitSyncronizer.call
+          end
           broadcast(:ok)
         rescue StandardError => e
           Rails.logger.error("[Decidim::CommunityTemplates] Error updating template: #{e.message}")

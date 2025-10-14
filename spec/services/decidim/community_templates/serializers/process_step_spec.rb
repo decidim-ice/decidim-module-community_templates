@@ -52,7 +52,7 @@ module Decidim
 
           it "calculates negative start_date_relative for future dates" do
             freeze_time do
-              expected_relative = model.start_date.to_i - Time.current.to_i 
+              expected_relative = model.start_date.to_i - Time.current.to_i
               expect(attributes[:start_date_relative]).to eq(expected_relative)
               expect(attributes[:start_date_relative]).to be > 0
             end

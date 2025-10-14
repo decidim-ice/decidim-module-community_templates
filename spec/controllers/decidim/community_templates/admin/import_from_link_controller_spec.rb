@@ -22,18 +22,18 @@ module Decidim
         end
 
         before do
-          allow(Decidim::CommunityTemplates::GitSyncronizer).to receive(:call).and_return({ok: true})
+          allow(Decidim::CommunityTemplates::GitSyncronizer).to receive(:call).and_return({ ok: true })
 
           request.env["decidim.current_organization"] = user.organization
           sign_in user, scope: :user
-          
+
           # Mock HTTP requests for data.json
           allow(Net::HTTP).to receive(:get_response).with(URI.parse("#{valid_link}/data.json")).and_return(
             double(code: "200", body: valid_data)
           )
-          
+
           # Mock HTTP requests for all available locale files
-          %w[en ca es pt-BR].each do |locale|
+          %w(en ca es pt-BR).each do |locale|
             allow(Net::HTTP).to receive(:get_response).with(URI.parse("#{valid_link}/locales/#{locale}.yml")).and_return(
               double(code: "200", body: valid_locales)
             )

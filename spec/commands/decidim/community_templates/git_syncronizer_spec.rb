@@ -8,8 +8,8 @@ module Decidim
       let(:git_mirror) { create(:git_mirror, :with_commit) }
 
       before do
-        allow(GitCatalogNormalizer).to receive(:call).and_return({ok: true})
-        allow(ResetOrganization).to receive(:call).and_return({ok: true})
+        allow(GitCatalogNormalizer).to receive(:call).and_return({ ok: true })
+        allow(ResetOrganization).to receive(:call).and_return({ ok: true })
         allow(GitMirror.instance).to receive(:pull).and_return(true)
         allow(GitMirror.instance).to receive(:push!).and_return(true)
         CommunityTemplates.configure do |config|
@@ -45,7 +45,6 @@ module Decidim
             expect(GitMirror.instance).not_to have_received(:push!)
           end
         end
-
 
         context "when there are untracked files" do
           let(:git_mirror) { create(:git_mirror, :with_commit) }

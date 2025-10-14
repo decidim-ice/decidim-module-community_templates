@@ -15,7 +15,7 @@ module Decidim::CommunityTemplates
       let(:organization) { create(:organization) }
 
       before do
-        allow(Decidim::CommunityTemplates::GitSyncronizer).to receive(:call).and_return({ok: true})
+        allow(Decidim::CommunityTemplates::GitSyncronizer).to receive(:call).and_return({ ok: true })
         request.env["decidim.current_organization"] = user.organization
         sign_in user, scope: :user
       end

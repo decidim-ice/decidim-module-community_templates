@@ -13,19 +13,25 @@ module Decidim
           Rails.logger.error "Can not sync"
           return
         end
-        
+
         git_mirror = GitMirror.instance
         git_mirror.validate!
         git_mirror.push! if git_mirror.writable?
         git_mirror.pull
-        reload_public_files!
-        Decidim::CommunityTemplates::ResetOrganization.call
+        # cache from last commit
+        last_commit = git_mirror.last_commit
+        if last_commit.present? && last_commit != Rails.cache.read("git_syncronizer_last_commit")
+          reload_public_files!
+          Decidim::CommunityTemplates::ResetOrganization.call
+          Rails.cache.write("git_syncronizer_last_commit", last_commit)
+        end
       end
 
       private
 
       def reload_public_files!
         return unless Decidim::CommunityTemplates.catalog_path.exist?
+
         # Create a public/catalog.swp the time to copy files, and then replace the original
         public_catalog_path = Rails.public_path.join("catalog")
         swap_dir = "#{public_catalog_path}.swp"

@@ -10,7 +10,7 @@ describe "Create template from participatory process", js: true do
   before do
     allow(Decidim::CommunityTemplates).to receive(:catalog_path).and_return(Pathname.new(Dir.mktmpdir))
     allow(Decidim::CommunityTemplates).to receive(:enabled?).and_return(true)
-    allow(Decidim::CommunityTemplates::GitSyncronizer).to receive(:call).and_return({ok: true})
+    allow(Decidim::CommunityTemplates::GitSyncronizer).to receive(:call).and_return({ ok: true })
     git_mirror = Decidim::CommunityTemplates::GitMirror.instance
     allow(Decidim::CommunityTemplates::GitMirror).to receive(:instance).and_return(git_mirror)
     allow(git_mirror).to receive(:writable?).and_return(true)

@@ -31,9 +31,12 @@ module Decidim
             serializer.metadata_translations!
             serializer.save!(Decidim::CommunityTemplates.catalog_path)
           end
-
-          GitSyncronizer.call
-          ResetOrganization.call
+          if Decidim::CommunityTemplates.apartment_compat?
+            # as we are dropping shema, we can't do this in a transaction
+            Decidim::CommunityTemplates::GitSyncronizerJob.perform_later
+          else
+            Decidim::CommunityTemplates::GitSyncronizer.call
+          end
           broadcast(:ok, created_template_source)
         rescue StandardError => e
           Rails.logger.error "Error writing template: #{e.message}"

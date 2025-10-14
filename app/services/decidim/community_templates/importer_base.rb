@@ -15,6 +15,7 @@ module Decidim
       def import!
         raise NotImplementedError, "You must implement the import! method in your importer"
       end
+
       # inverse of SerializerBase#to_relative_date
       def from_relative_date(date)
         return nil if date.blank?

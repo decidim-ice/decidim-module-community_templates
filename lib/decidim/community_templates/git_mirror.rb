@@ -46,6 +46,10 @@ module Decidim
         end
       end
 
+      def last_commit
+        git.log(1).execute.last.sha
+      end
+
       ##
       # Check if the repository is writable:
       # - the username/password are set
@@ -132,19 +136,16 @@ module Decidim
         # Check if current branch is tracking the remote branch
         current_branch = git.current_branch
         return if git.branches[current_branch].tracking_branch == "origin/#{repo_branch}"
-        
+
         # Set up tracking if the remote branch exists
-        if remote_branch_exists?(git)
-          git.branches[current_branch].set_tracking_branch("origin/#{repo_branch}")
-        end
+        git.branches[current_branch].set_tracking_branch("origin/#{repo_branch}") if remote_branch_exists?(git)
       rescue StandardError => e
         Rails.logger.warn("Failed to set up branch tracking: #{e.message}")
         # Continue without tracking - the pull will still work with explicit remote/branch
       end
 
       def with_git_credentials
-
-        return yield(git) unless repo_url.present?
+        return yield(git) if repo_url.blank?
 
         # Validate and parse URI first
         begin
@@ -160,7 +161,7 @@ module Decidim
 
         # Ensure we have a clean remote state
         ensure_remote_origin(git, uri.to_s)
-        
+
         yield(git)
       rescue Git::Error => e
         Rails.logger.error("Git execution error: #{e.message}")
@@ -178,14 +179,14 @@ module Decidim
             Rails.logger.debug("Remote origin already configured with correct URL")
             return
           end
-          
-          Rails.logger.debug("Updating remote origin URL from #{current_url} to #{remote_url}")
+
+          Rails.logger.debug { "Updating remote origin URL from #{current_url} to #{remote_url}" }
           raise "Could not remove remote origin" unless remove_remote_safely(git, "origin")
         end
 
         # Add the remote with the correct URL
         git.add_remote("origin", remote_url)
-        Rails.logger.debug("Added remote origin: #{remote_url}")
+        Rails.logger.debug { "Added remote origin: #{remote_url}" }
       rescue Git::Error => e
         Rails.logger.error("Failed to configure remote origin: #{e.message}")
         raise GitError, "Failed to configure remote origin: #{e.message}"
@@ -200,6 +201,7 @@ module Decidim
       def get_remote_url(git, remote_name)
         remote = git.remote(remote_name)
         return nil unless remote
+
         remote.respond_to?(:url) ? remote.url : nil
       rescue StandardError
         nil
@@ -208,7 +210,7 @@ module Decidim
       def remove_remote_safely(git, remote_name)
         remote = git.remote(remote_name)
         return true unless remote&.url
-        
+
         remote.remove if remote.respond_to?(:remove)
 
         !has_origin?(git)

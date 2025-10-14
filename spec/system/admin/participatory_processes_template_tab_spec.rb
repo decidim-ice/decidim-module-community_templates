@@ -11,6 +11,7 @@ describe "Participatory processes template tab" do
   before do
     allow(Decidim::CommunityTemplates).to receive(:catalog_path).and_return(Pathname.new(Dir.mktmpdir))
     allow(Decidim::CommunityTemplates).to receive(:enabled?).and_return(true)
+    allow(Decidim::CommunityTemplates::GitSyncronizer).to receive(:call).and_return({ ok: true })
     switch_to_host(organization.host)
     FileUtils.rm_rf(Decidim::CommunityTemplates.catalog_path)
     FileUtils.cp_r(fixture_path, Decidim::CommunityTemplates.catalog_path)
