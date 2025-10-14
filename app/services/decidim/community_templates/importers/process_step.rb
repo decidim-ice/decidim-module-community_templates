@@ -12,7 +12,6 @@ module Decidim
             start_date: from_relative_date(parser.attributes["start_date_relative"]),
             end_date: from_relative_date(parser.attributes["end_date_relative"])
           }.compact
-          byebug
           @object = Decidim::ParticipatoryProcessStep.create!(process_step_attributes)
         end
       end

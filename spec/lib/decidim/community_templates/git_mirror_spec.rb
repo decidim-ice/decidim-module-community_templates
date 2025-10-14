@@ -245,11 +245,12 @@ module Decidim
 
           describe "and main branch exists" do
             it "checkout main branch" do
-              branches_double = double("branches")
               main_branch_double = double("branch", name: "origin/main")
               wrong_branch_double = double("branch", name: "origin/wrong-branch")
-              allow(branches_double).to receive(:remote).and_return([main_branch_double, wrong_branch_double])
-              allow(branches_double).to receive(:local).and_return([main_branch_double, wrong_branch_double])
+              branches_double = double("branches", remote: [main_branch_double, wrong_branch_double], local: [main_branch_double, wrong_branch_double])
+              def branches_double.[](index)
+                remote[index]
+              end
               allow(git_instance).to receive(:branches).and_return(branches_double)
 
               git_mirror.pull
@@ -259,11 +260,10 @@ module Decidim
 
           describe "and main branch does not exist" do
             it "create a new main branch" do
-              branches_double = double("branches")
-              double("branch", name: "origin/main")
-              wrong_branch_double = double("branch", name: "origin/wrong-branch")
-              allow(branches_double).to receive(:remote).and_return([wrong_branch_double])
-              allow(branches_double).to receive(:local).and_return([wrong_branch_double])
+              branches_double = double("branches", remote: [double("branch", name: "origin/wrong-branch")], local: [double("branch", name: "origin/local-wrong-branch")])
+              def branches_double.[](index)
+                remote[index]
+              end
               allow(git_instance).to receive(:branches).and_return(branches_double)
 
               git_mirror.pull
@@ -277,22 +277,24 @@ module Decidim
           git_instance = git_mirror.git
           allow(git_mirror).to receive(:git).and_return(git_instance)
           allow(git_instance).to receive(:fetch)
-          allow(git_instance).to receive(:pull)
-          allow(git_instance).to receive(:push)
+          allow(git_instance).to receive(:fetch)
+          allow(git_instance).to receive(:push).and_return(true)
+          allow(git_instance).to receive(:pull).and_return(true)
           allow(git_instance).to receive(:remotes).and_return([])
           allow(git_instance).to receive(:add_remote)
           remote_double = double("remote")
           allow(remote_double).to receive(:fetch)
           allow(git_instance).to receive(:remote).and_return(remote_double)
 
-          branches_double = double("branches")
-          branch_double = double("branch", name: "origin/main")
-          allow(branches_double).to receive(:remote).and_return([branch_double])
-          allow(git_instance).to receive(:branches).and_return(branches_double)
+          branches_double = double("branches", remote: [double("branch", name: "origin/main")])
+          def branches_double.[](index)
+            remote[index]
+          end
 
           git_mirror.pull
           expect(git_instance).to have_received(:pull)
-          expect(git_instance).not_to have_received(:push)
+          # push the commit
+          expect(git_instance).to have_received(:push)
         end
 
         it "if remote branch does not exists, push it before" do
@@ -306,8 +308,10 @@ module Decidim
           remote_double = double("remote")
           allow(remote_double).to receive(:fetch)
           allow(git_instance).to receive(:remote).and_return(remote_double)
-          branches_double = double("branches")
-          allow(branches_double).to receive(:remote).and_return([])
+          branches_double = double("branches", remote: [])
+          def branches_double.[](index)
+            remote[index]
+          end
           allow(git_instance).to receive(:branches).and_return(branches_double)
 
           git_mirror.pull

@@ -21,6 +21,8 @@ module Decidim
         raise "Repository is not writable" unless writable?
 
         with_git_credentials do |git|
+          checkout_branch(git, repo_branch)
+
           if git.status.untracked.size.positive? || git.status.changed.size.positive?
             git.add(all: true)
             git.commit_all("Update community templates")
@@ -35,6 +37,8 @@ module Decidim
 
         validate!
         with_git_credentials do |git|
+          checkout_branch(git, repo_branch) if git.current_branch != repo_branch
+
           git.remote("origin").fetch
           setup_branch_tracking(git, repo_branch)
           git.push("origin", repo_branch) if writable? && (!remote_branch_exists?(git) || !git.status.changed.empty?)
@@ -139,6 +143,7 @@ module Decidim
       end
 
       def with_git_credentials
+
         return yield(git) unless repo_url.present?
 
         # Validate and parse URI first
@@ -157,7 +162,7 @@ module Decidim
         ensure_remote_origin(git, uri.to_s)
         
         yield(git)
-      rescue Git::GitExecuteError => e
+      rescue Git::Error => e
         Rails.logger.error("Git execution error: #{e.message}")
         raise GitError, "Git operation failed: #{e.message}"
       rescue StandardError => e
@@ -181,7 +186,7 @@ module Decidim
         # Add the remote with the correct URL
         git.add_remote("origin", remote_url)
         Rails.logger.debug("Added remote origin: #{remote_url}")
-      rescue Git::GitExecuteError => e
+      rescue Git::Error => e
         Rails.logger.error("Failed to configure remote origin: #{e.message}")
         raise GitError, "Failed to configure remote origin: #{e.message}"
       end
@@ -202,11 +207,11 @@ module Decidim
 
       def remove_remote_safely(git, remote_name)
         remote = git.remote(remote_name)
-        return true unless remote
+        return true unless remote&.url
         
         remote.remove if remote.respond_to?(:remove)
 
-        has_origin?(git)
+        !has_origin?(git)
       rescue StandardError => e
         Rails.logger.warn("Failed to remove remote #{remote_name}: #{e.message}")
         false

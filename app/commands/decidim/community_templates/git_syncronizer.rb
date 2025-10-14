@@ -25,6 +25,7 @@ module Decidim
       private
 
       def reload_public_files!
+        return unless Decidim::CommunityTemplates.catalog_path.exist?
         # Create a public/catalog.swp the time to copy files, and then replace the original
         public_catalog_path = Rails.public_path.join("catalog")
         swap_dir = "#{public_catalog_path}.swp"

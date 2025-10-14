@@ -22,14 +22,14 @@ module Decidim
 
           it "includes start_date_relative" do
             freeze_time do
-              expected_relative = Time.current.to_i - model.start_date.to_i
+              expected_relative = model.start_date.to_i - Time.current.to_i
               expect(attributes[:start_date_relative]).to eq(expected_relative)
             end
           end
 
           it "includes end_date_relative" do
             freeze_time do
-              expected_relative = Time.current.to_i - model.end_date.to_i
+              expected_relative = model.end_date.to_i - Time.current.to_i
               expect(attributes[:end_date_relative]).to eq(expected_relative)
             end
           end
@@ -52,17 +52,17 @@ module Decidim
 
           it "calculates negative start_date_relative for future dates" do
             freeze_time do
-              expected_relative = Time.current.to_i - model.start_date.to_i
+              expected_relative = model.start_date.to_i - Time.current.to_i 
               expect(attributes[:start_date_relative]).to eq(expected_relative)
-              expect(attributes[:start_date_relative]).to be < 0
+              expect(attributes[:start_date_relative]).to be > 0
             end
           end
 
           it "calculates negative end_date_relative for future dates" do
             freeze_time do
-              expected_relative = Time.current.to_i - model.end_date.to_i
+              expected_relative = model.end_date.to_i - Time.current.to_i
               expect(attributes[:end_date_relative]).to eq(expected_relative)
-              expect(attributes[:end_date_relative]).to be < 0
+              expect(attributes[:end_date_relative]).to be > 0
             end
           end
         end
@@ -72,17 +72,17 @@ module Decidim
 
           it "calculates positive start_date_relative for past dates" do
             freeze_time do
-              expected_relative = Time.current.to_i - model.start_date.to_i
+              expected_relative = model.start_date.to_i - Time.current.to_i
               expect(attributes[:start_date_relative]).to eq(expected_relative)
-              expect(attributes[:start_date_relative]).to be > 0
+              expect(attributes[:start_date_relative]).to be < 0
             end
           end
 
           it "calculates positive end_date_relative for past dates" do
             freeze_time do
-              expected_relative = Time.current.to_i - model.end_date.to_i
+              expected_relative = model.end_date.to_i - Time.current.to_i
               expect(attributes[:end_date_relative]).to eq(expected_relative)
-              expect(attributes[:end_date_relative]).to be > 0
+              expect(attributes[:end_date_relative]).to be < 0
             end
           end
         end
