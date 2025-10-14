@@ -23,9 +23,15 @@ module Decidim
         with_git_credentials do |git|
           checkout_branch(git, repo_branch)
 
-          if git.status.untracked.size.positive? || git.status.changed.size.positive?
-            git.add(all: true)
-            git.commit_all("Update community templates")
+          git.remote("origin").fetch
+
+          if remote_branch_exists?(git)
+            local_changes = git.status.changed.any? || git.status.untracked.any?
+            git.reset_hard("origin/#{repo_branch}")
+            if local_changes
+              git.add(all: true)
+              git.commit_all("Update community templates")
+            end
           end
           git.push("origin", repo_branch.to_s, force: true)
         end
@@ -161,7 +167,6 @@ module Decidim
 
         # Ensure we have a clean remote state
         ensure_remote_origin(git, uri.to_s)
-
         yield(git)
       rescue Git::Error => e
         Rails.logger.error("Git execution error: #{e.message}")
