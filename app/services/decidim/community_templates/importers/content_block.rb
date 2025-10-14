@@ -18,10 +18,15 @@ module Decidim
             organization: parent.organization,
             **content_block_attributes
           )
+          after_import!
+          @object
+        end
+
+        def after_import!
           import_images_container!
           @object.images_container.save
           @object.reload
-          @object
+          after_import_serializers.each(&:after_import!)
         end
 
         private
@@ -38,7 +43,7 @@ module Decidim
             next nil unless asset_data
 
             block_attachment = @object.images_container.send(:"#{name}")
-            attachment = Decidim::CommunityTemplates::Importers::Attachment.new(
+            attachment_serializer = Decidim::CommunityTemplates::Importers::Attachment.new(
               TemplateParser.new(
                 data: { **asset_data, name: "file" },
                 translations: parser.translations,
@@ -49,7 +54,9 @@ module Decidim
               organization,
               user,
               parent: OpenStruct.new(object: block_attachment)
-            ).import!
+            )
+            attachment = attachment_serializer.import!
+            @after_import_serializers << attachment_serializer
             @object.images_container.send(:"#{name}=", attachment)
           end.compact
           @object.images_container.save

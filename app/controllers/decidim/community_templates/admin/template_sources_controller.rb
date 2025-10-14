@@ -71,9 +71,9 @@ module Decidim
         end
 
         def update_template_values!(template)
-          template.default_locale = I18n.default_locale.to_s
+          template.default_locale = current_organization.default_locale.to_s
           template[:@class] = source_record.class.name
-          template.community_templates_version = Decidim::CommunityTemplates::VERSION
+          template.community_templates_version = ::Decidim::CommunityTemplates::VERSION
           template.decidim_version = Decidim.version
         end
 

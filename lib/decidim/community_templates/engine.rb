@@ -13,7 +13,9 @@ module Decidim
       config.after_initialize do
         if Decidim::CommunityTemplates.enabled?
           Decidim::CommunityTemplates::GitCatalogNormalizer.call
-          Decidim::CommunityTemplates::GitSyncronizer.call
+          Rails.application.config.after_initialize do
+            Decidim::CommunityTemplates::GitSyncronizerJob.perform_later
+          end
         end
       end
 

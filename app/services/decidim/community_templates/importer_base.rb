@@ -8,13 +8,16 @@ module Decidim
         @organization = organization
         @user = user
         @parent = parent
+        @after_import_serializers = []
       end
 
-      attr_reader :parser, :organization, :user, :parent, :object
+      attr_reader :parser, :organization, :user, :parent, :object, :after_import_serializers
 
       def import!
         raise NotImplementedError, "You must implement the import! method in your importer"
       end
+
+      def after_import!; end
 
       # inverse of SerializerBase#to_relative_date
       def from_relative_date(date)

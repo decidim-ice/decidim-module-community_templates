@@ -27,7 +27,7 @@ GIT
 PATH
   remote: .
   specs:
-    decidim-community_templates (0.0.1)
+    decidim-community_templates (0.0.1.pre.rc1)
       decidim-admin (>= 0.30.0, < 0.31.0)
       decidim-comments (>= 0.30.0, < 0.31.0)
       decidim-core (>= 0.30.0, < 0.31.0)
