@@ -56,8 +56,26 @@ module Decidim
       "catalog"
     end
 
-    def self.demo_organization
-      Decidim::Organization.find_by(host: config.demo[:host])
+    def self.apartment_compat?
+      @apartment_compat = Gem.loaded_specs.has_key?("decidim-apartment")
+    end
+
+    def self.demo_organization?
+      if apartment_compat?
+        Decidim::Apartment::DistributionKey.for_host(config.demo[:host]).present?
+      else
+        Decidim::Organization.find_by(host: config.demo[:host]).present?
+      end
+    end
+
+    def self.with_demo_organization
+      if apartment_compat?
+        Decidim::Apartment::DistributionKey.for_host(config.demo[:host]).switch do
+          yield Decidim::Organization.last
+        end
+      else
+        yield Decidim::Organization.find_by(host: config.demo[:host])
+      end
     end
 
     def self.catalog_path

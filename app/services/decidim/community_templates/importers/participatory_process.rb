@@ -8,7 +8,6 @@ module Decidim
 
         def import!
           parser.populate_i18n_vars!(organization)
-
           participatory_process_attributes = {
             organization:,
             title: required!(:title, parser.model_title(locales)),

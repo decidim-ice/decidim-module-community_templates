@@ -53,7 +53,9 @@ module Decidim
 
       def slugify(text)
         text = text.values.first if text.is_a?(Hash)
-        base_slug = text.to_s.parameterize
+        base_slug = text.to_s.parameterize.dasherize[0...50]
+        # if base slug does not start with a letter, add a letter
+        base_slug = "a-#{base_slug}" unless base_slug.start_with?(/[a-zA-Z]/)
         slug = base_slug
         count = 2
         while parser.model_class.unscoped.exists?(slug:, organization:)
