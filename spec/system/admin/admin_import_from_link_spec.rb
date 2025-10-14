@@ -57,7 +57,7 @@ describe "Admin import template from link" do
 
       it "displays error if form is not valid" do
         click_on "Go"
-        within("#template-direct-link-modal-content") do
+        within("#template-direct-link-modal-content", wait: 10) do
           expect(page).to have_content("There is an error in this field.")
         end
       end

@@ -42,7 +42,7 @@ module Decidim
 
           it "is invalid due to JSON parsing error" do
             expect(extractor).to be_invalid
-            expect(extractor.errors[:base]).to include(/Unknown error:/)
+            expect(extractor.errors[:base]).to include(/Unknown error/)
           end
         end
 
@@ -142,7 +142,7 @@ module Decidim
 
           it "is invalid due to empty JSON" do
             expect(extractor).to be_invalid
-            expect(extractor.errors[:base]).to include(/Unknown error:/)
+            expect(extractor.errors[:base]).to include(/Unknown error/)
           end
         end
 

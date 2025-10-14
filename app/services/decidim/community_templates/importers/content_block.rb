@@ -12,7 +12,7 @@ module Decidim
             manifest_name: required!(:manifest_name, parser.model_manifest_name),
             settings: parser.model_settings(locales),
             weight: required!(:weight, parser.model_weight).to_i,
-            published_at: parser.model_published_at ? Time.zone.now : nil
+            published_at: from_relative_date(parser.attributes["published_at_relative"])
           }.compact
           @object = Decidim::ContentBlock.create!(
             organization: parent.organization,
@@ -43,7 +43,8 @@ module Decidim
                 data: { **asset_data, name: "file" },
                 translations: parser.translations,
                 locales: parser.locales,
-                assets: parser.assets
+                assets: parser.assets,
+                i18n_vars: parser.i18n_vars
               ),
               organization,
               user,

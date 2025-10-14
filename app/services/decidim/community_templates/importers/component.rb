@@ -9,21 +9,54 @@ module Decidim
             participatory_space: parent.object,
             name: required!(:name, parser.model_name(locales)),
             manifest_name: required!(:manifest_name, parser.model_manifest_name),
-            settings:,
             weight: parser.model_weight,
-            published_at: parser.model_published_at ? Time.zone.now : nil
+            published_at: from_relative_date(parser.model_published_at)
           }.compact
           @object = Decidim::Component.create!(component_attributes)
+          @object.settings = global_settings
+          @object.step_settings = step_settings
+          @object.default_step_settings = default_step_settings
+
+          @object.save!
+          @object.reload
         end
 
-        def settings
-          return nil unless parser.model_settings(locales).is_a?(Hash)
-
-          parser.attributes["settings"].dup.transform_values do |scoped_settings|
-            scoped_settings.each do |setting|
-              setting["value"] = parser.all_translations_for(setting["value"], locales) if setting["value"].is_a?(String) && setting["value"].start_with?("#{parser.id}.settings.")
-            end
+        def default_step_settings
+          (parser.attributes["default_step_settings"] || []).to_h do |key_value|
+            key_value_to_hash(key_value)
           end
+        end
+
+        def global_settings
+          (parser.attributes["global_settings"] || []).to_h do |key_value|
+            key_value_to_hash(key_value)
+          end
+        end
+
+        def step_settings
+          settings = parser.attributes["step_settings"] || {}
+          settings.to_h do |step_key, step_settings|
+            step = parent_steps[step_key]
+            next [] unless step
+
+            [
+              step.id,
+              step_settings.map do |key_value|
+                key_value_to_hash(key_value)
+              end
+            ]
+          end
+        end
+
+        def key_value_to_hash(key_value)
+          key = key_value["type"]
+          value = key_value["value"]
+          value = parser.all_translations_for(value, locales) if value.is_a?(String) && value.start_with?("#{parser.id}.") && value.end_with?("_settings.#{key}")
+          [key, value]
+        end
+
+        def parent_steps
+          @parent_steps ||= parent.created_steps
         end
       end
     end

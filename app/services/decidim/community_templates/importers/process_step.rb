@@ -14,12 +14,6 @@ module Decidim
           }.compact
           @object = Decidim::ParticipatoryProcessStep.create!(process_step_attributes)
         end
-
-        def from_relative_date(date)
-          return nil if date.blank?
-
-          Time.current + date.to_i
-        end
       end
     end
   end

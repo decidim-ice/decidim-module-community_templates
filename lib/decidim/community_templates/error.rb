@@ -7,5 +7,8 @@ module Decidim
 
     class GitError < Error
     end
+
+    class ResetOrganizationError < Error
+    end
   end
 end

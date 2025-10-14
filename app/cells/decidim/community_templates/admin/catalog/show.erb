@@ -23,7 +23,7 @@
               "Used in 3 processes"
             end
           end,
-          link_to("try demo", "#try", class: "link"),
+          link_to("try demo", "https://#{Decidim::CommunityTemplates.config.demo[:host]}/processes/t-#{template.id}", class: "link", target: "_blank", "data-external-link" => false),
           content_tag(:span) do
             button_to(decidim_admin_community_templates.template_usages_path(template_id: template.id), method: :post, class: "template-card__action--install") do
               "install"

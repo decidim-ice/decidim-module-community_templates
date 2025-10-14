@@ -22,27 +22,32 @@ module Decidim
 
         with_git_credentials do |git|
           checkout_branch(git, repo_branch)
+
           if git.status.untracked.size.positive? || git.status.changed.size.positive?
             git.add(all: true)
             git.commit_all("Update community templates")
           end
-          next unless git.status.any?
-
           git.push("origin", repo_branch.to_s, force: true)
         end
       end
 
       def pull
         # If we are synced with a remote git repository, we need to push first.
-        return if !git.status.changed.empty? && writable?
+        return if !git.status.changed.empty? && !writable?
 
         validate!
         with_git_credentials do |git|
+          checkout_branch(git, repo_branch) if git.current_branch != repo_branch
+
           git.remote("origin").fetch
-          checkout_branch(git, repo_branch)
+          setup_branch_tracking(git, repo_branch)
           git.push("origin", repo_branch) if writable? && (!remote_branch_exists?(git) || !git.status.changed.empty?)
-          git.pull
+          git.pull("origin", repo_branch)
         end
+      end
+
+      def last_commit
+        git.log(1).execute.last.sha
       end
 
       ##
@@ -97,6 +102,12 @@ module Decidim
         e.result.status.exitstatus == 128 && !!(e.result.stderr =~ /does not have any commits yet/)
       end
 
+      def templates_count
+        catalog_path.children.select do |child|
+          child.directory? && child.basename.to_s.match?(Decidim::CommunityTemplates::TemplateMetadata::UUID_REGEX)
+        end.size
+      end
+
       def git
         Git.open(catalog_path, :log => Rails.logger)
       rescue ArgumentError => e
@@ -121,20 +132,91 @@ module Decidim
         git.checkout(repo_branch, new_branch: git.branches.local.none? { |branch| branch.name == "origin/#{repo_branch}" })
       end
 
+      def setup_branch_tracking(git, repo_branch)
+        # Check if current branch is tracking the remote branch
+        current_branch = git.current_branch
+        return if git.branches[current_branch].tracking_branch == "origin/#{repo_branch}"
+
+        # Set up tracking if the remote branch exists
+        git.branches[current_branch].set_tracking_branch("origin/#{repo_branch}") if remote_branch_exists?(git)
+      rescue StandardError => e
+        Rails.logger.warn("Failed to set up branch tracking: #{e.message}")
+        # Continue without tracking - the pull will still work with explicit remote/branch
+      end
+
       def with_git_credentials
-        # Parse URI and add username and password
-        uri = URI.parse(repo_url)
-        uri.user = repo_username
-        uri.password = repo_password
-        git.remove_remote("origin") if has_origin?(git)
-        git.add_remote("origin", uri.to_s)
+        return yield(git) if repo_url.blank?
+
+        # Validate and parse URI first
+        begin
+          uri = URI.parse(repo_url)
+          raise GitError, "Invalid repository URL: #{repo_url}" unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+        rescue URI::InvalidURIError => e
+          raise GitError, "Invalid repository URL: #{e.message}"
+        end
+
+        # Add credentials to URI
+        uri.user = repo_username if repo_username.present?
+        uri.password = repo_password if repo_password.present?
+
+        # Ensure we have a clean remote state
+        ensure_remote_origin(git, uri.to_s)
+
         yield(git)
-      ensure
-        git.remove_remote("origin") if has_origin?(git)
+      rescue Git::Error => e
+        Rails.logger.error("Git execution error: #{e.message}")
+        raise GitError, "Git operation failed: #{e.message}"
+      rescue StandardError => e
+        Rails.logger.error("Unexpected error in git operations: #{e.message}")
+        raise GitError, "Git operation failed: #{e.message}"
+      end
+
+      def ensure_remote_origin(git, remote_url)
+        # Check if origin already exists and has the correct URL
+        if has_origin?(git)
+          current_url = get_remote_url(git, "origin")
+          if current_url == remote_url
+            Rails.logger.debug("Remote origin already configured with correct URL")
+            return
+          end
+
+          Rails.logger.debug { "Updating remote origin URL from #{current_url} to #{remote_url}" }
+          raise "Could not remove remote origin" unless remove_remote_safely(git, "origin")
+        end
+
+        # Add the remote with the correct URL
+        git.add_remote("origin", remote_url)
+        Rails.logger.debug { "Added remote origin: #{remote_url}" }
+      rescue Git::Error => e
+        Rails.logger.error("Failed to configure remote origin: #{e.message}")
+        raise GitError, "Failed to configure remote origin: #{e.message}"
       end
 
       def has_origin?(git)
         git.remotes.any? { |remote| remote.name == "origin" }
+      rescue StandardError
+        false
+      end
+
+      def get_remote_url(git, remote_name)
+        remote = git.remote(remote_name)
+        return nil unless remote
+
+        remote.respond_to?(:url) ? remote.url : nil
+      rescue StandardError
+        nil
+      end
+
+      def remove_remote_safely(git, remote_name)
+        remote = git.remote(remote_name)
+        return true unless remote&.url
+
+        remote.remove if remote.respond_to?(:remove)
+
+        !has_origin?(git)
+      rescue StandardError => e
+        Rails.logger.warn("Failed to remove remote #{remote_name}: #{e.message}")
+        false
       end
 
       def remote_branch_exists?(git)

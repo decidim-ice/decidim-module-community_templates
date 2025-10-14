@@ -4,7 +4,7 @@
 
 var node;
 var $form = $(`.form.js-template-modal-form[data-source="<%= source_record.to_global_id %>"]`)
-<% if form.valid? && template %>
+<% if form.errors.empty? && template %>
     var $content = $(`<%= j(render partial: "decidim/community_templates/admin/template_sources/modal_success", locals: { template: template, source_record: source_record, current_organization: current_organization }) %>`);
     $form.html($content.html());
 
@@ -18,7 +18,7 @@ var $form = $(`.form.js-template-modal-form[data-source="<%= source_record.to_gl
     dialog.close = originalClose;
    };
 <% else %>
-  <% if !form.template.id.present? %>
+  <% if method == :post %>
     var $content = $(`<%= j(cell("decidim/community_templates/admin/template_create_modal", source_record, form: @form).to_s) %>`);
     node = document.getElementById("modal-template-<%= source_record.id %>");
   <% else %>

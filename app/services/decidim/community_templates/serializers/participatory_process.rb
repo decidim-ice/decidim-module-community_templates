@@ -12,8 +12,8 @@ module Decidim
             short_description: i18n_field(:short_description),
             description: i18n_field(:description),
             announcement: i18n_field(:announcement),
-            start_date: model.start_date&.iso8601,
-            end_date: model.end_date&.iso8601,
+            start_date_relative: to_relative_date(model.start_date),
+            end_date_relative: to_relative_date(model.end_date),
             developer_group: i18n_field(:developer_group),
             local_area: i18n_field(:local_area),
             meta_scope: i18n_field(:meta_scope),
@@ -38,7 +38,7 @@ module Decidim
 
         def components
           model.components.map do |component|
-            append_serializer(Serializers::Component, component, "components.#{component.manifest_name}_#{component.id}")
+            append_serializer(Serializers::Component, component, "components.#{component.manifest_name}_#{SerializerBase.id_for_model(component)}")
           end
         end
 
@@ -47,13 +47,13 @@ module Decidim
             scoped_resource_id: model.id
           )
           content_blocks.map do |content_block|
-            append_serializer(Serializers::ContentBlock, content_block, "content_blocks.#{content_block.scope_name}_#{content_block.id}")
+            append_serializer(Serializers::ContentBlock, content_block, "content_blocks.#{content_block.scope_name}_#{SerializerBase.id_for_model(content_block)}")
           end
         end
 
         def steps
           model.steps.map do |step|
-            append_serializer(Serializers::ProcessStep, step, "steps.#{step.id}")
+            append_serializer(Serializers::ProcessStep, step, "steps.#{SerializerBase.id_for_model(step)}")
           end
         end
       end

@@ -58,7 +58,6 @@ A template is organized as a folder with the following structure:
 ```
 template-id/
 ├── data.json           # Main template data and metadata
-├── demo.json           # Optional demo data
 ├── locales/            # Translation files
 │   ├── en.yml
 │   ├── es.yml

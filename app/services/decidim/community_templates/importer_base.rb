@@ -16,6 +16,13 @@ module Decidim
         raise NotImplementedError, "You must implement the import! method in your importer"
       end
 
+      # inverse of SerializerBase#to_relative_date
+      def from_relative_date(date)
+        return nil if date.blank?
+
+        Time.zone.at(Time.zone.now.to_i + date.to_i)
+      end
+
       def attach!(asset_id, field_name)
         asset_data = parser.assets.find { |asset| asset["id"] == asset_id }
         return nil unless asset_data
@@ -47,7 +54,9 @@ module Decidim
 
       def slugify(text)
         text = text.values.first if text.is_a?(Hash)
-        base_slug = text.to_s.parameterize
+        base_slug = text.to_s.parameterize.dasherize[0...50]
+        # if base slug does not start with a letter, add a letter
+        base_slug = "a-#{base_slug}" unless base_slug.start_with?(/[a-zA-Z]/)
         slug = base_slug
         count = 2
         while parser.model_class.unscoped.exists?(slug:, organization:)

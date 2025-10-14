@@ -30,7 +30,7 @@ end
           } %>
         </div>
         <div class="template-direct-link__actions-section">
-          <a href="#" class="template-direct-link__link">
+          <a href="#" class="template-direct-link__link" style="visibility: hidden;">
             <%= t("try_demo_button", scope: i18n_scope) %>
           </a>
           <%= f.submit t("install_button", scope: i18n_scope), value: "install", class: "template-direct-link__link" %>
@@ -57,7 +57,7 @@ end
           </div>
         </div>
         <div class="template-direct-link__actions-section">
-          <span class="template-direct-link__link template-direct-link__link--disabled">
+          <span class="template-direct-link__link template-direct-link__link--disabled" style="visibility: hidden;">
             <%= t("try_demo_button", scope: i18n_scope) %>
           </span>
           <span class="template-direct-link__link template-direct-link__link--disabled">

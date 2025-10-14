@@ -11,7 +11,7 @@ module Decidim
             settings:,
             weight: model.weight,
             images_container: images_container,
-            published_at: model.published_at&.iso8601
+            published_at_relative: to_relative_date(model.published_at)
           }
         end
 
@@ -26,7 +26,7 @@ module Decidim
 
         def images_container
           model.images_container.manifest_attachments.transform_values do |content_block_attachment|
-            reference_asset(content_block_attachment.file.attachment)
+            reference_asset(content_block_attachment.file.attachment) unless content_block_attachment.file.attachment.nil?
           end
         end
       end
