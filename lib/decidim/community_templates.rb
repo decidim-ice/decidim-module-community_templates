@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "git"
+require "decidim/community_templates/version"
 require "decidim/community_templates/admin"
 require "decidim/community_templates/admin_engine"
 require "decidim/community_templates/engine"
