@@ -128,13 +128,15 @@ module Decidim
 
           before do
             allow(git_mirror).to receive(:git).and_return(git_instance)
+            allow(git_mirror).to receive(:with_git_credentials).and_yield(git_instance)
             allow(git_instance).to receive(:push).and_return(true)
+            allow(git_instance).to receive(:remote).and_return(double("remote", fetch: true, url: nil))
             FileUtils.touch(git_mirror.catalog_path.join("test.txt"))
           end
 
-          it "creates a commit" do
+          it "reset previous changes and creates a unique commit" do
             git_mirror.push!
-            expect(git_mirror.git.log(1).execute.last.message).to include("Update community templates")
+            expect(git_mirror.git.log(1).execute.last.message).to include(":tada")
           end
 
           it "pushes the repository" do
@@ -150,7 +152,7 @@ module Decidim
           before do
             allow(git_mirror).to receive(:git).and_return(git_instance)
             allow(git_instance).to receive(:push)
-            allow(git_instance).to receive(:remote)
+            allow(git_instance).to receive(:remote).and_return(double("remote", fetch: true))
             allow(git_instance).to receive(:remotes).and_return([])
             allow(git_instance).to receive(:add_remote)
             git_status_instance = git_instance.status
