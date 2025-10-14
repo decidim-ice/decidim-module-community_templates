@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-describe "Create template from participatory process" do
+describe "Create template from participatory process", js: true do
   let(:organization) { create(:organization) }
   let!(:participatory_process) { create(:participatory_process, :with_steps, organization:) }
   let!(:user) { create(:user, :admin, :confirmed, organization:) }
