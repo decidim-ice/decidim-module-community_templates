@@ -130,7 +130,9 @@ jobs:
           chrome-version: 136.0.7103.92
 
       - run: |
-          sudo apt-get update; sudo apt-get -f install wkhtmltopdf imagemagick p7zip
+          sudo apt-get update; sudo apt-get -f install wkhtmltopdf imagemagick p7zip;
+          rm Gemfile.lock;
+          bundle install;
 
       - name: Setup Database
         run: bundle exec rake test_app
