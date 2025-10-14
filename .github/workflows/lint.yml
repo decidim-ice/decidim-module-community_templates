@@ -12,6 +12,7 @@ env:
   RUBY_VERSION: 3.3.4
   NODE_VERSION: 22.14.0
   SHAKAPACKER_RUNTIME_COMPILE: "false"
+  TEMPLATE_TEST_APARTMENT: "1"
 
 jobs:
   lint-report:
@@ -40,8 +41,8 @@ jobs:
       # - run: npm run stylelint
       #   name: Lint SCSS files
 
-      - run: TEMPLATE_TEST_APARTMENT=1 bundle exec rubocop -P
+      - run: bundle exec rubocop -P
         name: Lint Ruby files
 
-      - run: TEMPLATE_TEST_APARTMENT=1 bundle exec erb_lint app/**/*.erb
+      - run: bundle exec erb_lint app/**/*.erb
         name: Lint ERB files
