@@ -31,8 +31,8 @@ module Decidim
             serializer.metadata_translations!
             serializer.save!(Decidim::CommunityTemplates.catalog_path)
           end
-          GitSyncronizerJob.perform_later
-          ResetOrganizationJob.perform_later
+          GitSyncronizerJob.perform_now
+          ResetOrganizationJob.perform_now
           broadcast(:ok, created_template_source)
         rescue StandardError => e
           Rails.logger.error "Error writing template: #{e.message}"
