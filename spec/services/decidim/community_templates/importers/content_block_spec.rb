@@ -29,7 +29,7 @@ module Decidim
                 "images_container" => {
                   "background_image" => "image_checksum_content_block"
                 },
-                "published_at" => "2023-01-01T00:00:00Z"
+                "published_at_relative" => 172_800
               }
             },
             assets: [
@@ -120,7 +120,7 @@ module Decidim
             end
 
             it "sets published_at to nil when not provided" do
-              parser.attributes.delete("published_at")
+              parser.attributes.delete("published_at_relative")
               importer.import!
               content_block = Decidim::ContentBlock.last
               expect(content_block.published_at).to be_nil

@@ -56,7 +56,6 @@ module Decidim
         "https://#{host}/catalog/#{id}"
       end
 
-
       def self.find(template_id)
         from_path(Decidim::CommunityTemplates.catalog_path.join(template_id))
       end

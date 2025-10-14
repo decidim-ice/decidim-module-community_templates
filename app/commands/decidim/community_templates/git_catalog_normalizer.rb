@@ -22,12 +22,13 @@ module Decidim
 
       def call
         return broadcast(:ok) unless Decidim::CommunityTemplates.enabled?
+
         clone_repository unless catalog_path.exist?
         validate!
         configure_git
-        checkout_branch        
+        checkout_branch
         tada_commit if empty? || templates_count.zero?
-        
+
         # Check there is at least one commit
         broadcast(:ok)
       rescue StandardError => e

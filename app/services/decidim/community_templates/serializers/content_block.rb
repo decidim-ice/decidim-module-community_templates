@@ -11,7 +11,7 @@ module Decidim
             settings:,
             weight: model.weight,
             images_container: images_container,
-            published_at: model.published_at&.iso8601
+            published_at_relative: to_relative_date(model.published_at)
           }
         end
 

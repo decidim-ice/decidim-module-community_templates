@@ -16,9 +16,10 @@ module Decidim
         raise NotImplementedError, "You must implement the import! method in your importer"
       end
 
-      def relative_date(date)
+      def from_relative_date(date)
         return nil if date.blank?
-        Time.zone.now.to_i + date.to_i
+
+        Time.zone.at(Time.zone.now.to_i + date.to_i)
       end
 
       def attach!(asset_id, field_name)

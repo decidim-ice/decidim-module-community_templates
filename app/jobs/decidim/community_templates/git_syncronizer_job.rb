@@ -6,7 +6,7 @@ module Decidim
       queue_as :default
       discard_on Decidim::CommunityTemplates::GitError
       retry_on Git::Error, wait: 1.minute, attempts: 3
-      
+
       def perform
         return unless CommunityTemplates.enabled?
 

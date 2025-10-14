@@ -12,7 +12,7 @@ module Decidim
             step_settings: step_settings,
             default_step_settings: default_step_settings,
             weight: model.weight,
-            published_at: model.published_at&.iso8601
+            published_at_relative: to_relative_date(model.published_at)
           }
         end
 
@@ -36,24 +36,24 @@ module Decidim
 
         def step_settings
           step = model.step_settings
-          step.map do |step_key, step_value|
+          step.to_h do |step_key, step_value|
+            step = Decidim::ParticipatoryProcessStep.find(step_key)
+            serialized_key = SerializerBase.id_for_model(step)
             [
-              step_key, 
+              serialized_key,
               model.manifest.settings(:step).attributes.map do |type, value|
                 {
                   type: type.to_s,
-                  value: setting_value(step_value[type], key: step_key, manifest: value, scope: "scope.#{step_key}")
+                  value: setting_value(step_value[type], key: step_key, manifest: value, scope: "steps_#{serialized_key}")
                 }
               end
             ]
-          end.to_h
+          end
         end
 
-
-
         def setting_value(setting_value, key:, manifest:, scope:)
-          setting_value = i18n_field(key, setting_value, "#{scope}.settings") if manifest.translated?
-          setting_value = !!setting_value if manifest.type == :boolean
+          setting_value = i18n_field(key, setting_value, "#{scope}_settings") if manifest.translated?
+          setting_value = !setting_value.nil? && setting_value if manifest.type == :boolean
           setting_value
         end
       end

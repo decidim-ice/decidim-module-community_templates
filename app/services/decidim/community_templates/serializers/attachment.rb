@@ -5,7 +5,8 @@ module Decidim
     module Serializers
       class Attachment < SerializerBase
         def attributes
-          raise RuntimeError, "model or blob is nil" if model.nil? || blob.nil?
+          raise "model or blob is nil" if model.nil? || blob.nil?
+
           {
             content_type: model.content_type,
             name: model.name,
@@ -35,7 +36,7 @@ module Decidim
           base64_checksum = Base64.urlsafe_encode64(blob.checksum.to_s)
           "#{base64_checksum.parameterize}_#{blob_or_model.created_at.strftime("%Y%m%d%H%M%S")}#{guess_extension_from_content_type(blob)}"
         end
-        
+
         def self.guess_extension_from_content_type(blob)
           return ".#{blob.filename.extension}" if blob.filename.extension.present?
           return nil if blob.content_type.nil?

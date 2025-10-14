@@ -3,14 +3,14 @@
 module Decidim
   module CommunityTemplates
     class TemplateParser
-      def initialize(data:, assets:, translations: {}, locales: Decidim.available_locales.map(&:to_s))
+      def initialize(data:, assets:, translations: {}, locales: Decidim.available_locales.map(&:to_s), i18n_vars: {})
         raise ArgumentError, "Invalid parameter assets. Must be an array" if assets.nil? || !assets.is_a?(Array)
 
         @data = data
         @translations = translations
         @locales = locales
         @assets = assets
-        @i18n_vars = {}
+        @i18n_vars = i18n_vars
         store_translations!
       end
 
@@ -127,13 +127,11 @@ module Decidim
           )
           blob = ActiveStorage::Blob.create_and_upload!(
             io: File.open(asset["attributes"]["@local_path"]),
-            filename: "#{asset["attributes"]["filename"]}",
+            filename: (asset["attributes"]["filename"]).to_s,
             content_type: asset["attributes"]["content_type"],
-            identify: false,
+            identify: false
           )
-          if editor_image.file.attach(blob)
-            editor_image.file.save
-          end
+          editor_image.file.save if editor_image.file.attach(blob)
           [key.to_sym, Rails.application.routes.url_helpers.rails_blob_url(editor_image.file.blob, only_path: true)]
         end
       end

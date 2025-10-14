@@ -51,22 +51,24 @@ module Decidim
         end
 
         it "has the correct attributes" do
-          expect(attributes[:title]).to eq("#{serializer.id}.attributes.title")
-          expect(attributes[:subtitle]).to eq("#{serializer.id}.attributes.subtitle")
-          expect(attributes[:slug]).to eq(model.slug)
-          expect(attributes[:short_description]).to eq("#{serializer.id}.attributes.short_description")
-          expect(attributes[:description]).to eq("#{serializer.id}.attributes.description")
-          expect(attributes[:announcement]).to eq("#{serializer.id}.attributes.announcement")
-          expect(attributes[:start_date]).to eq(model.start_date.iso8601)
-          expect(attributes[:end_date]).to eq(model.end_date.iso8601)
-          expect(attributes[:developer_group]).to eq("#{serializer.id}.attributes.developer_group")
-          expect(attributes[:local_area]).to eq("#{serializer.id}.attributes.local_area")
-          expect(attributes[:meta_scope]).to eq("#{serializer.id}.attributes.meta_scope")
-          expect(attributes[:target]).to eq("#{serializer.id}.attributes.target")
-          expect(attributes[:participatory_scope]).to eq("#{serializer.id}.attributes.participatory_scope")
-          expect(attributes[:participatory_structure]).to eq("#{serializer.id}.attributes.participatory_structure")
-          expect(attributes[:private_space]).to eq(model.private_space)
-          expect(attributes[:promoted]).to eq(model.promoted)
+          freeze_time do
+            expect(attributes[:title]).to eq("#{serializer.id}.attributes.title")
+            expect(attributes[:subtitle]).to eq("#{serializer.id}.attributes.subtitle")
+            expect(attributes[:slug]).to eq(model.slug)
+            expect(attributes[:short_description]).to eq("#{serializer.id}.attributes.short_description")
+            expect(attributes[:description]).to eq("#{serializer.id}.attributes.description")
+            expect(attributes[:announcement]).to eq("#{serializer.id}.attributes.announcement")
+            expect(attributes[:start_date_relative]).to eq(Time.zone.now.to_i - model.start_date.to_time.to_i)
+            expect(attributes[:end_date_relative]).to eq(Time.zone.now.to_i - model.end_date.to_time.to_i)
+            expect(attributes[:developer_group]).to eq("#{serializer.id}.attributes.developer_group")
+            expect(attributes[:local_area]).to eq("#{serializer.id}.attributes.local_area")
+            expect(attributes[:meta_scope]).to eq("#{serializer.id}.attributes.meta_scope")
+            expect(attributes[:target]).to eq("#{serializer.id}.attributes.target")
+            expect(attributes[:participatory_scope]).to eq("#{serializer.id}.attributes.participatory_scope")
+            expect(attributes[:participatory_structure]).to eq("#{serializer.id}.attributes.participatory_structure")
+            expect(attributes[:private_space]).to eq(model.private_space)
+            expect(attributes[:promoted]).to eq(model.promoted)
+          end
         end
 
         it "generates translations" do
@@ -101,19 +103,26 @@ module Decidim
           expect(attributes_en["participatory_scope"]).to eq(model.participatory_scope["en"])
           expect(attributes_ca["participatory_structure"]).to eq(model.participatory_structure["ca"])
           expect(attributes_en["participatory_structure"]).to eq(model.participatory_structure["en"])
-          expect(attributes_ca["components"]["proposals_#{component.id}"]["attributes"]["name"]).to eq(component.name["ca"])
-          expect(attributes_en["components"]["proposals_#{component.id}"]["attributes"]["name"]).to eq(component.name["en"])
+          expect(attributes_ca["components"]["proposals_#{SerializerBase.id_for_model(component)}"]["attributes"]["name"]).to eq(component.name["ca"])
+          expect(attributes_en["components"]["proposals_#{SerializerBase.id_for_model(component)}"]["attributes"]["name"]).to eq(component.name["en"])
         end
 
         it "includes components" do
           expect(attributes[:components]).to be_an(Array)
           expect(attributes[:components].size).to eq(1)
           component_data = attributes[:components].first
-          expect(component_data[:id]).to eq("#{serializer.id}.attributes.components.proposals_#{component.id}")
+          expect(component_data[:id]).to eq("#{serializer.id}.attributes.components.proposals_#{SerializerBase.id_for_model(component)}")
           expect(component_data[:@class]).to eq("Decidim::Component")
-          expect(component_data[:attributes][:name]).to eq("#{serializer.id}.attributes.components.proposals_#{component.id}.attributes.name")
+          expect(component_data[:attributes][:name]).to eq("#{serializer.id}.attributes.components.proposals_#{SerializerBase.id_for_model(component)}.attributes.name")
           expect(component_data[:attributes][:manifest_name]).to eq(component.manifest_name)
-          expect(component_data[:attributes][:settings]).to be_an(Hash)
+
+          expect(component_data[:attributes][:default_step_settings]).to be_an(Array)
+          expect(component_data[:attributes][:global_settings]).to be_an(Array)
+          expect(component_data[:attributes][:step_settings]).to be_an(Hash)
+          expect(component_data[:attributes][:step_settings].keys.size).to eq(model.steps.count)
+          component_data[:attributes][:step_settings].each do |_step_key, step_settings|
+            expect(step_settings).to be_an(Array)
+          end
         end
 
         it "includes hero_image" do
@@ -141,7 +150,7 @@ module Decidim
 
             hero_block = attributes[:content_blocks].find { |block| block[:attributes][:manifest_name] == "hero" }
             expect(hero_block).to be_an(Hash)
-            expect(hero_block[:id]).to eq("#{serializer.id}.attributes.content_blocks.participatory_process_homepage_#{content_block.id}")
+            expect(hero_block[:id]).to eq("#{serializer.id}.attributes.content_blocks.participatory_process_homepage_#{SerializerBase.id_for_model(content_block)}")
             expect(hero_block[:attributes][:scope_name]).to eq("participatory_process_homepage")
             expect(hero_block[:attributes][:images_container]).to be_an(Hash)
             expect(hero_block[:attributes][:images_container][:background_image]).to be_an(String)

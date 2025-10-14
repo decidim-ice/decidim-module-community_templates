@@ -28,7 +28,7 @@ module Decidim
           broadcast(:ok, importer.object)
         rescue StandardError => e
           Rails.logger.error "ImportTemplate error: #{e.message}"
-          Rails.logger.error e.backtrace.join("\n")        
+          Rails.logger.error e.backtrace.join("\n")
           return broadcast(:invalid, e.message)
         end
 
