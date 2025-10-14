@@ -22,10 +22,8 @@ gem "bootsnap", "~> 1.4"
 gem "puma", ">= 6.3.1"
 # temporary fix for simplecov
 gem "rexml", "3.4.0"
-if ENV["TEMPLATE_TEST_APARTMENT"]
-  gem "decidim-apartment", git: "https://gitlab.com/lappis-unb/decidimbr/infra/participa-gem"
-  gem "ros-apartment", require: "apartment"
-end
+gem "decidim-apartment", git: "https://gitlab.com/lappis-unb/decidimbr/infra/participa-gem"
+gem "ros-apartment", require: "apartment"
 gem "deface",
     git: "https://github.com/froger/deface",
     branch: "fix/js-overrides"
