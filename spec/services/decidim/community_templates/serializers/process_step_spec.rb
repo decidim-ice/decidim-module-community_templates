@@ -111,7 +111,7 @@ module Decidim
 
           it "has correct attributes structure" do
             expect(attributes).to be_a(Hash)
-            expect(attributes.keys).to contain_exactly(:title, :description, :start_date_relative, :end_date_relative)
+            expect(attributes.keys).to contain_exactly(:title, :description, :start_date_relative, :end_date_relative, :position)
           end
         end
       end

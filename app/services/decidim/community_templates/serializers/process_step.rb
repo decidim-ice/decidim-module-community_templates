@@ -8,6 +8,7 @@ module Decidim
           {
             title: i18n_field(:title),
             description: i18n_field(:description),
+            position: model.position,
             start_date_relative: to_relative_date(model.start_date),
             end_date_relative: to_relative_date(model.end_date)
           }

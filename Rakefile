@@ -20,7 +20,8 @@ def prepare_test_files
         "username" => ENV.fetch("DATABASE_USERNAME", "decidim"),
         "password" => ENV.fetch("DATABASE_PASSWORD", "insecure-password"),
         "database" => "community_template<%= ENV.fetch('TEST_ENV_NUMBER', '') %>",
-        "schema_search_path" => "public,shared_extensions"
+        "schema_search_path" => "public,shared_extensions",
+        "pool" => 15
       },
       "development" => {
         "adapter" => "postgresql",
@@ -30,7 +31,8 @@ def prepare_test_files
         "username" => ENV.fetch("DATABASE_USERNAME", "decidim"),
         "password" => ENV.fetch("DATABASE_PASSWORD", "insecure-password"),
         "database" => "community_template_dev",
-        "schema_search_path" => "public,shared_extensions"
+        "schema_search_path" => "public,shared_extensions",
+        "pool" => 15
       }
     }
     File.open("config/database.yml", "w") { |f| YAML.dump(database_yml, f) }
