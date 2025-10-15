@@ -1,0 +1,19 @@
+<% usages = Decidim::CommunityTemplates::TemplateUse.where(resource: process) %>
+<% sources = Decidim::CommunityTemplates::TemplateSource.where(source: process) %>
+<td class="table-list__templates">
+<% if sources.any? %>
+  <div class="process__template_names">
+    <% sources.each do |source| %>
+      <div class="process__template_source">
+      Shared as template
+      </div>
+    <% end %>
+  </div>
+<% elsif usages.any? %>
+  <div class="process__template_names">
+    <% usages.each do |usage| %>
+      <div class="process__template_name"><%= usage.template.name %></div>
+    <% end %>
+  </div>
+<% end %>
+</td>

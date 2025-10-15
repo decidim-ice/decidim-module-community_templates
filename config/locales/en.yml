@@ -153,17 +153,10 @@ en:
           create:
             error: There was an error importing the template.
             success: The template has been imported successfully.
-        templates:
-          apply:
-            demo: Include demo data
-            submit: Create the new participatory space
-            title: Create space from template
+        participatory_processes:
           index:
-            create_template: Create the new template
-            new_from_space: Create a new template from a participatory space
-            select_participatory_space: Select the participatory space you want to
-              use as a template
-            title: Community Templates
+            template_thead: Community Template
+        templates:
           new:
             metadata:
               description: Description

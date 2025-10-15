@@ -15,6 +15,12 @@ module Decidim
       validate :resource_in_organization, unless: :persisted?
       validate :template_is_uuid
 
+      delegate :name, to: :template
+
+      def template
+        @template ||= Decidim::CommunityTemplates::TemplateMetadata.find(template_id)
+      end
+
       private
 
       def allowed_resources
