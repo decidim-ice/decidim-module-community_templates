@@ -33,6 +33,7 @@ module Decidim
         author_email: ENV.fetch("TEMPLATE_GIT_AUTHOR_EMAIL", "decidim-community-templates@example.org")
       }
     end
+
     config_accessor :demo do
       {
         host: ENV.fetch("TEMPLATE_DEMO_HOST", "demo.example.org"),
