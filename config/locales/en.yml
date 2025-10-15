@@ -88,7 +88,7 @@ en:
         participatory_processes:
           index:
             template_thead: Community Template
-          shared_as_template: Shared as template
+          shared_as_template: Shared in catalog
         template_create:
           cancel_button: Cancel
           errors:

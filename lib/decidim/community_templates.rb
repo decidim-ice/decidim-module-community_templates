@@ -37,6 +37,7 @@ module Decidim
       {
         host: ENV.fetch("TEMPLATE_DEMO_HOST", "demo.example.org"),
         name: ENV.fetch("TEMPLATE_DEMO_NAME", "Demo Organization"),
+        default_locale: ENV.fetch("TEMPLATE_DEMO_DEFAULT_LOCALE", ENV.fetch("DECIDIM_DEFAULT_LOCALE", "en")),
         primary_color: ENV.fetch("TEMPLATE_DEMO_PRIMARY_COLOR", "#14342B"),
         secondary_color: ENV.fetch("TEMPLATE_DEMO_SECONDARY_COLOR", "#006482"),
         tertiary_color: ENV.fetch("TEMPLATE_DEMO_TERTIARY_COLOR", "#F7E733")

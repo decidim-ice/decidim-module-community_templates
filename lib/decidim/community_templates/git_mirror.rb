@@ -167,6 +167,7 @@ module Decidim
 
         # Ensure we have a clean remote state
         ensure_remote_origin(git, uri.to_s)
+        configure_pull_strategy(git)
         yield(git)
       rescue Git::Error => e
         Rails.logger.error("Git execution error: #{e.message}")
@@ -174,6 +175,13 @@ module Decidim
       rescue StandardError => e
         Rails.logger.error("Unexpected error in git operations: #{e.message}")
         raise GitError, "Git operation failed: #{e.message}"
+      end
+
+      def configure_pull_strategy(git)
+        # Set pull strategy to merge (default) to avoid warnings
+        git.config("pull.rebase", "false")
+      rescue StandardError => e
+        Rails.logger.warn("Failed to configure pull strategy: #{e.message}")
       end
 
       def ensure_remote_origin(git, remote_url)

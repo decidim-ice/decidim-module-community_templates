@@ -16,7 +16,6 @@ module Decidim
 
         git_mirror = GitMirror.instance
         git_mirror.validate!
-        git_mirror.push! if git_mirror.writable?
         git_mirror.pull
         # cache from last commit
         last_commit = git_mirror.last_commit

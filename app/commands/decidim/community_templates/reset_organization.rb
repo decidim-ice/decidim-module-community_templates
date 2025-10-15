@@ -8,7 +8,7 @@ module Decidim
         @organization = nil
         create_organization!
         Decidim::CommunityTemplates.with_demo_organization do |organization|
-          raise ResetOrganizationError, "Failed to recreate demo organization" unless organization
+          raise ResetOrganizationError, "Failed to recreate demo organization, organization not found" unless organization
 
           Rails.logger.info("Setting up default admin user")
           author = Decidim::User.find_by(email: "admin@example.org", organization:)
@@ -48,11 +48,13 @@ module Decidim
         rescue StandardError => e
           Rails.logger.info("Error importing #{template_path}: #{e.message}")
           Rails.logger.info(e.backtrace.join("\n"))
+          raise e
         end
       end
 
       def create_organization!
-        default_locale = I18n.default_locale.to_s
+        default_locale = Decidim::CommunityTemplates.config.demo[:default_locale]
+
         available_locales = [default_locale]
         name = Decidim::CommunityTemplates.config.demo[:name]
 
