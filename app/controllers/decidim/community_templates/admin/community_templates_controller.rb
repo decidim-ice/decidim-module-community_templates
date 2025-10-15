@@ -11,6 +11,7 @@ module Decidim
 
         def index
           enforce_permission_to :read, :catalog
+          return render json: { status: "ok" } if request.xhr?
         end
 
         private
@@ -20,13 +21,19 @@ module Decidim
         end
 
         def sync_catalog
+          return unless request.xhr?
+
           cache_key = "git_syncronizer_last_run"
           last_sync = Rails.cache.read(cache_key)
 
-          if last_sync.nil? || last_sync < 1.minute.ago
+          if last_sync.nil? || last_sync < 5.minutes.ago || force_sync?
             GitSyncronizer.call
-            Rails.cache.write(cache_key, Time.current, expires_in: 1.minute)
+            Rails.cache.write(cache_key, Time.current, expires_in: 5.minutes)
           end
+        end
+
+        def force_sync?
+          params[:force_sync] == "true"
         end
       end
     end

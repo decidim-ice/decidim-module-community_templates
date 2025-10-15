@@ -27,7 +27,7 @@
   }
   &__action {
     flex: 1;
-    a {
+    a, & &--install {
       @apply text-md font-semibold text-secondary;
       &:hover {
         @apply opacity-80 underline;
