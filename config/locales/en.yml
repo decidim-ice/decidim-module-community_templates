@@ -160,11 +160,13 @@ en:
             error: There was an error importing the template.
             success: The template has been imported successfully.
         participatory_processes:
+          shared_as_template: Shared as template
           index:
-            shared_as_template: Shared as template
             template_thead: Community Template
           
         templates:
+          index:
+            title: Templates
           new:
             metadata:
               description: Description

@@ -24,11 +24,11 @@ module Decidim
           return unless request.xhr?
 
           cache_key = "git_syncronizer_last_run"
-          last_sync = Rails.cache.read(cache_key)
+          last_sync = Rails.cache.read(cache_key, namespace: Decidim::CommunityTemplates.cache_namespace)
 
           if last_sync.nil? || last_sync < 5.minutes.ago || force_sync?
             GitSyncronizer.call
-            Rails.cache.write(cache_key, Time.current, expires_in: 5.minutes)
+            Rails.cache.write(cache_key, Time.current, expires_in: 5.minutes, namespace: Decidim::CommunityTemplates.cache_namespace)
           end
         end
 

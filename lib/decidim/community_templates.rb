@@ -19,6 +19,10 @@ module Decidim
     autoload :TemplateMetadata, "decidim/community_templates/template_metadata"
     autoload :ResetOrganization, "decidim/community_templates/reset_organization"
 
+    config_accessor :cache_namespace do
+      "community_templates"
+    end
+
     config_accessor :git_settings do
       {
         url: ENV.fetch("TEMPLATE_GIT_URL", ""),
