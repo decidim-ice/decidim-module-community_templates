@@ -55,6 +55,12 @@ en:
           update_template: Update template
         catalog:
           empty_catalog: Template Catalog is empty
+          used_in_processes: 
+            zero: "Not in use"
+            one: "Used in one process"
+            other: "Used in %{count} processes"
+          try_demo: Try demo
+          install: Install
         direct_link_modal:
           cancel_button: Close
           errors:
@@ -155,7 +161,9 @@ en:
             success: The template has been imported successfully.
         participatory_processes:
           index:
+            shared_as_template: Shared as template
             template_thead: Community Template
+          
         templates:
           new:
             metadata:

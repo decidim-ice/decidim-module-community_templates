@@ -14,6 +14,20 @@ module Decidim
 
         private
 
+        def tooltip_usages_for(template_id)
+          usages_for(template_id).map do |usage|
+            "<span>#{decidim_escape_translated(usage.resource.title)}</span>"
+          end.join("<br />").html_safe
+        end
+
+        def usages_for(template_id)
+          Decidim::CommunityTemplates::TemplateUse.where(template_id: template_id)
+        end
+
+        def usages_count(template_id)
+          usages_for(template_id).count
+        end
+
         def host_for(url)
           URI.parse(normalize_url(url)).host
         end

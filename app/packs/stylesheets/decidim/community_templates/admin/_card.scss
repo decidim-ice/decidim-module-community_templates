@@ -28,6 +28,7 @@
   &__action {
     flex: 1;
     a, & &--install {
+      text-transform: lowercase;
       @apply text-md font-semibold text-secondary;
       &:hover {
         @apply opacity-80 underline;
