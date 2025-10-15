@@ -8,6 +8,8 @@ module Decidim
 
         if Decidim::CommunityTemplates.apartment_compat?
           distribution_key = Decidim::Apartment::DistributionKey.for_host(Decidim::CommunityTemplates.config.demo[:host])
+          return unless distribution_key
+
           # Drop the schema, will drop all associated data.
           distribution_key.destroy!
           return ::Apartment::Tenant.drop(distribution_key.key)
