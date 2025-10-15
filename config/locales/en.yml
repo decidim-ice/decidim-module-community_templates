@@ -55,12 +55,12 @@ en:
           update_template: Update template
         catalog:
           empty_catalog: Template Catalog is empty
-          used_in_processes: 
-            zero: "Not in use"
-            one: "Used in one process"
-            other: "Used in %{count} processes"
-          try_demo: Try demo
           install: Install
+          try_demo: Try demo
+          used_in_processes:
+            one: Used in one process
+            other: Used in %{count} processes
+            zero: Not in use
         direct_link_modal:
           cancel_button: Close
           errors:
@@ -85,6 +85,10 @@ en:
           local_templates: Local templates
           manage_catalogs: Manage catalogs
           participatory_process_catalog: Templates
+        participatory_processes:
+          index:
+            template_thead: Community Template
+          shared_as_template: Shared as template
         template_create:
           cancel_button: Cancel
           errors:
@@ -159,29 +163,5 @@ en:
           create:
             error: There was an error importing the template.
             success: The template has been imported successfully.
-        participatory_processes:
-          shared_as_template: Shared as template
-          index:
-            template_thead: Community Template
-          
-        templates:
-          index:
-            title: Templates
-          new:
-            metadata:
-              description: Description
-              description_placeholder: A brief description of the template
-              name: Name
-              title: Template Metadata
-              version: Version
-              version_placeholder: e.g. 1.0.0
-            title: Create a new template
-          no_external_templates: There are no templates. Please download some from
-            a catalog.
-          no_local_templates: There are no local templates. All newly created templates
-            will appear here.
-          template:
-            apply: Apply in a new participatory space
-            download: Download
         titles:
           community_templates: Community Templates
