@@ -10,7 +10,6 @@ namespace :decidim do
       Rails.logger.level = Logger::DEBUG
       Rails.logger.info "Starting reset_demo task"
       Rails.logger.debug "Logger configured for rake task"
-
       Decidim::CommunityTemplates::GitSyncronizer.call
     end
   end
