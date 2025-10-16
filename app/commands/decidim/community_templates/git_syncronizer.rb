@@ -3,9 +3,28 @@
 module Decidim
   module CommunityTemplates
     class GitSyncronizer < ::Decidim::Command
+      LOCK_FILE_PATH = Rails.root.join("tmp/git_syncronizer.lock")
+
       def call
         return unless CommunityTemplates.enabled?
 
+        File.open(LOCK_FILE_PATH, "w") do |lock_file|
+          # Try to acquire exclusive non-blocking lock
+          if lock_file.flock(File::LOCK_EX | File::LOCK_NB)
+            begin
+              perform_sync
+            ensure
+              lock_file.flock(File::LOCK_UN)
+            end
+          else
+            Rails.logger.info "GitSyncronizer already running, skipping"
+          end
+        end
+      end
+
+      private
+
+      def perform_sync
         # Be sure to apply configuration to current git
         result = GitCatalogNormalizer.call
 
@@ -15,8 +34,7 @@ module Decidim
         end
 
         git_mirror = GitMirror.instance
-        git_mirror.validate!
-        git_mirror.pull
+        git_mirror.pull!
         # cache from last commit
         last_commit = git_mirror.last_commit
         if last_commit.present? && last_commit != Rails.cache.read("git_syncronizer_last_commit", namespace: Decidim::CommunityTemplates.cache_namespace)
@@ -25,8 +43,6 @@ module Decidim
           Rails.cache.write("git_syncronizer_last_commit", last_commit, namespace: Decidim::CommunityTemplates.cache_namespace)
         end
       end
-
-      private
 
       def reload_public_files!
         return unless Decidim::CommunityTemplates.catalog_path.exist?

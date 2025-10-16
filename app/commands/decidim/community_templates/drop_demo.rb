@@ -12,7 +12,7 @@ module Decidim
 
           # Drop the schema, will drop all associated data.
           distribution_key.destroy!
-          return ::Apartment::Tenant.drop(distribution_key.key)
+          return
         end
 
         ActiveRecord::Base.transaction do

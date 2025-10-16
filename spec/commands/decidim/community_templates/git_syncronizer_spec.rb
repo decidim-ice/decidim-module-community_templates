@@ -6,12 +6,26 @@ module Decidim
   module CommunityTemplates
     describe GitSyncronizer do
       let(:git_mirror) { create(:git_mirror, :with_commit) }
+      let(:git_instance) { git_mirror.open_git }
 
       before do
+        # Mock GitCatalogNormalizer and ResetOrganization
         allow(GitCatalogNormalizer).to receive(:call).and_return({ ok: true })
         allow(ResetOrganization).to receive(:call).and_return({ ok: true })
-        allow(GitMirror.instance).to receive(:pull).and_return(true)
-        allow(GitMirror.instance).to receive(:push!).and_return(true)
+
+        # Mock GitMirror.instance methods
+        allow(GitMirror).to receive(:instance).and_return(git_mirror)
+        allow(git_mirror).to receive(:pull!).and_return(true)
+        allow(git_mirror).to receive(:last_commit).and_return("abc123")
+        allow(git_mirror).to receive(:transaction).and_yield(git_instance)
+
+        # Mock git instance methods to prevent network calls
+        allow(git_instance).to receive(:pull).and_return(true)
+        allow(git_instance).to receive(:add).and_return(true)
+        allow(git_instance).to receive(:commit).and_return(true)
+        allow(git_instance).to receive(:status).and_return(double("status", changed: [], added: [], deleted: [], untracked: []))
+        allow(git_instance).to receive(:log).and_return(double("log", execute: [double("commit", message: "test commit")]))
+
         CommunityTemplates.configure do |config|
           config.git_settings[:url] = git_mirror.repo_url
           config.git_settings[:branch] = git_mirror.repo_branch
@@ -37,52 +51,40 @@ module Decidim
 
           it "does not pull from remote" do
             described_class.call
-            expect(GitMirror.instance).not_to have_received(:pull)
+            expect(git_mirror).not_to have_received(:pull!)
           end
 
-          it "does not push to remote" do
+          it "does not call last_commit" do
             described_class.call
-            expect(GitMirror.instance).not_to have_received(:push!)
+            expect(git_mirror).not_to have_received(:last_commit)
           end
         end
 
         context "when there are untracked files" do
-          let(:git_mirror) { create(:git_mirror, :with_commit) }
-
           before do
-            git_instance = git_mirror.git
-            allow(git_instance).to receive(:git).and_return(git_instance)
-            allow(GitMirror).to receive(:instance).and_return(git_mirror)
-
-            fetch_double = double("fetch")
-            allow(fetch_double).to receive(:fetch)
-            allow(git_instance).to receive(:remote).and_return(fetch_double)
-
-            branches_double = double("branches")
-            main_branch_double = double("branch", name: "origin/main")
-            allow(branches_double).to receive(:remote).and_return([main_branch_double])
-            allow(branches_double).to receive(:local).and_return([main_branch_double])
-            allow(git_instance).to receive(:branches).and_return(branches_double)
-            FileUtils.touch(git_mirror.catalog_path.join("test.txt"))
+            # Mock the pull! method to raise GitError directly
+            allow(git_mirror).to receive(:pull!).and_raise(GitError, "catalog dirty, commit or stash changes to continue")
           end
 
-          it "calls GitCatalogNormalizer" do
-            described_class.call
-            expect(GitCatalogNormalizer).to have_received(:call)
-          end
-
-          it "pulls from remote repository" do
-            described_class.call
-            expect(GitMirror.instance).to have_received(:pull)
-          end
-
-          it "pushes to remote repository" do
-            described_class.call
-            expect(GitMirror.instance).to have_received(:push!)
+          it "raise a GitError, dirty catalog" do
+            expect { described_class.call }.to raise_error(GitError)
           end
         end
 
         context "when there are no untracked files" do
+          before do
+            # Mock GitTransaction to work normally for this context
+            allow(GitTransaction).to receive(:perform).and_yield(git_instance)
+            # Ensure clean status
+            allow(git_instance).to receive(:status).and_return(
+              double("status",
+                     changed: [],
+                     added: [],
+                     deleted: [],
+                     untracked: [])
+            )
+          end
+
           it "calls GitCatalogNormalizer" do
             described_class.call
             expect(GitCatalogNormalizer).to have_received(:call)
@@ -90,12 +92,18 @@ module Decidim
 
           it "pulls from remote repository" do
             described_class.call
-            expect(GitMirror.instance).to have_received(:pull)
+            expect(git_mirror).to have_received(:pull!)
+          end
+
+          it "calls last_commit" do
+            described_class.call
+            expect(git_mirror).to have_received(:last_commit)
           end
 
           it "does not create commit" do
             described_class.call
-            expect(git_mirror.git.log(1).execute.last.message).not_to include("Update community templates")
+            expect(git_instance).not_to have_received(:add)
+            expect(git_instance).not_to have_received(:commit)
           end
         end
       end

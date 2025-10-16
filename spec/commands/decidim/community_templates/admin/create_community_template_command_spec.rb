@@ -8,6 +8,10 @@ module Decidim::CommunityTemplates::Admin
     let(:user) { create(:user, :confirmed, :admin, organization:) }
     let(:template) { build(:template_metadata, organization:) }
     let(:template_source) { build(:community_template_source, organization:) }
+    let!(:git_settings) { create(:git_settings) }
+    let(:catalog_path) { Rails.root.join("tmp", "catalog", "test_#{SecureRandom.hex(4)}") }
+    let(:git) { create(:git, :with_commit, path: catalog_path) }
+    let(:git_mirror) { create(:git_mirror, catalog_path: catalog_path) }
     let(:form) do
       Decidim::CommunityTemplates::Admin::TemplateSourceForm.new(
         source_id: template_source&.source ? template_source.source.to_global_id.to_s : nil,
@@ -22,13 +26,23 @@ module Decidim::CommunityTemplates::Admin
         with_manifest: true,
         metadata: template.as_json
       )
+
       allow(Decidim::CommunityTemplates::Serializers::ParticipatoryProcess).to receive(:init).and_return(serializer)
       allow(serializer).to receive(:save!).and_call_original
+      allow(serializer).to receive(:metadata_translations!).and_call_original
       serializer
     end
 
     before do
+      allow(Decidim::CommunityTemplates::GitMirror).to receive(:instance).and_return(git_mirror)
+      allow(Decidim::CommunityTemplates).to receive(:catalog_path).and_return(catalog_path)
+
       Decidim::CommunityTemplates::TemplateSource.destroy_all
+      allow(Decidim::CommunityTemplates::GitTransaction).to receive(:perform).and_yield(git)
+
+      Decidim::CommunityTemplates::GitMirror.instance.configure(
+        git_settings.attributes
+      )
     end
 
     it "creates a new template source" do
@@ -55,7 +69,7 @@ module Decidim::CommunityTemplates::Admin
         allow(serializer).to receive(:save!).and_raise(Errno::ENOENT)
 
         expect { CreateCommunityTemplateCommand.call(form, organization) }.not_to change(Decidim::CommunityTemplates::TemplateSource, :count)
-        expect(form.errors[:base]).to include(match(/File not found/))
+        expect(form.errors[:base]).to include(match(/No such file or directory/))
       end
 
       it "call template#delete" do
@@ -63,7 +77,7 @@ module Decidim::CommunityTemplates::Admin
         allow(form.template).to receive(:delete).and_call_original
 
         CreateCommunityTemplateCommand.call(form, organization)
-        expect(form.template).to have_received(:delete)
+        expect(form.template).to have_received(:delete).with(Decidim::CommunityTemplates.catalog_path)
         expect(form.errors[:base]).to include(match(/No space/))
       end
 
@@ -72,7 +86,7 @@ module Decidim::CommunityTemplates::Admin
         allow(Rails.logger).to receive(:error).and_call_original
 
         CreateCommunityTemplateCommand.call(form, organization)
-        expect(Rails.logger).to have_received(:error).with(/Permission denied/)
+        expect(Rails.logger).to have_received(:error).with(/Permission denied/).at_least(:once)
       end
 
       it "adds an error to the form" do
@@ -88,7 +102,7 @@ module Decidim::CommunityTemplates::Admin
 
         result = CreateCommunityTemplateCommand.call(form, organization)
         expect(result).to have_key(:invalid)
-        expect(form.errors[:base]).to include(match(/Catalog directory is read only/))
+        expect(form.errors[:base]).to include(match(/Git operation failed: Read-only file system/))
       end
     end
   end

@@ -14,22 +14,28 @@ module Decidim
         def call
           return broadcast(:invalid) if form.invalid?
 
-          created_template_source = ActiveRecord::Base.transaction do
-            # Create a TemplateSource
-            TemplateSource.create!(
-              source: form.source,
-              template_id: form.template.id,
-              organization: organization
-            )
-            # Retrieve serializer for the source
-            serializer = Decidim::CommunityTemplates::Serializers::ParticipatoryProcess.init(
-              model: form.source,
-              locales: [organization.default_locale],
-              with_manifest: true,
-              metadata: form.template.metadatas
-            )
-            serializer.metadata_translations!
-            serializer.save!(Decidim::CommunityTemplates.catalog_path)
+          created_template_source = nil
+
+          ActiveRecord::Base.transaction do
+            GitMirror.instance.transaction do |git|
+              # Create a TemplateSource
+              created_template_source = TemplateSource.create!(
+                source: form.source,
+                template_id: form.template.id,
+                organization: organization
+              )
+              # Retrieve serializer for the source
+              serializer = Decidim::CommunityTemplates::Serializers::ParticipatoryProcess.init(
+                model: form.source,
+                locales: [organization.default_locale],
+                with_manifest: true,
+                metadata: form.template.metadatas
+              )
+              serializer.metadata_translations!
+              serializer.save!(Decidim::CommunityTemplates.catalog_path)
+              git.add(all: true)
+              git.commit_all(":tada: create template #{form.template.id}")
+            end
           end
           if Decidim::CommunityTemplates.apartment_compat?
             # as we are dropping shema, we can't do this in a transaction
@@ -37,6 +43,7 @@ module Decidim
           else
             Decidim::CommunityTemplates::GitSyncronizer.call
           end
+
           broadcast(:ok, created_template_source)
         rescue StandardError => e
           Rails.logger.error "Error writing template: #{e.message}"
@@ -63,6 +70,8 @@ module Decidim
             form.errors.add(:base, I18n.t("name_too_long", scope: i18n_scope))
           when Errno::EROFS
             form.errors.add(:base, I18n.t("read_only_filesystem", scope: i18n_scope))
+          when Git::Error, Decidim::CommunityTemplates::GitError
+            form.errors.add(:base, I18n.t("git_error", error: error.message, scope: i18n_scope))
           else
             form.errors.add(:base, I18n.t("unknown", error: error.message, scope: i18n_scope))
           end

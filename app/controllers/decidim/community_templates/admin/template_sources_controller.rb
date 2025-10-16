@@ -6,6 +6,8 @@ module Decidim
       class TemplateSourcesController < Decidim::CommunityTemplates::Admin::ApplicationController
         attr_reader :form
 
+        before_action :normalize_git_catalog
+
         def create
           enforce_permission_to :templatize, :space, space: source_record
           @form = Decidim::CommunityTemplates::Admin::TemplateSourceForm.new(
@@ -14,6 +16,7 @@ module Decidim
           )
           form.template.id = SecureRandom.uuid
           update_template_values!(form.template)
+
           Decidim::CommunityTemplates::Admin::CreateCommunityTemplateCommand.call(form, current_organization) do
             on(:ok) do |_template_source|
               if request.xhr?
@@ -64,6 +67,10 @@ module Decidim
         end
 
         private
+
+        def normalize_git_catalog
+          Decidim::CommunityTemplates::GitCatalogNormalizer.call
+        end
 
         def render_template_modal_form(**options)
           render partial: "template_modal_form",

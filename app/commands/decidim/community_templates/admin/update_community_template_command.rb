@@ -14,17 +14,23 @@ module Decidim
         def call
           return broadcast(:invalid) if form.invalid?
 
-          serializer = Decidim::CommunityTemplates::Serializers::ParticipatoryProcess.init(
-            model: form.source,
-            locales: [organization.default_locale],
-            with_manifest: true,
-            metadata: form.template.as_json
-          )
-          serializer.metadata_translations!
-          serializer.save!(Decidim::CommunityTemplates.catalog_path)
+          Decidim::CommunityTemplates::GitMirror.instance.transaction do |git|
+            ActiveRecord::Base.transaction do
+              serializer = Decidim::CommunityTemplates::Serializers::ParticipatoryProcess.init(
+                model: form.source,
+                locales: [organization.default_locale],
+                with_manifest: true,
+                metadata: form.template.as_json
+              )
+              serializer.metadata_translations!
+              serializer.save!(Decidim::CommunityTemplates.catalog_path)
 
-          match = Decidim::CommunityTemplates::TemplateSource.find_by(source: form.source, organization:)
-          match.update(updated_at: Time.current)
+              match = Decidim::CommunityTemplates::TemplateSource.find_by(source: form.source, organization:)
+              match.update(updated_at: Time.current)
+              git.add(all: true)
+              git.commit_all("release(#{form.template.version}): update template")
+            end
+          end
 
           if Decidim::CommunityTemplates.apartment_compat?
             # as we are dropping shema, we can't do this in a transaction

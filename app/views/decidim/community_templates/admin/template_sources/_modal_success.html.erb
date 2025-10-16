@@ -1,5 +1,5 @@
 <% i18n_scope = "decidim.community_templates.admin.template_form.success" %>
-<% in_catalog = Decidim::CommunityTemplates::GitMirror.instance.writable? %>
+<% in_catalog = true %>
 <div class="template_success_modal">
   <h3 class="template_success_modal__title" id="dialog-title-template-create-<%= source_record.id %>" data-dialog-title>
     <%= t("title", title: template.name, scope: i18n_scope) %>
