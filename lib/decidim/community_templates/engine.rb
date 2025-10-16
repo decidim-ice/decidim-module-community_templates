@@ -31,7 +31,7 @@ module Decidim
             repo_author_email: Decidim::CommunityTemplates.git_settings[:author_email]
           )
           Decidim::CommunityTemplates::GitCatalogNormalizer.call
-          mirror.validate!
+          GitMirror.instance.pull!
         else
           warn("")
           warn("⚠ Decidim::CommunityTemplates is installed but not enabled")

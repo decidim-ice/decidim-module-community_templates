@@ -8,6 +8,10 @@ module Decidim::CommunityTemplates::Admin
     let!(:user) { create(:user, :confirmed, :admin, organization:) }
     let!(:template) { build(:template_metadata) }
     let!(:template_source) { create(:community_template_source, organization:) }
+    let(:catalog_path) { Rails.root.join("tmp", "catalog", "test_#{SecureRandom.hex(4)}") }
+    let!(:git) { create(:git, :with_commit, path: catalog_path) }
+    let!(:git_settings) { create(:git_settings) }
+    let!(:git_mirror) { create(:git_mirror, catalog_path: catalog_path) }
     let!(:form) do
       Decidim::CommunityTemplates::Admin::TemplateSourceForm.new(
         source_id: template_source.source.to_global_id.to_s,
@@ -25,6 +29,19 @@ module Decidim::CommunityTemplates::Admin
       allow(Decidim::CommunityTemplates::Serializers::ParticipatoryProcess).to receive(:init).and_return(serializer)
       allow(serializer).to receive(:save!)
       serializer
+    end
+
+    before do
+      allow(Decidim::CommunityTemplates).to receive(:catalog_path).and_return(catalog_path)
+      allow(git_mirror).to receive(:catalog_path).and_return(catalog_path)
+      allow(git).to receive(:pull).and_return(true)
+      allow(git).to receive(:push).and_return(true)
+      # configure git mirror
+      Decidim::CommunityTemplates::GitMirror.instance.configure(
+        git_settings.attributes
+      )
+      allow(git_mirror).to receive(:transaction).and_yield(git)
+      allow(Decidim::CommunityTemplates::GitTransaction).to receive(:perform).and_yield(git)
     end
 
     it "updates the template" do

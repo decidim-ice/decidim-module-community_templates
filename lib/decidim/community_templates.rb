@@ -13,6 +13,7 @@ module Decidim
 
     autoload :SerializerManifest, "decidim/community_templates/serializer_manifest"
     autoload :GitMirror, "decidim/community_templates/git_mirror"
+    autoload :GitTransaction, "decidim/community_templates/git_transaction"
     autoload :GitSettings, "decidim/community_templates/git_settings"
     autoload :GitError, "decidim/community_templates/error"
     autoload :GitCatalogNormalizer, "decidim/community_templates/git_catalog_normalizer"

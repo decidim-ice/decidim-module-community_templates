@@ -15,8 +15,7 @@ module Decidim
         end
 
         git_mirror = GitMirror.instance
-        git_mirror.validate!
-        git_mirror.pull
+        git_mirror.pull!
         # cache from last commit
         last_commit = git_mirror.last_commit
         if last_commit.present? && last_commit != Rails.cache.read("git_syncronizer_last_commit", namespace: Decidim::CommunityTemplates.cache_namespace)

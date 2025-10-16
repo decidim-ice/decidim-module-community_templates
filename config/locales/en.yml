@@ -96,6 +96,7 @@ en:
               blank)
             file_not_found: 'Server error, contact your administrator. (File not found:
               catalog or template directory do not exist)'
+            git_error: 'Server error, contact your administrator. (Git error: %{error})'
             malformed_data: 'Server error, contact your administrator. (Malformed
               data: %{error_message})'
             name_too_long: 'Server error, contact your administrator. (File name too

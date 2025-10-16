@@ -6,9 +6,25 @@ describe "Admin import template from link" do
   let(:organization) { create(:organization) }
   let!(:participatory_process) { create(:participatory_process, :with_steps, organization:) }
   let!(:user) { create(:user, :admin, :confirmed, organization:) }
+  let!(:git_mirror) { Decidim::CommunityTemplates::GitMirror.instance }
+  let(:git_settings) { create(:git_settings) }
+  let(:git_dir) { Rails.root.join("tmp", "catalog-#{SecureRandom.hex(4)}") }
+  let(:git_instance) { create(:git, settings: git_settings, path: git_dir) }
 
   before do
-    allow(Decidim::CommunityTemplates).to receive(:catalog_path).and_return(Pathname.new(Dir.mktmpdir))
+    allow(Decidim::CommunityTemplates).to receive(:catalog_path).and_return(git_dir)
+    allow(Decidim::CommunityTemplates).to receive(:enabled?).and_return(true)
+
+    Decidim::CommunityTemplates::GitMirror.instance.configure(
+      git_settings.attributes
+    )
+
+    allow(git_instance).to receive(:push).and_return(true)
+    allow(git_instance).to receive(:pull).and_return(true)
+    allow(Git).to receive(:clone).and_return(git_instance)
+    allow(Git).to receive(:open).and_return(git_instance)
+
+    allow(Decidim::CommunityTemplates::GitTransaction).to receive(:perform).and_yield(git_instance)
   end
 
   context "when the community templates are disabled" do

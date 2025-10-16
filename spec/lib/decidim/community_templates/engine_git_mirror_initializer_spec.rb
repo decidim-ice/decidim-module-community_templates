@@ -52,6 +52,7 @@ module Decidim
             allow(Decidim::CommunityTemplates::GitMirror).to receive(:instance).and_return(mock_mirror)
             allow(mock_mirror).to receive(:configure).and_return(mock_mirror)
             allow(mock_mirror).to receive(:validate!)
+            allow(mock_mirror).to receive(:pull!)
             allow(Decidim::CommunityTemplates::GitCatalogNormalizer).to receive(:call)
           end
 
@@ -69,12 +70,6 @@ module Decidim
 
           it "calls GitCatalogNormalizer" do
             expect(Decidim::CommunityTemplates::GitCatalogNormalizer).to receive(:call)
-
-            run_initializer!("decidim-community_templates.git_mirror")
-          end
-
-          it "validates the mirror" do
-            expect(mock_mirror).to receive(:validate!)
 
             run_initializer!("decidim-community_templates.git_mirror")
           end
