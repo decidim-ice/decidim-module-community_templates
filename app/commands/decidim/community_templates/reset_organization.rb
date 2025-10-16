@@ -4,12 +4,11 @@ module Decidim
   module CommunityTemplates
     class ResetOrganization < ::Decidim::Command
       def call
-        DropDemo.call if Decidim::CommunityTemplates.demo_organization?
         @organization = nil
         create_organization!
-        Decidim::CommunityTemplates.with_demo_organization do |organization|
+        with_tmp_organization do |organization|
           raise ResetOrganizationError, "Failed to recreate demo organization, organization not found" unless organization
-
+          
           Rails.logger.info("Setting up default admin user")
           author = Decidim::User.find_by(email: "admin@example.org", organization:)
           author.update(nickname: "demo_admin", password: "decidim123456789", password_confirmation: "decidim123456789")
@@ -17,6 +16,38 @@ module Decidim
           author.save!
           Rails.logger.info("Import templates")
           import_templates!(organization)
+        end
+        # Swap the organization
+        DropDemo.call if Decidim::CommunityTemplates.demo_organization?
+        update_host!
+      end
+      def update_host!
+        if Decidim::CommunityTemplates.apartment_compat?
+          distribution_key = Decidim::Apartment::DistributionKey.for_host(tmp_host)
+          distribution_key.update(host: Decidim::CommunityTemplates.config.demo[:host])
+          distribution_key.save!
+          distribution_key.switch do 
+            organization = Decidim::Organization.last
+            organization.update(host: Decidim::CommunityTemplates.config.demo[:host])
+            organization.save!
+          end
+        else
+          organization = Decidim::Organization.find_by(host: tmp_host)
+          organization.update(host: Decidim::CommunityTemplates.config.demo[:host])
+          organization.save!
+        end
+      end
+      def tmp_host
+        @tmp_host ||= "tmp-#{SecureRandom.hex(4)}.decidim.org"
+      end
+
+      def with_tmp_organization
+        if Decidim::CommunityTemplates.apartment_compat?
+          Decidim::Apartment::DistributionKey.for_host(tmp_host).switch do
+            yield Decidim::Organization.last
+          end
+        else
+          yield Decidim::Organization.create!(host: tmp_host)
         end
       end
 
@@ -60,7 +91,7 @@ module Decidim
 
         form_params = {
           name: name,
-          host: Decidim::CommunityTemplates.config.demo[:host],
+          host: tmp_host,
           available_locales: available_locales,
           default_locale: default_locale,
           reference_prefix: name.parameterize.upcase,
