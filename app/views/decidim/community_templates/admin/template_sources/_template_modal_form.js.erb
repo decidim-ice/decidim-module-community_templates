@@ -17,6 +17,7 @@ var $form = $(`.form.js-template-modal-form[data-source="<%= source_record.to_gl
     window.location.reload();
     dialog.close = originalClose;
    };
+    node = document.getElementById("modal-template-<%= source_record.id %>");
 <% else %>
   <% if method == :post %>
     var $content = $(`<%= j(cell("decidim/community_templates/admin/template_create_modal", source_record, form: @form).to_s) %>`);
@@ -26,5 +27,6 @@ var $form = $(`.form.js-template-modal-form[data-source="<%= source_record.to_gl
     node = document.getElementById("modal-template-<%= form.source.id %>");
   <% end %>
   $form.html($content.find(".form").html());
-  document.dispatchEvent(new CustomEvent("remote-modal:loaded", { detail: node }));
 <% end %>
+
+document.dispatchEvent(new CustomEvent("remote-modal:loaded", { detail: node }));
