@@ -85,7 +85,8 @@ module Decidim
           process = Decidim::CommunityTemplates::Importers::ParticipatoryProcess.new(
             parser,
             organization,
-            author
+            author,
+            for_demo: true
           ).import!
           process.slug = "t-#{parser.template.id}"
           process.published_at = Time.current

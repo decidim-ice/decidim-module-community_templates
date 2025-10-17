@@ -39,7 +39,7 @@ module Decidim
         last_commit = git_mirror.last_commit
         if last_commit.present? && last_commit != Rails.cache.read("git_syncronizer_last_commit", namespace: Decidim::CommunityTemplates.cache_namespace)
           reload_public_files!
-          Decidim::CommunityTemplates::ResetOrganization.call
+          Decidim::CommunityTemplates::ResetOrganizationJob.perform_later
           Rails.cache.write("git_syncronizer_last_commit", last_commit, namespace: Decidim::CommunityTemplates.cache_namespace)
         end
       end

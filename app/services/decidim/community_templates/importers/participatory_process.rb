@@ -33,12 +33,15 @@ module Decidim
         end
 
         def after_import!
+          return if @object.nil?
+
           import_steps!
           import_components!
           import_hero_image!
           import_content_blocks!
           after_import_serializers.each(&:after_import!)
           @object.save!
+          self.class.reset_fake_users
           @object.reload
         end
 
@@ -55,7 +58,7 @@ module Decidim
               assets: parser.assets,
               i18n_vars: parser.i18n_vars
             )
-            content_block_serializer = Decidim::CommunityTemplates::Importers::ContentBlock.new(content_block_parser, organization, user, parent: self)
+            content_block_serializer = Decidim::CommunityTemplates::Importers::ContentBlock.new(content_block_parser, organization, user, parent: self, for_demo: demo?)
             content_block_serializer.import!
             @after_import_serializers << content_block_serializer
           end
@@ -71,7 +74,7 @@ module Decidim
               i18n_vars: parser.i18n_vars
             }.compact
             component_parser = TemplateParser.new(**template_parser_attributes)
-            component_serializer = Decidim::CommunityTemplates::Importers::Component.new(component_parser, organization, user, parent: self)
+            component_serializer = Decidim::CommunityTemplates::Importers::Component.new(component_parser, organization, user, parent: self, for_demo: demo?)
             component_serializer.import!
             @after_import_serializers << component_serializer
           end
@@ -87,7 +90,7 @@ module Decidim
               assets: parser.assets,
               i18n_vars: parser.i18n_vars
             )
-            step_serializer = Decidim::CommunityTemplates::Importers::ProcessStep.new(step_parser, organization, user, parent: self)
+            step_serializer = Decidim::CommunityTemplates::Importers::ProcessStep.new(step_parser, organization, user, parent: self, for_demo: demo?)
             created_steps[step_data["id"].split(".").last] = step_serializer.import!
             @after_import_serializers << step_serializer
           end
