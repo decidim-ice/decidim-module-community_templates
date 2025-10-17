@@ -77,6 +77,7 @@ module Decidim
           Decidim::CommunityTemplates.catalog_path.join("shared")
         ].each do |path|
           next unless path.exist?
+
           template_dirs = path.children.select do |d|
             d.directory? && d.basename.to_s.match?(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
           end
