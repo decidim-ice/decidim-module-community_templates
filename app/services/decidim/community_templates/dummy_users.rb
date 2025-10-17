@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 module Decidim
   module CommunityTemplates
     class DummyUsers
       attr_reader :organization
-      
+
       def initialize(organization)
         @organization = organization
       end
@@ -21,13 +23,12 @@ module Decidim
         @existing_users ||= Decidim::User.where(organization: organization).where("extended_data @> ?", { demo: true }.to_json)
       end
 
-      private 
+      private
 
       def pick_avatar_io
         index = rand(0..avatar_count - 1)
         File.open(fixture_path.join("#{index}.jpg"), "rb")
       end
-
 
       def generated_users?
         existing_users.count.positive?
@@ -35,6 +36,7 @@ module Decidim
 
       def generate_users!
         return if generated_users?
+
         @existing_users = nil
         generate_fake_users!
       end
@@ -82,7 +84,6 @@ module Decidim
         retry if retry_count < 10
         raise e
       end
-
     end
   end
 end

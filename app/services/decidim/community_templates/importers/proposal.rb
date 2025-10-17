@@ -6,6 +6,7 @@ module Decidim
       class Proposal < ImporterBase
         def import!
           return unless demo?
+
           proposal_attributes = {
             title: parser.model_title(locales),
             body: parser.model_body(locales),
@@ -25,12 +26,17 @@ module Decidim
             cost_report: parser.model_cost_report(locales),
             execution_period: parser.model_execution_period(locales),
             proposal_state: find_proposal_state,
+            state_published_at: state_published_at,
+            withdrawn_at: from_relative_date(parser.attributes["withdrawn_at_relative"]),
+            deleted_at: from_relative_date(parser.attributes["deleted_at_relative"]),
             component: parent.object
           }
           proposal = Decidim::Proposals::Proposal.new(proposal_attributes)
+
           proposal.save(validate: false)
           proposal.coauthorships.create!(author: dummy_users.pick_one, decidim_author_type: "Decidim::UserBaseEntity")
           proposal.save!
+
           @object = proposal.reload
         end
 
@@ -55,9 +61,20 @@ module Decidim
         end
 
         def find_proposal_state
-          serialized_id = parser.attributes["state_id"]
-          return nil if serialized_id.blank?
-          parser.relations[serialized_id]
+          @proposal_state ||= begin
+            serialized_id = parser.attributes["state_id"]
+            if serialized_id.blank?
+              nil
+            else
+              parser.relations[serialized_id]
+            end
+          end
+        end
+
+        def state_published_at
+          return nil unless find_proposal_state
+
+          from_relative_date(parser.attributes["state_published_at_relative"]) || Time.zone.now
         end
       end
     end

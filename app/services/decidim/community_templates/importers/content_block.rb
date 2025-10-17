@@ -36,7 +36,7 @@ module Decidim
         private
 
         def settings
-          (parser.attributes["settings"] || []).map { |s| key_value_to_hash(s) }.to_h.compact_blank
+          (parser.attributes["settings"] || []).to_h { |s| key_value_to_hash(s) }.compact_blank
         end
 
         def key_value_to_hash(key_value)

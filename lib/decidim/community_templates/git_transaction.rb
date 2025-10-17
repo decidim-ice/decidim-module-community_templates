@@ -26,6 +26,7 @@ module Decidim
 
         with_timeout(effective_timeout) do
           File.open(LOCKFILE, File::RDWR | File::CREAT, 0o644) do |f|
+            return_value = nil
             f.flock(File::LOCK_EX)
             ensure_git_is_present!
             # Check if repository is dirty before proceeding
@@ -36,21 +37,18 @@ module Decidim
             t_branch = "tx/#{Time.now.utc.strftime("%Y%m%d%H%M%S")}-#{SecureRandom.hex(4)}"
 
             safe_checkout(t_branch)
-
             begin
-              yield @git # == Do the work on the topic branch ==
+              return_value = yield @git # == Do the work on the topic branch ==
               # Try to merge with retries
-              if writable?
-                merge_with_retries(t_branch)
-                raise "merge fails, still dirty" if dirty?
+              merge_with_retries(t_branch)
+              raise "merge fails, still dirty" if dirty?
 
+              if writable?
                 # Try to push with retries (pull/rebase on failure)
                 push_with_retries(remote, push_opts)
-              else
-                safe_checkout(default_branch)
-                safe_delete_branch(t_branch)
               end
             rescue Git::Error => e
+              return_value = nil
               Rails.logger.info { "#perform [error: #{e.message}]" }
               Rails.logger.info { "#perform [backtrace: #{e.backtrace.join("\n")}]" }
               # Rollback: ensure we end in a clean state on default branch
@@ -62,6 +60,7 @@ module Decidim
               safe_checkout(default_branch)
               raise "merge fails, still dirty" if dirty?
             end
+            return_value
           ensure
             f.flock(File::LOCK_UN)
           end

@@ -39,10 +39,9 @@ module Decidim
           import_components!
           import_hero_image!
           import_content_blocks!
-          after_import_serializers.each(&:after_import!)
           @object.save!
-          self.class.reset_fake_users
           @object.reload
+          after_import_serializers.each(&:after_import!)
         end
 
         def import_hero_image!

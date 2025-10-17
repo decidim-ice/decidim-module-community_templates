@@ -59,17 +59,6 @@ module Decidim
             end
           end
 
-          it "stashes changes when not writable" do
-            allow(git_transaction).to receive(:writable?).and_return(false)
-            expect(git_transaction).to receive(:safe_checkout).with(%r{^tx/\d{14}-[a-f0-9]{8}$}).at_least(:once)
-            expect(git_transaction).to receive(:safe_checkout).with(default_branch).at_least(:once)
-            expect(git_transaction).to receive(:safe_delete_branch).with(%r{^tx/\d{14}-[a-f0-9]{8}$})
-
-            git_transaction.perform(remote: remote, push_opts: push_opts) do
-              # do nothing
-            end
-          end
-
           it "uses custom timeout when provided" do
             custom_timeout = 120
             expect(git_transaction).to receive(:with_timeout).with(custom_timeout)

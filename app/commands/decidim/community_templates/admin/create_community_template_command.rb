@@ -14,29 +14,32 @@ module Decidim
         def call
           return broadcast(:invalid) if form.invalid?
 
-          created_template_source = nil
-
-          ActiveRecord::Base.transaction do
-            GitMirror.instance.transaction do |git|
-              # Create a TemplateSource
-              created_template_source = TemplateSource.create!(
-                source: form.source,
-                template_id: form.template.id,
-                organization: organization
-              )
-              # Retrieve serializer for the source
-              serializer = Decidim::CommunityTemplates::Serializers::ParticipatoryProcess.init(
-                model: form.source,
-                locales: [organization.default_locale],
-                with_manifest: true,
-                metadata: form.template.metadatas
-              )
-              serializer.metadata_translations!
-              serializer.save!(Decidim::CommunityTemplates.catalog_path)
+          created_template_source = ActiveRecord::Base.transaction do
+            # Create a TemplateSource
+            created_template_source = Decidim::CommunityTemplates::TemplateSource.create!(
+              source: form.source,
+              template_id: form.template.id,
+              organization: organization,
+              updated_at: Time.current
+            )
+            # Retrieve serializer for the source
+            serializer = Decidim::CommunityTemplates::Serializers::ParticipatoryProcess.init(
+              model: form.source,
+              locales: [organization.default_locale],
+              with_manifest: true,
+              metadata: form.template.metadatas
+            )
+            serializer.metadata_translations!
+            path = Decidim::CommunityTemplates.catalog_path.join("shared")
+            path = Decidim::CommunityTemplates.catalog_path if Decidim::CommunityTemplates.push_to_git?
+            Decidim::CommunityTemplates::GitMirror.instance.transaction do |git|
+              serializer.save!(path)
               git.add(all: true)
               git.commit_all(":tada: create template #{form.template.id}")
             end
+            created_template_source
           end
+
           if Decidim::CommunityTemplates.apartment_compat?
             # as we are dropping shema, we can't do this in a transaction
             Decidim::CommunityTemplates::GitSyncronizerJob.perform_later

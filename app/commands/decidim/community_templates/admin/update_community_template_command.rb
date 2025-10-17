@@ -14,22 +14,24 @@ module Decidim
         def call
           return broadcast(:invalid) if form.invalid?
 
-          Decidim::CommunityTemplates::GitMirror.instance.transaction do |git|
-            ActiveRecord::Base.transaction do
-              serializer = Decidim::CommunityTemplates::Serializers::ParticipatoryProcess.init(
-                model: form.source,
-                locales: [organization.default_locale],
-                with_manifest: true,
-                metadata: form.template.as_json
-              )
-              serializer.metadata_translations!
-              serializer.save!(Decidim::CommunityTemplates.catalog_path)
-
-              match = Decidim::CommunityTemplates::TemplateSource.find_by(source: form.source, organization:)
-              match.update(updated_at: Time.current)
+          created_template_source = ActiveRecord::Base.transaction do
+            serializer = Decidim::CommunityTemplates::Serializers::ParticipatoryProcess.init(
+              model: form.source,
+              locales: [organization.default_locale],
+              with_manifest: true,
+              metadata: form.template.as_json
+            )
+            serializer.metadata_translations!
+            path = Decidim::CommunityTemplates.catalog_path.join("shared")
+            path = Decidim::CommunityTemplates.catalog_path if Decidim::CommunityTemplates.push_to_git?
+            match = Decidim::CommunityTemplates::TemplateSource.find_by(source: form.source, organization:)
+            match.update(updated_at: Time.current)
+            Decidim::CommunityTemplates::GitMirror.instance.transaction do |git|
+              serializer.save!(path)
               git.add(all: true)
               git.commit_all("release(#{form.template.version}): update template")
             end
+            match
           end
 
           if Decidim::CommunityTemplates.apartment_compat?
@@ -38,7 +40,8 @@ module Decidim
           else
             Decidim::CommunityTemplates::GitSyncronizer.call
           end
-          broadcast(:ok)
+
+          broadcast(:ok, created_template_source)
         rescue StandardError => e
           Rails.logger.error("[Decidim::CommunityTemplates] Error updating template: #{e.message}")
           add_specific_error(e)

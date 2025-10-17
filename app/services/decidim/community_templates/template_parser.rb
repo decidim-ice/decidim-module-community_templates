@@ -133,6 +133,7 @@ module Decidim
       end
 
       def add_methods!
+        return unless model_class?
         (attributes.keys + model_class.new.attributes.keys).uniq.each do |attribute|
           # model_title(locales, ignore_missing: true)
           singleton_class.define_method("model_#{attribute}") do |*args, **kwargs|

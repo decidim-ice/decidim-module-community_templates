@@ -53,9 +53,9 @@ module Decidim
 
         def import_proposals!(proposal_states)
           return unless demo?
-          relations = proposal_states.reduce({}) do |acc, state|
-            acc[SerializerBase.id_for_model(state)] = state
-            acc 
+
+          relations = proposal_states.index_by do |state|
+            SerializerBase.id_for_model(state)
           end
           (parser.attributes["resources"] || []).select { |resource| resource["@class"] == "Decidim::Proposals::Proposal" }.each do |proposal_data|
             proposal_parser = TemplateParser.new(

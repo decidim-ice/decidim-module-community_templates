@@ -15,8 +15,8 @@ module Decidim
           return
         end
 
-        ActiveRecord::Base.transaction do
-          Decidim::CommunityTemplates.with_demo_organization do |organization|
+        Decidim::CommunityTemplates.with_demo_organization do |organization|
+          ActiveRecord::Base.transaction do
             Decidim::StaticPage.where(organization: organization).count
             Decidim::StaticPage.where(organization: organization).delete_all
             Rails.logger.info("Purged #{Decidim::StaticPage.where(organization: organization).count} static pages")
