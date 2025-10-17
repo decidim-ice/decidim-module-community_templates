@@ -11,7 +11,8 @@ module Decidim
             description: required!(:description, parser.model_description(locales)),
             start_date: from_relative_date(parser.attributes["start_date_relative"]),
             end_date: from_relative_date(parser.attributes["end_date_relative"]),
-            position: @parent.object.steps.count + parser.model_position.to_i
+            position: @parent.object.steps.count + parser.model_position.to_i,
+            active: @parent.object.steps.count.zero?
           }.compact
           @object = Decidim::ParticipatoryProcessStep.create!(process_step_attributes)
         end

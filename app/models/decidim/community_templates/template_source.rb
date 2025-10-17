@@ -21,6 +21,8 @@ module Decidim
 
       def template
         @template ||= Decidim::CommunityTemplates::TemplateMetadata.find(template_id)
+      rescue ActiveModel::ValidationError
+        nil
       end
 
       private

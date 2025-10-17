@@ -27,11 +27,12 @@ GIT
 PATH
   remote: .
   specs:
-    decidim-community_templates (0.0.1.pre.rc2)
+    decidim-community_templates (0.0.1.pre.rc4)
       decidim-admin (>= 0.30.0, < 0.31.0)
       decidim-comments (>= 0.30.0, < 0.31.0)
       decidim-core (>= 0.30.0, < 0.31.0)
       deface (~> 1.9)
+      faker (~> 3.5.2)
       git (= 4.0.5)
 
 GEM

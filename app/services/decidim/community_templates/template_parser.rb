@@ -3,18 +3,21 @@
 module Decidim
   module CommunityTemplates
     class TemplateParser
-      def initialize(data:, assets:, translations: {}, locales: Decidim.available_locales.map(&:to_s), i18n_vars: {})
+      I18N_PATTERN = /^[a-z0-9_-]+\.([a-z0-9_-]+\.)*([a-z0-9_-])*$/
+      def initialize(data:, assets:, translations: {}, locales: Decidim.available_locales.map(&:to_s), **options)
         raise ArgumentError, "Invalid parameter assets. Must be an array" if assets.nil? || !assets.is_a?(Array)
 
         @data = data
         @translations = translations
         @locales = locales
         @assets = assets
-        @i18n_vars = i18n_vars
+        @i18n_vars = options[:i18n_vars] || {}
+        @relations = options[:relations] || {}
         store_translations!
+        add_methods!
       end
 
-      attr_reader :data, :translations, :locales, :assets, :i18n_vars
+      attr_reader :data, :translations, :locales, :assets, :i18n_vars, :relations
 
       delegate :id, :name, :description, :version, :author, :links, :source_type, to: :template
 
@@ -66,34 +69,6 @@ module Decidim
         data["attributes"] || {}
       end
 
-      # if an array of locales is given, it will return a hash with the translations
-      # otherwise it will return the translation in the first locale available
-      def method_missing(method, *args, &)
-        method_name = method.to_s
-        if method_name.start_with?("model_")
-          key = method_name.sub("model_", "")
-          available_attributes = model_class.new.attributes.keys
-          is_available = available_attributes.include?(key)
-          has_value = attributes.has_key?(key)
-          unless has_value
-            # Attribute name exists, but has no value
-            return nil if is_available
-
-            # Attribute name does not exist, give a suggestion
-            dictionary = available_attributes.map { |attribute| "model_#{attribute}" }
-            suggestions = DidYouMean::SpellChecker.new(dictionary: dictionary).correct(method_name)
-            raise NoMethodError, "Undefined method `#{method_name}` for #{self.class}. Did you mean #{suggestions.join(", ")}?"
-          end
-
-          value = attributes[key]
-          # If an array of locales is given as argument, return a hash with translations
-          return translation_for(value) unless args.first.is_a?(Array)
-
-          return all_translations_for(value, args.first)
-        end
-        super
-      end
-
       def respond_to_missing?(method, include_private = false)
         if method.to_s.start_with?("model_")
           key = method.to_s.sub("model_", "")
@@ -102,8 +77,9 @@ module Decidim
         super
       end
 
-      def all_translations_for(field, locales)
-        default_translation = I18n.t(field, locale: default_locale, **i18n_vars)
+      def all_translations_for(field, locales, ignore_missing: false)
+        on_missing = ignore_missing ? "" : "Translation missing: #{field}"
+        default_translation = I18n.t(field, locale: default_locale, default: on_missing, **i18n_vars)
         locales.index_with do |locale|
           I18n.with_locale(locale) do
             I18n.t(field, default: default_translation, **i18n_vars)
@@ -111,10 +87,10 @@ module Decidim
         end
       end
 
-      def translation_for(field)
-        return field unless field && field.is_a?(String)
+      def translation_for(field, ignore_missing: false)
+        return field unless !ignore_missing && field && field.is_a?(String)
 
-        find_translation(field) || field
+        find_translation(field, ignore_missing: ignore_missing) || field
       end
 
       def populate_i18n_vars!(organization)
@@ -138,8 +114,9 @@ module Decidim
 
       private
 
-      def find_translation(field)
-        default_translation = I18n.t(field, locale: default_locale, default: nil, **i18n_vars)
+      def find_translation(field, ignore_missing: false)
+        on_missing = ignore_missing ? "" : "Translation missing: #{field}"
+        default_translation = I18n.t(field, locale: default_locale, default: on_missing, **i18n_vars)
         return field if default_translation.blank?
 
         I18n.t(field, default: default_translation, locale: I18n.locale, **i18n_vars)
@@ -153,6 +130,25 @@ module Decidim
 
       def default_author(organization)
         Decidim::User.find_by(admin: true, organization:)
+      end
+
+      def add_methods!
+        return unless model_class?
+
+        (attributes.keys + model_class.new.attributes.keys).uniq.each do |attribute|
+          # model_title(locales, ignore_missing: true)
+          singleton_class.define_method("model_#{attribute}") do |*args, **kwargs|
+            locales = args.first if args.first.is_a?(Array)
+            value = attributes[attribute]
+            if !value.is_a?(String) || !value.match?(I18N_PATTERN)
+              value
+            elsif locales && locales.size.positive?
+              all_translations_for(attributes[attribute], locales, **kwargs)
+            else
+              translation_for(attributes[attribute], **kwargs)
+            end
+          end
+        end
       end
     end
   end

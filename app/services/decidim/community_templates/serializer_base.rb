@@ -169,13 +169,28 @@ module Decidim
       end
 
       def self.id_for_model(model)
-        id_candidates = [
-          -> { model.slug if model.respond_to?(:slug) },
-          -> { model.manifest_name if model.respond_to?(:manifest_name) },
-          -> { model.manifest&.name if model.respond_to?(:manifest) },
-          -> { model.created_at&.strftime("%Y%m%d%H%M%S") }
-        ]
+        id_candidates = id_for_space(model) + id_for_component(model) + id_for_resources(model)
         id_candidates.find(&:call)&.call
+      end
+
+      def self.id_for_space(model)
+        [
+          -> { model.slug if model.respond_to?(:slug) }
+        ]
+      end
+
+      def self.id_for_component(model)
+        [
+          -> { model.manifest_name if model.respond_to?(:manifest_name) },
+          -> { model.manifest&.name if model.respond_to?(:manifest) }
+        ]
+      end
+
+      def self.id_for_resources(model)
+        [
+          -> { "#{model.class.name.demodulize.underscore}_#{model.created_at&.strftime("%Y%m%d%H%M%S")}" if model.respond_to?(:created_at) },
+          -> { "#{model.class.name.demodulize.underscore}_#{model.id}" if model.respond_to?(:id) }
+        ]
       end
 
       private

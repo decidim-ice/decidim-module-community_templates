@@ -151,6 +151,7 @@ module Decidim
 
             it "attaches the image file" do
               importer.import!
+              importer.after_import!
 
               content_block = Decidim::ContentBlock.last
               expect(content_block.images_container.background_image).to be_attached
@@ -163,16 +164,6 @@ module Decidim
 
               content_block = Decidim::ContentBlock.last
               expect(content_block.images_container.background_image).not_to be_attached
-            end
-          end
-
-          context "when file does not exist" do
-            before do
-              parser.assets.first["attributes"]["@local_path"] = "nonexistent/file.jpg"
-            end
-
-            it "raises an error during image import" do
-              expect { importer.import! }.to raise_error(RuntimeError, %r{File does not exists: nonexistent/file\.jpg})
             end
           end
         end

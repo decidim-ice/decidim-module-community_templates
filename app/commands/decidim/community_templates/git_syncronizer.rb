@@ -27,6 +27,15 @@ module Decidim
       def perform_sync
         # Be sure to apply configuration to current git
         result = GitCatalogNormalizer.call
+        if Decidim::CommunityTemplates.apartment_compat?
+          Decidim::Apartment::DistributionKey.all.each do |distribution_key|
+            distribution_key.switch do
+              remove_invalid_models!
+            end
+          end
+        else
+          remove_invalid_models!
+        end
 
         if result.has_key?(:invalid)
           Rails.logger.error "Can not sync"
@@ -39,9 +48,19 @@ module Decidim
         last_commit = git_mirror.last_commit
         if last_commit.present? && last_commit != Rails.cache.read("git_syncronizer_last_commit", namespace: Decidim::CommunityTemplates.cache_namespace)
           reload_public_files!
-          Decidim::CommunityTemplates::ResetOrganization.call
+          Decidim::CommunityTemplates::ResetOrganizationJob.perform_later
           Rails.cache.write("git_syncronizer_last_commit", last_commit, namespace: Decidim::CommunityTemplates.cache_namespace)
         end
+      end
+
+      def remove_invalid_models!
+        # Remove TemplateSources and TemplateUses that are bounded to an unexisting template
+        templates = Decidim::CommunityTemplates.catalog_path.children.select do |d|
+          d.directory? && d.basename.to_s.match?(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
+        end
+        template_ids = templates.map { |path| path.basename.to_s }
+        Decidim::CommunityTemplates::TemplateSource.where.not(template_id: template_ids).destroy_all
+        Decidim::CommunityTemplates::TemplateUse.where.not(template_id: template_ids).destroy_all
       end
 
       def reload_public_files!
@@ -53,10 +72,18 @@ module Decidim
         FileUtils.rm_rf(swap_dir)
         FileUtils.mkdir_p(swap_dir)
         # Go over every directory that matches uuid and copy it to the swap directory
-        Dir.glob(Decidim::CommunityTemplates.catalog_path.children.select do |d|
-          d.directory? && d.basename.to_s.match?(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
-        end).each do |dir|
-          FileUtils.cp_r(dir, swap_dir)
+        [
+          Decidim::CommunityTemplates.catalog_path,
+          Decidim::CommunityTemplates.catalog_path.join("shared")
+        ].each do |path|
+          next unless path.exist?
+
+          template_dirs = path.children.select do |d|
+            d.directory? && d.basename.to_s.match?(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
+          end
+          template_dirs.each do |dir|
+            FileUtils.cp_r(dir, swap_dir)
+          end
         end
 
         # Replace the original catalog with the swap directory

@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "decidim-comments", Decidim::CommunityTemplates::COMPAT_DECIDIM_VERSION
   spec.add_dependency "decidim-core", Decidim::CommunityTemplates::COMPAT_DECIDIM_VERSION
   spec.add_dependency "deface", "~> 1.9"
+  spec.add_dependency "faker", "~> 3.5.2"
   spec.add_dependency "git", "4.0.5"
   spec.add_development_dependency "decidim-dev", Decidim::CommunityTemplates::COMPAT_DECIDIM_VERSION
   spec.add_development_dependency "decidim-participatory_processes", Decidim::CommunityTemplates::COMPAT_DECIDIM_VERSION

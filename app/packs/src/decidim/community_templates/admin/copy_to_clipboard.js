@@ -27,6 +27,7 @@ function mountCopyToClipboard() {
 document.addEventListener("DOMContentLoaded", () => {
   mountCopyToClipboard();
 });
+
 document.addEventListener("remote-modal:loaded", () => {
   mountCopyToClipboard();
 });

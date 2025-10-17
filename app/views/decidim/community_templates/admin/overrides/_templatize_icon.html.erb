@@ -2,9 +2,10 @@
   <%
   space = process
   template_match = Decidim::CommunityTemplates::TemplateSource.find_by(source: space)
+  template = template_match ? template_match.template : Decidim::CommunityTemplates::TemplateMetadata.new
   form = Decidim::CommunityTemplates::Admin::TemplateSourceForm.new(
     source_id: space.to_global_id,
-    template: template_match ? template_match.template : Decidim::CommunityTemplates::TemplateMetadata.new
+    template: template
   )
   %>
 
@@ -15,7 +16,7 @@
                    target: "_blank",
                    data: { "external-link": false, "dialog-open": "modal-template-#{space.id}" } %>
 
-  <% if template_match %>
+  <% if template_match && template %>
     <%= cell "decidim/community_templates/admin/template_update_modal", template_match.template, form: %>
   <% else %>
     <%= cell "decidim/community_templates/admin/template_create_modal", space, form: %>

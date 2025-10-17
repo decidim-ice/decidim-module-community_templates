@@ -10,19 +10,23 @@ module Decidim
             scope_name: required!(:scope_name, parser.model_scope_name),
             scoped_resource_id: parent.object.id,
             manifest_name: required!(:manifest_name, parser.model_manifest_name),
-            settings: parser.model_settings(locales),
+            settings: settings,
             weight: required!(:weight, parser.model_weight).to_i,
             published_at: from_relative_date(parser.attributes["published_at_relative"])
           }.compact
+
           @object = Decidim::ContentBlock.create!(
             organization: parent.organization,
             **content_block_attributes
           )
-          after_import!
-          @object
+
+          @object.save!
+          @object.reload
         end
 
         def after_import!
+          return if @object.nil?
+
           import_images_container!
           @object.images_container.save
           @object.reload
@@ -30,6 +34,20 @@ module Decidim
         end
 
         private
+
+        def settings
+          (parser.attributes["settings"] || []).to_h { |s| key_value_to_hash(s) }.compact_blank
+        end
+
+        def key_value_to_hash(key_value)
+          key = key_value["type"]
+          value = key_value["value"]
+          if value.is_a?(String) && value.start_with?("#{parser.id}.") && value.match?(TemplateParser::I18N_PATTERN)
+            value = parser.all_translations_for(value, locales,
+                                                ignore_missing: true)
+          end
+          [key, value]
+        end
 
         def validate_parent!
           raise "parent.object is nil. Check the participatory space is saved. " if parent.object.nil?
@@ -53,7 +71,8 @@ module Decidim
               ),
               organization,
               user,
-              parent: OpenStruct.new(object: block_attachment)
+              parent: OpenStruct.new(object: block_attachment),
+              for_demo: demo?
             )
             attachment = attachment_serializer.import!
             @after_import_serializers << attachment_serializer

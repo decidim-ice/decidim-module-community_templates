@@ -18,11 +18,13 @@
           content: markdown_to_html(template.description)
         }),
         actions: [
-          with_tooltip(tooltip_usages_for(template.id)) do
+          usages_count(template.id) > 0 ? with_tooltip(tooltip_usages_for(template.id)) do
             content_tag(:span, class: "template-card__action--tooltip") do
               t("catalog.used_in_processes", count: usages_count(template.id), scope: "decidim.community_templates.admin")
             end
-          end,
+          end : content_tag(:span, class: "template-card__action--tooltip") do
+              t("catalog.used_in_processes", count: usages_count(template.id), scope: "decidim.community_templates.admin")
+            end,
           link_to(t("try_demo", scope: "decidim.community_templates.admin.catalog"), "https://#{Decidim::CommunityTemplates.config.demo[:host]}/processes/t-#{template.id}", class: "link", target: "_blank", "data-external-link" => false),
           content_tag(:span) do
             button_to(decidim_admin_community_templates.template_usages_path(template_id: template.id), method: :post, class: "template-card__action--install") do

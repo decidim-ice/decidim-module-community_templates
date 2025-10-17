@@ -1,20 +1,28 @@
 # frozen_string_literal: true
 
+require "faker"
+
 module Decidim
   module CommunityTemplates
     class ImporterBase
-      def initialize(parser, organization, user, parent: nil)
+      def initialize(parser, organization, user, parent: nil, for_demo: false)
         @parser = parser
         @organization = organization
         @user = user
         @parent = parent
         @after_import_serializers = []
+        @for_demo = for_demo
+        @dummy_users = DummyUsers.new(organization)
       end
 
-      attr_reader :parser, :organization, :user, :parent, :object, :after_import_serializers
+      attr_reader :parser, :organization, :user, :parent, :object, :after_import_serializers, :dummy_users
 
       def import!
         raise NotImplementedError, "You must implement the import! method in your importer"
+      end
+
+      def demo?
+        @for_demo
       end
 
       def after_import!; end

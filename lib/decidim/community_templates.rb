@@ -37,7 +37,7 @@ module Decidim
 
     config_accessor :demo do
       {
-        host: ENV.fetch("TEMPLATE_DEMO_HOST", "demo.example.org"),
+        host: ENV.fetch("TEMPLATE_DEMO_HOST", "demo.localhost"),
         name: ENV.fetch("TEMPLATE_DEMO_NAME", "Demo Organization"),
         default_locale: ENV.fetch("TEMPLATE_DEMO_DEFAULT_LOCALE", ENV.fetch("DECIDIM_DEFAULT_LOCALE", "en")),
         primary_color: ENV.fetch("TEMPLATE_DEMO_PRIMARY_COLOR", "#14342B"),
@@ -96,6 +96,10 @@ module Decidim
 
     def self.enabled?
       git_settings[:url].present?
+    end
+
+    def self.push_to_git?
+      git_settings[:url].present? && git_settings[:username].present? && git_settings[:password].present?
     end
 
     def self.serializer_registry
