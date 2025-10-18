@@ -33,6 +33,23 @@ module Decidim
           when "proposals"
             proposal_states = import_proposal_states!
             import_proposals!(proposal_states) if demo?
+          when "pages"
+            import_pages!
+          end
+        end
+
+        def import_pages!
+          (parser.attributes["resources"] || []).select { |resource| resource["@class"] == "Decidim::Pages::Page" }.each do |page_data|
+            page_parser = TemplateParser.new(
+              data: page_data,
+              translations: parser.translations,
+              locales: parser.locales,
+              assets: parser.assets,
+              i18n_vars: parser.i18n_vars
+            )
+            serializer = Decidim::CommunityTemplates::Importers::Page.new(page_parser, organization, user, parent: self, for_demo: demo?)
+            @after_import_serializers << serializer
+            serializer.import!
           end
         end
 
