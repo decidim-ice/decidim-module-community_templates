@@ -66,6 +66,10 @@ module Decidim
             end + Decidim::Proposals::Proposal.unscoped.where(component: model).map do |proposal|
               append_serializer(Serializers::Proposal, proposal, "proposals.#{SerializerBase.id_for_model(proposal)}")
             end
+          when "pages"
+            Decidim::Pages::Page.unscoped.where(component: model).map do |page|
+              append_serializer(Serializers::Page, page, "pages.#{SerializerBase.id_for_model(page)}")
+            end
           else
             []
           end
