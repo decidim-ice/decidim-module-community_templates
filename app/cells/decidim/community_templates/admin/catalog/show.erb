@@ -29,7 +29,7 @@
           content_tag(:span) do
             button_to(decidim_admin_community_templates.template_usages_path(template_id: template.id), method: :post, class: "template-card__action--install") do
               t("install", scope: "decidim.community_templates.admin.catalog")
-            end + content_tag(:div, "last update: asdlkjasd")
+            end +  t("last_update", scope: "decidim.community_templates.admin.catalog", date: template.updated_at.strftime("%d/%m/%Y"))
           end
         ]
      } %>
