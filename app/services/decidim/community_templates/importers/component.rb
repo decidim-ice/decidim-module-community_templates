@@ -35,6 +35,8 @@ module Decidim
             import_proposals!(proposal_states) if demo?
           when "pages"
             import_pages!
+          when "surveys"
+            import_surveys!
           end
         end
 
@@ -63,6 +65,21 @@ module Decidim
               i18n_vars: parser.i18n_vars
             )
             serializer = Decidim::CommunityTemplates::Importers::ProposalState.new(proposal_state_parser, organization, user, parent: self, for_demo: demo?)
+            @after_import_serializers << serializer
+            serializer.import!
+          end
+        end
+
+        def import_surveys!
+          (parser.attributes["resources"] || []).select { |resource| resource["@class"] == "Decidim::Surveys::Survey" }.each do |survey_data|
+            survey_parser = TemplateParser.new(
+              data: survey_data,
+              translations: parser.translations,
+              locales: parser.locales,
+              assets: parser.assets,
+              i18n_vars: parser.i18n_vars
+            )
+            serializer = Decidim::CommunityTemplates::Importers::Survey.new(survey_parser, organization, user, parent: self, for_demo: demo?)
             @after_import_serializers << serializer
             serializer.import!
           end

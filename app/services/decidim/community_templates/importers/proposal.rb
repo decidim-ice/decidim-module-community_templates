@@ -41,7 +41,7 @@ module Decidim
         end
 
         def after_import!
-          return unless demo?
+          return if @object.nil?
 
           fake_votes!
         end
@@ -58,6 +58,9 @@ module Decidim
               temporary: false
             )
           end
+        rescue StandardError => e
+          Rails.logger.error("Error fake voting: #{e.message}")
+          Rails.logger.error(e.backtrace.join("\n"))
         end
 
         def find_proposal_state

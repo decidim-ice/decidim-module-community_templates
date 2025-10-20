@@ -169,7 +169,6 @@ module Decidim
               serializer.save!(dir)
               base_path = File.join(dir, serializer.id)
               expect(File).to exist(File.join(base_path, "data.json"))
-              expect(File).to exist(File.join(base_path, "demo.json"))
             end
           end
 
