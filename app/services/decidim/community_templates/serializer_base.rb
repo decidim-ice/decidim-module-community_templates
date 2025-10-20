@@ -26,7 +26,6 @@ module Decidim
       def self.init(**args)
         serializer = new(**args)
         serializer.data!
-        serializer.demo!
         serializer.assets!
         serializer.process_translations!
         serializer
@@ -59,21 +58,16 @@ module Decidim
         data[:name] = "#{id}.metadata.name" if metadata[:name].present?
         data[:description] = "#{id}.metadata.description" if metadata[:description].present?
         data[:version] = metadata[:version]
-        data.merge!(metadata.except(:name, :description, :version))
         data[:decidim_version] = Decidim.version
         data[:community_templates_version] = Decidim::CommunityTemplates::VERSION
-      end
-
-      def demo!
-        # TODO
+        data.merge!(metadata.except(:name, :description, :version, :decidim_version, :community_templates_version))
       end
 
       def assets!; end
 
       def json_files
         {
-          data:,
-          demo:
+          data:
         }
       end
 
@@ -188,7 +182,7 @@ module Decidim
 
       def self.id_for_resources(model)
         [
-          -> { "#{model.class.name.demodulize.underscore}_#{model.created_at&.strftime("%Y%m%d%H%M%S")}" if model.respond_to?(:created_at) },
+          -> { "#{model.class.name.demodulize.underscore}_#{model.created_at&.strftime("%Y%m%d%H%M")}#{model.id}" if model.respond_to?(:created_at) },
           -> { "#{model.class.name.demodulize.underscore}_#{model.id}" if model.respond_to?(:id) }
         ]
       end
@@ -233,6 +227,8 @@ module Decidim
 
       def i18n_field(field, value = nil, prefix = "attributes")
         value ||= model.send(field)
+        return nil if value.nil?
+
         unless value.is_a?(Hash)
           value = {
             locales.first => value

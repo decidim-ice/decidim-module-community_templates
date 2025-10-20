@@ -30,9 +30,6 @@ fi
 if ! bundle list | grep -q deface; then
     bundle add deface --git https://github.com/froger/deface --branch fix/js-overrides
 fi
-bundle exec rails decidim:update
-bundle exec rails db:migrate
-
 
 # Exit if chrome and imagemagick are already installed
 if dpkg -l | grep -q google-chrome-stable && dpkg -l | grep -q imagemagick && command -v chromedriver >/dev/null 2>&1; then

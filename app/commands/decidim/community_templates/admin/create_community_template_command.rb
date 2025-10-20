@@ -19,8 +19,7 @@ module Decidim
             created_template_source = Decidim::CommunityTemplates::TemplateSource.create!(
               source: form.source,
               template_id: form.template.id,
-              organization: organization,
-              updated_at: Time.current
+              organization: organization
             )
             # Retrieve serializer for the source
             serializer = Decidim::CommunityTemplates::Serializers::ParticipatoryProcess.init(

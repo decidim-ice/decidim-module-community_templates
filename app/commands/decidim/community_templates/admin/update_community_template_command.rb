@@ -19,7 +19,7 @@ module Decidim
               model: form.source,
               locales: [organization.default_locale],
               with_manifest: true,
-              metadata: form.template.as_json
+              metadata: form.template.metadatas
             )
             serializer.metadata_translations!
             path = Decidim::CommunityTemplates.catalog_path.join("shared")

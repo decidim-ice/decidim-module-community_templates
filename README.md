@@ -111,9 +111,6 @@ en:
       description: "A comprehensive participatory process..."
 ```
 
-#### `demo.json` (Optional)
-Contains demo data for testing and preview purposes.
-
 #### `assets/` (Optional)
 Static files like images, documents, or other resources referenced by the template.
 

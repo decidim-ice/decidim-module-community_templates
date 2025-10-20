@@ -70,6 +70,10 @@ module Decidim
             Decidim::Pages::Page.unscoped.where(component: model).map do |page|
               append_serializer(Serializers::Page, page, "pages.#{SerializerBase.id_for_model(page)}")
             end
+          when "surveys"
+            Decidim::Surveys::Survey.unscoped.where(component: model).map do |survey|
+              append_serializer(Serializers::Survey, survey, "surveys.#{SerializerBase.id_for_model(survey)}")
+            end
           else
             []
           end
