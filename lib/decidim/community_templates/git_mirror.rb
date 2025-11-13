@@ -122,8 +122,19 @@ module Decidim
         end
 
         # Add credentials to URI
-        uri.user = repo_username if repo_username.present?
-        uri.password = repo_password if repo_password.present?
+        # For GitHub, use token as username if no username provided
+        if repo_password.present?
+          if repo_username.present?
+            uri.user = repo_username
+            uri.password = repo_password
+          else
+            # GitHub: use token as username when no username provided
+            uri.user = repo_password
+            uri.password = ""
+          end
+        elsif repo_username.present?
+          uri.user = repo_username
+        end
 
         # Ensure we have a clean remote state
         ensure_remote_origin(git, uri.to_s)

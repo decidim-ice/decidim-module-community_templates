@@ -118,7 +118,6 @@ module Decidim
 
           # Pull latest changes and rebase
           @git.pull(remote, default_branch)
-          @git.rebase(default_branch)
           sleep(0.1 * retries) # Brief delay before retry
           retry
         end
