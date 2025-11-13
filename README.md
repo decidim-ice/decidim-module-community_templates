@@ -6,8 +6,6 @@
 [![codecov](https://codecov.io/gh/decidim-ice/decidim-module-community_templates/graph/badge.svg?token=zDjnsb0GGe)](https://codecov.io/gh/decidim-ice/decidim-module-community_templates)
 [![Gem Version](https://badge.fury.io/rb/decidim-community_templates.svg)](https://badge.fury.io/rb/decidim-community_templates)
 
-A template for the Decidim Newsletter focused on an agenda
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -24,250 +22,117 @@ bin/rails decidim:upgrade
 bin/rails db:migrate
 ```
 
-> **EXPERTS ONLY**
->
-> Under the hood, when running `bundle exec rails decidim:upgrade` the `decidim-community_templates` gem will run the following two tasks (that can also be run manually if you consider):
->
-> ```bash
-> bin/rails decidim_community_templates:install:migrations
-> ```
+The module uses a Git repository to store and distribute templates. The repository acts as a catalog where templates are versioned, shared, and synchronized across Decidim instances.
+
+**Read-only mode** (pull templates only):
+- Set `TEMPLATE_GIT_URL` to your public repository URL
+- The module will clone and periodically sync templates from the repository
+
+**Write mode** (publish templates):
+- Set `TEMPLATE_GIT_URL` to your repository URL
+- Set `TEMPLATE_GIT_USERNAME` and `TEMPLATE_GIT_PASSWORD` with credentials that have write access
+- Templates created in the admin interface will be automatically committed and pushed to the repository
 
 
-## Usage
+### GitLab Setup
 
-This module simply adds a new template for the newsletter, which is focused on events.
+For GitLab repositories (public repository with project credentials):
 
-### Configuration
+1. Create a GitLab project access token:
+   - Go to your GitLab project → Settings → Access Tokens
+   - Create a token with `write_repository` scope
+   - Copy the token value
 
-```ruby
-# config/initializers/community_templates.rb
-
-Decidim::CommunityTemplates.configure do |config|
-...TODO...
-end
-```
-
-## Templating specification
-
-This module allows you to create, export, and import templates for Decidim participatory spaces. Templates are structured as directories containing JSON data files, translations, and assets.
-
-### Template Structure
-
-A template is organized as a folder with the following structure:
-
-```
-template-id/
-├── data.json           # Main template data and metadata
-├── locales/            # Translation files
-│   ├── en.yml
-│   ├── es.yml
-│   └── ...
-└── assets/             # Static assets (images, documents, etc.)
-    └── demo.jpg
-```
-
-### Template Files
-
-#### `data.json`
-Contains the template metadata and model attributes:
-
-```json
-{
-  "id": "853330aa-0771-4218-8afe-1b199676fbc2",
-  "class": "Decidim::ParticipatoryProcess",
-  "original_id": 1,
-  "name": "853330aa-0771-4218-8afe-1b199676fbc2.metadata.name",
-  "description": "853330aa-0771-4218-8afe-1b199676fbc2.metadata.description",
-  "version": "1.0.0",
-  "decidim_version": "0.30.1",
-  "community_templates_version": "0.0.1",
-  "attributes": {
-    "title": "853330aa-0771-4218-8afe-1b199676fbc2.attributes.title",
-    "subtitle": "853330aa-0771-4218-8afe-1b199676fbc2.attributes.subtitle",
-    "short_description": "853330aa-0771-4218-8afe-1b199676fbc2.attributes.short_description",
-    "description": "853330aa-0771-4218-8afe-1b199676fbc2.attributes.description"
-  }
-}
-```
-
-- `id`: Unique template identifier
-- `class`: Decidim model class name (e.g., `Decidim::ParticipatoryProcess`)
-- `name`/`description`: Reference keys for translated metadata
-- `attributes`: Model-specific attributes with translation keys. For non-translatable fields the value applies directly.
-
-#### Translation Files (`locales/*.yml`)
-Contains all translatable content, note that this follow the same specification as the I18n standard Rails library:
-
-```yaml
-en:
-  853330aa-0771-4218-8afe-1b199676fbc2:
-    metadata:
-      name: "Community Participation Template"
-      description: "A template for community engagement processes"
-    attributes:
-      title: "Community Voices Initiative"
-      subtitle: "Engaging citizens in local decision-making"
-      short_description: "Join us in shaping our community's future"
-      description: "A comprehensive participatory process..."
-```
-
-#### `assets/` (Optional)
-Static files like images, documents, or other resources referenced by the template.
-
-### Creating Templates
-
-Templates can be created programmatically using serializers:
-
-```ruby
-# Export a participatory process as a template
-serializer = Decidim::CommunityTemplates::Serializers::ParticipatoryProcess.init(
-  model: participatory_process,
-  metadata: {
-    name: { en: "My Template", es: "Mi Plantilla" },
-    description: { en: "Template description", es: "Descripción de la plantilla" },
-    version: "1.0.0"
-  },
-  locales: [:en, :es],
-  with_manifest: true
-)
-
-# Save to filesystem
-serializer.save!("/path/to/templates")
-```
-
-### Importing Templates
-
-Templates can be imported using the admin interface or programmatically:
-
-```ruby
-# Parse a template
-parser = Decidim::CommunityTemplates::TemplateParser.new(
-  data: {
-    "id": "some-id",
-    ...
-  },
-  translations: {
-    "en" => {
-      "some-id" => {
-        ...
-      }
-    }
-  },
-  locales: ["en", "es"]
-)
-
-# Import the template
-importer = Decidim::CommunityTemplates::Importers::ParticipatoryProcess.new(
-  parser, organization, user
-)
-importer.import!
-```
-
-A helper class for parsing the files generated in a template folder is also available:
-
-```ruby
-parser = TemplateExtractor.parse("/path/to/templates/some-id", ["en", "es"])
-```
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/decidim-ice/decidim-module-community_templates.
-
-### Developing
-
-To start contributing to this project, first:
-
-- Install the basic dependencies (such as Ruby and PostgreSQL)
-- Clone this repository
-
-Decidim's main repository also provides a Docker configuration file if you
-prefer to use Docker instead of installing the dependencies locally on your
-machine.
-
-You can create the development app by running the following commands after
-cloning this project:
+2. Configure environment variables:
 
 ```bash
-$ bundle
-$ DATABASE_USERNAME=<username> DATABASE_PASSWORD=<password> bundle exec rake development_app
+export TEMPLATE_GIT_URL="https://gitlab.com/your-org/your-template-catalog.git"
+export TEMPLATE_GIT_BRANCH="main"
+export TEMPLATE_GIT_USERNAME="your-username"
+export TEMPLATE_GIT_PASSWORD="your-project-access-token"
+export TEMPLATE_GIT_AUTHOR_NAME="Decidim Community Templates"
+export TEMPLATE_GIT_AUTHOR_EMAIL="templates@example.org"
 ```
 
-Note that the database user has to have rights to create and drop a database in
-order to create the dummy test app database.
+3. Restart your application. The module will:
+   - Clone the repository if it doesn't exist
+   - Normalize the repository structure (create `manifest.json` if needed)
+   - Periodically sync templates from the remote repository
 
-Then to test how the module works in Decidim, start the development server:
+### Demo Tenant Setup
+
+The demo tenant is a special organization used to preview and test templates before publishing them to the catalog.
+
+Configure via environment variables:
 
 ```bash
-$ cd development_app
-$ DATABASE_USERNAME=<username> DATABASE_PASSWORD=<password> bundle exec rails s
+export TEMPLATE_DEMO_HOST="demo.localhost"
+export TEMPLATE_DEMO_NAME="Demo Organization"
+export TEMPLATE_DEMO_DEFAULT_LOCALE="en"
+export TEMPLATE_DEMO_PRIMARY_COLOR="#14342B"
+export TEMPLATE_DEMO_SECONDARY_COLOR="#006482"
+export TEMPLATE_DEMO_TERTIARY_COLOR="#F7E733"
 ```
 
-In case you are using [rbenv](https://github.com/rbenv/rbenv) and have the
-[rbenv-vars](https://github.com/rbenv/rbenv-vars) plugin installed for it, you
-can add the environment variables to the root directory of the project in a file
-named `.rbenv-vars`. If these are defined for the environment, you can omit
-defining these in the commands shown above.
-
-#### Code Styling
-
-Please follow the code styling defined by the different linters that ensure we
-are all talking with the same language collaborating on the same project. This
-project is set to follow the same rules that Decidim itself follows.
-
-[Rubocop](https://rubocop.readthedocs.io/) linter is used for the Ruby language.
-
-You can run the code styling checks by running the following commands from the
-console:
-
-```
-$ bundle exec rubocop
-```
-
-To ease up following the style guide, you should install the plugin to your
-favorite editor, such as:
-
-- Atom - [linter-rubocop](https://atom.io/packages/linter-rubocop)
-- Sublime Text - [Sublime RuboCop](https://github.com/pderichs/sublime_rubocop)
-- Visual Studio Code - [Rubocop for Visual Studio Code](https://github.com/misogi/vscode-ruby-rubocop)
-
-### Testing
-
-To run the tests run the following in the gem development path:
+Reset the demo organization (purges and recreates with imported templates):
 
 ```bash
-$ bundle
-$ DATABASE_USERNAME=<username> DATABASE_PASSWORD=<password> bundle exec rake test_app
-$ DATABASE_USERNAME=<username> DATABASE_PASSWORD=<password> bundle exec rspec
+bin/rails decidim:community_templates:reset_demo
 ```
 
-Note that the database user has to have rights to create and drop a database in
-order to create the dummy test app database.
-
-In case you are using [rbenv](https://github.com/rbenv/rbenv) and have the
-[rbenv-vars](https://github.com/rbenv/rbenv-vars) plugin installed for it, you
-can add these environment variables to the root directory of the project in a
-file named `.rbenv-vars`. In this case, you can omit defining these in the
-commands shown above.
-
-### Test code coverage
-
-If you want to generate the code coverage report for the tests, you can use
-the `SIMPLECOV=1` environment variable in the rspec command as follows:
+Drop the demo organization:
 
 ```bash
-$ SIMPLECOV=1 bundle exec rspec
+bin/rails decidim:community_templates:drop_demo
 ```
 
-This will generate a folder named `coverage` in the project root which contains
-the code coverage report.
+The demo organization is automatically reset when templates are synced from the Git repository.
 
-### Localization
+## Rake Tasks
 
-If you would like to see this module in your own language, you can help with its
-translation at Crowdin:
+| Task | Description |
+|------|-------------|
+| `rails decidim:community_templates:reset_demo` | Reset demo organizations - purge and recreate template demo organizations with imported templates |
+| `rails decidim:community_templates:drop_demo` | Drop demo organization and all associated data |
+| `rails decidim:update` | Automatically install community_templates migrations |
 
-https://crowdin.com/project/decidim-module-community_templates
+## Environment Variables
 
-## License
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `TEMPLATE_GIT_URL` | Git repository URL for the template catalog | `""` | Yes (for read/write mode) |
+| `TEMPLATE_GIT_BRANCH` | Git branch to use | `"main"` | No |
+| `TEMPLATE_GIT_USERNAME` | Git username for write access | `""` | Yes (for write mode) |
+| `TEMPLATE_GIT_PASSWORD` | Git password/token for write access | `""` | Yes (for write mode) |
+| `TEMPLATE_GIT_AUTHOR_NAME` | Git commit author name | `"Decidim Community Templates"` | No |
+| `TEMPLATE_GIT_AUTHOR_EMAIL` | Git commit author email | `"decidim-community-templates@example.org"` | No |
+| `TEMPLATE_DEMO_HOST` | Hostname for the demo organization | `"demo.localhost"` | No |
+| `TEMPLATE_DEMO_NAME` | Name of the demo organization | `"Demo Organization"` | No |
+| `TEMPLATE_DEMO_DEFAULT_LOCALE` | Default locale for demo organization | `DECIDIM_DEFAULT_LOCALE` or `"en"` | No |
+| `TEMPLATE_DEMO_PRIMARY_COLOR` | Primary color for demo organization | `"#14342B"` | No |
+| `TEMPLATE_DEMO_SECONDARY_COLOR` | Secondary color for demo organization | `"#006482"` | No |
+| `TEMPLATE_DEMO_TERTIARY_COLOR` | Tertiary color for demo organization | `"#F7E733"` | No |
 
-See [LICENSE-AGPLv3.txt](LICENSE-AGPLv3.txt).
+
+
+## Supported Features
+
+The module currently supports exporting and importing:
+
+- **Participatory Processes**: Full process structure including metadata, dates, and configuration
+- **Process Steps**: All step configurations and settings
+- **Proposals**: Proposal states and proposals (in demo mode)
+- **Component Settings**: Global settings, step-specific settings, and default step settings
+- **Images**: Hero images, attachments, and editor images
+- **Content Blocks**: Editor content blocks and page content
+- **Surveys**: Survey components with questions and answer options
+
+## Roadmap
+
+The following features are planned for future releases:
+
+- **Blogs and pages**: Blogs and pages component setup
+- **Meetings**: Meeting components and agendas
+- **Meetings Polls**: Poll components and voting configurations
+- **Meetings Agendas**: Meeting agendas and agenda items
+
