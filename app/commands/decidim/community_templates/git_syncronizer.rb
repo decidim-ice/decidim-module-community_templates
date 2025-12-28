@@ -5,19 +5,34 @@ module Decidim
     class GitSyncronizer < ::Decidim::Command
       LOCK_FILE_PATH = Rails.root.join("tmp/git_syncronizer.lock")
 
+      def initialize(
+        git_mirror: nil,
+        file_lock: nil,
+        cache: nil,
+        logger: nil,
+        public_files_reloader: nil,
+        invalid_models_cleaner: nil,
+        apartment_strategy: nil,
+        job_class: nil
+      )
+        @git_mirror = git_mirror || GitMirror.instance
+        @file_lock = file_lock || FileLock.new(LOCK_FILE_PATH)
+        @cache = cache || SyncCache.new(Rails.cache, Decidim::CommunityTemplates.cache_namespace)
+        @logger = logger || Rails.logger
+        @public_files_reloader = public_files_reloader
+        @invalid_models_cleaner = invalid_models_cleaner
+        @apartment_strategy = apartment_strategy
+        @job_class = job_class || Decidim::CommunityTemplates::ResetOrganizationJob
+      end
+
       def call
         return unless CommunityTemplates.enabled?
 
-        File.open(LOCK_FILE_PATH, "w") do |lock_file|
-          # Try to acquire exclusive non-blocking lock
-          if lock_file.flock(File::LOCK_EX | File::LOCK_NB)
-            begin
-              perform_sync
-            ensure
-              lock_file.flock(File::LOCK_UN)
-            end
+        @file_lock.with_lock do |acquired|
+          if acquired
+            perform_sync
           else
-            Rails.logger.info "GitSyncronizer already running, skipping"
+            @logger.info "GitSyncronizer already running, skipping"
           end
         end
       end
@@ -25,70 +40,41 @@ module Decidim
       private
 
       def perform_sync
-        # Be sure to apply configuration to current git
         result = GitCatalogNormalizer.call
-        if Decidim::CommunityTemplates.apartment_compat?
-          Decidim::Apartment::DistributionKey.all.each do |distribution_key|
-            distribution_key.switch do
-              remove_invalid_models!
-            end
-          end
-        else
-          remove_invalid_models!
-        end
+
+        invalid_models_cleaner.call
 
         if result.has_key?(:invalid)
-          Rails.logger.error "Can not sync"
+          @logger.error "Can not sync"
           return
         end
 
-        git_mirror = GitMirror.instance
-        git_mirror.pull!
-        # cache from last commit
-        last_commit = git_mirror.last_commit
-        if last_commit.present? && last_commit != Rails.cache.read("git_syncronizer_last_commit", namespace: Decidim::CommunityTemplates.cache_namespace)
-          reload_public_files!
-          Decidim::CommunityTemplates::ResetOrganizationJob.perform_later
-          Rails.cache.write("git_syncronizer_last_commit", last_commit, namespace: Decidim::CommunityTemplates.cache_namespace)
+        @git_mirror.pull!
+        last_commit = @git_mirror.last_commit
+
+        if last_commit.present? && last_commit != @cache.last_commit
+          public_files_reloader.call
+          @job_class.perform_later
+          @cache.update_last_commit(last_commit)
         end
       end
 
-      def remove_invalid_models!
-        # Remove TemplateSources and TemplateUses that are bounded to an unexisting template
-        templates = Decidim::CommunityTemplates.catalog_path.children.select do |d|
-          d.directory? && d.basename.to_s.match?(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
-        end
-        template_ids = templates.map { |path| path.basename.to_s }
-        Decidim::CommunityTemplates::TemplateSource.where.not(template_id: template_ids).destroy_all
-        Decidim::CommunityTemplates::TemplateUse.where.not(template_id: template_ids).destroy_all
-      end
-
-      def reload_public_files!
-        return unless Decidim::CommunityTemplates.catalog_path.exist?
-
-        # Create a public/catalog.swp the time to copy files, and then replace the original
-        public_catalog_path = Rails.public_path.join("catalog")
-        swap_dir = "#{public_catalog_path}.swp"
-        FileUtils.rm_rf(swap_dir)
-        FileUtils.mkdir_p(swap_dir)
-        # Go over every directory that matches uuid and copy it to the swap directory
-        [
+      def invalid_models_cleaner
+        @invalid_models_cleaner ||= InvalidModelsCleaner.new(
           Decidim::CommunityTemplates.catalog_path,
-          Decidim::CommunityTemplates.catalog_path.join("shared")
-        ].each do |path|
-          next unless path.exist?
+          apartment_strategy: apartment_strategy
+        )
+      end
 
-          template_dirs = path.children.select do |d|
-            d.directory? && d.basename.to_s.match?(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
-          end
-          template_dirs.each do |dir|
-            FileUtils.cp_r(dir, swap_dir)
-          end
-        end
+      def public_files_reloader
+        @public_files_reloader ||= PublicFilesReloader.new(
+          Decidim::CommunityTemplates.catalog_path,
+          Rails.public_path.join("catalog")
+        )
+      end
 
-        # Replace the original catalog with the swap directory
-        FileUtils.rm_rf(public_catalog_path)
-        FileUtils.mv(swap_dir, public_catalog_path)
+      def apartment_strategy
+        @apartment_strategy ||= ApartmentStrategy.for
       end
     end
   end
