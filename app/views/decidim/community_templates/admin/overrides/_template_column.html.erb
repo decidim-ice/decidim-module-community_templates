@@ -1,3 +1,4 @@
+<% if Decidim::CommunityTemplates.enabled? %>
 <% usages = Decidim::CommunityTemplates::TemplateUse.where(resource: process) %>
 <% sources = Decidim::CommunityTemplates::TemplateSource.where(source: process) %>
 <td class="table-list__templates">
@@ -17,3 +18,4 @@
   </div>
 <% end %>
 </td>
+<% end %>
