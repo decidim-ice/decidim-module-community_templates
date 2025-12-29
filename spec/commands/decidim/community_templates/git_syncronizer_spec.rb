@@ -12,7 +12,7 @@ module Decidim
       let(:logger) { instance_double(ActiveSupport::Logger) }
       let(:public_files_reloader) { instance_double(PublicFilesReloader) }
       let(:invalid_models_cleaner) { instance_double(InvalidModelsCleaner) }
-      let(:apartment_strategy) { instance_double(SingleTenantStrategy) }
+      let(:apartment_strategy) { double("ApartmentStrategy") }
       let(:job_class) { class_double(ResetOrganizationJob) }
 
       before do

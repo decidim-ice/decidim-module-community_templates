@@ -237,7 +237,6 @@ module Decidim
         before do
           allow(git).to receive(:push)
           allow(git).to receive(:pull)
-          allow(git).to receive(:rebase)
           allow(git_transaction).to receive(:default_branch).and_return(default_branch)
         end
 
@@ -247,13 +246,12 @@ module Decidim
           git_transaction.send(:push_with_retries, remote, push_opts)
         end
 
-        it "retries with pull/rebase on Git::Error" do
+        it "retries with pull on Git::Error" do
           allow(git).to receive(:push).and_raise(Git::Error.new("push failed"))
           allow(git_transaction).to receive(:sleep)
 
           expect(git).to receive(:push).exactly(4).times # 1 initial + 3 retries
           expect(git).to receive(:pull).exactly(3).times
-          expect(git).to receive(:rebase).exactly(3).times
 
           expect do
             git_transaction.send(:push_with_retries, remote, push_opts)
@@ -263,7 +261,6 @@ module Decidim
         it "raises error after MAX_RETRIES" do
           allow(git).to receive(:push).and_raise(Git::Error.new("persistent push error"))
           allow(git).to receive(:pull)
-          allow(git).to receive(:rebase)
           allow(git_transaction).to receive(:sleep)
 
           expect do

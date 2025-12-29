@@ -94,6 +94,7 @@ The demo organization is automatically reset when templates are synced from the 
 |------|-------------|
 | `rails decidim:community_templates:reset_demo` | Reset demo organizations - purge and recreate template demo organizations with imported templates |
 | `rails decidim:community_templates:drop_demo` | Drop demo organization and all associated data |
+| `rails decidim:community_templates:status` | Check catalog status - git state, credentials, template count, and normalization |
 | `rails decidim:update` | Automatically install community_templates migrations |
 
 ## Environment Variables

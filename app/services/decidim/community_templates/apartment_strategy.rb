@@ -17,10 +17,9 @@ module Decidim
     end
 
     class SingleTenantStrategy
-      def each_tenant(&block)
+      def each_tenant
         yield
       end
     end
   end
 end
-

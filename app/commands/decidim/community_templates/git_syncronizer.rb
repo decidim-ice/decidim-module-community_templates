@@ -5,24 +5,15 @@ module Decidim
     class GitSyncronizer < ::Decidim::Command
       LOCK_FILE_PATH = Rails.root.join("tmp/git_syncronizer.lock")
 
-      def initialize(
-        git_mirror: nil,
-        file_lock: nil,
-        cache: nil,
-        logger: nil,
-        public_files_reloader: nil,
-        invalid_models_cleaner: nil,
-        apartment_strategy: nil,
-        job_class: nil
-      )
-        @git_mirror = git_mirror || GitMirror.instance
-        @file_lock = file_lock || FileLock.new(LOCK_FILE_PATH)
-        @cache = cache || SyncCache.new(Rails.cache, Decidim::CommunityTemplates.cache_namespace)
-        @logger = logger || Rails.logger
-        @public_files_reloader = public_files_reloader
-        @invalid_models_cleaner = invalid_models_cleaner
-        @apartment_strategy = apartment_strategy
-        @job_class = job_class || Decidim::CommunityTemplates::ResetOrganizationJob
+      def initialize(options = {})
+        @git_mirror = options[:git_mirror] || GitMirror.instance
+        @file_lock = options[:file_lock] || FileLock.new(LOCK_FILE_PATH)
+        @cache = options[:cache] || SyncCache.new(Rails.cache, Decidim::CommunityTemplates.cache_namespace)
+        @logger = options[:logger] || Rails.logger
+        @public_files_reloader = options[:public_files_reloader]
+        @invalid_models_cleaner = options[:invalid_models_cleaner]
+        @apartment_strategy = options[:apartment_strategy]
+        @job_class = options[:job_class] || Decidim::CommunityTemplates::ResetOrganizationJob
       end
 
       def call

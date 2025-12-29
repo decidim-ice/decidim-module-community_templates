@@ -23,4 +23,3 @@ module Decidim
     end
   end
 end
-
