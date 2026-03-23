@@ -6,7 +6,7 @@ module Decidim
   module CommunityTemplates
     module Importers
       RSpec.describe Attachment, type: :service do
-        let(:organization) { create(:organization) }
+        let(:organization) { create(:organization, available_locales: ["en"]) }
         let(:user) { create(:user, organization: organization) }
         let(:participatory_process) { create(:participatory_process, organization: organization) }
         let(:parent_object) { OpenStruct.new(object: participatory_process.hero_image) }

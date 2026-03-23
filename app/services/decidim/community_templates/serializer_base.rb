@@ -244,7 +244,8 @@ module Decidim
         hash = { locales.first => hash } unless hash.is_a?(Hash)
 
         locales.index_with do |lang|
-          (id_parts + [prefix, field.to_s]).reverse.inject(hash[lang]) { |value, key| { key => value } }
+          prefix_parts = prefix.to_s.split(".")
+          (id_parts + prefix_parts + [field.to_s]).reverse.inject(hash[lang]) { |value, key| { key => value } }
         end
       end
 

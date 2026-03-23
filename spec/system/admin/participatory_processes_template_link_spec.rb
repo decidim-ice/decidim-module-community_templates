@@ -3,7 +3,7 @@
 require "spec_helper"
 
 describe "Participatory processes template link" do
-  let(:organization) { create(:organization) }
+  let(:organization) { create(:organization, available_locales: ["en"]) }
   let!(:participatory_process) { create(:participatory_process, :with_steps, organization:) }
   let!(:user) { create(:user, :admin, :confirmed, organization:) }
 

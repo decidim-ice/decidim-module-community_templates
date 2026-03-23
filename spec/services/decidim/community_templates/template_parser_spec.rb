@@ -69,7 +69,7 @@ module Decidim
           }
         ]
       end
-      let!(:organization) { create(:organization) }
+      let!(:organization) { create(:organization, available_locales: ["en"]) }
       let!(:admin_user) { create(:user, :admin, organization: organization) }
 
       it "returns metadata correctly" do
@@ -256,7 +256,7 @@ module Decidim
       end
 
       context "when calling populate_i18n_vars!" do
-        let(:organization) { create(:organization) }
+        let(:organization) { create(:organization, available_locales: ["en"]) }
         let!(:admin_user) { create(:user, :admin, organization: organization) }
         let(:temp_file) { Tempfile.new(["test_image", ".jpg"]) }
 

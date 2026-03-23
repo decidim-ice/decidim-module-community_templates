@@ -4,7 +4,7 @@ require "spec_helper"
 module Decidim
   module CommunityTemplates
     describe TemplateSource do
-      let(:organization) { create(:organization) }
+      let(:organization) { create(:organization, available_locales: ["en"]) }
 
       context "when updating a community template source" do
         let(:template_source) { create(:community_template_source) }
@@ -84,7 +84,7 @@ module Decidim
         end
 
         it "is invalid with a record that does not belongs to the same organization" do
-          template_source = build(:community_template_source, source: create(:participatory_process, organization: create(:organization)), organization: create(:organization))
+          template_source = build(:community_template_source, source: create(:participatory_process, organization: create(:organization, available_locales: ["en"])), organization: create(:organization, available_locales: ["en"]))
           expect(template_source).to be_invalid
           expect(template_source.errors.full_messages).to include(match(/must be in the same organization as/))
         end

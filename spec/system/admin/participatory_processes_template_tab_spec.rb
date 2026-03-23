@@ -3,7 +3,7 @@
 require "spec_helper"
 
 describe "Participatory processes template tab" do
-  let(:organization) { create(:organization) }
+  let(:organization) { create(:organization, available_locales: ["en"]) }
   let!(:participatory_process) { create(:participatory_process, :with_steps, organization:) }
   let!(:user) { create(:user, :admin, :confirmed, organization:) }
   let(:fixture_path) { Decidim::CommunityTemplates::Engine.root.join("spec", "fixtures", "catalog_test", "valid") }

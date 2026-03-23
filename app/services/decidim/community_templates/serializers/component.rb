@@ -74,6 +74,10 @@ module Decidim
             Decidim::Surveys::Survey.unscoped.where(component: model).map do |survey|
               append_serializer(Serializers::Survey, survey, "surveys.#{SerializerBase.id_for_model(survey)}")
             end
+          when "blogs"
+            Decidim::Blogs::Post.unscoped.where(component: model).map do |post|
+              append_serializer(Serializers::Post, post, "posts.#{SerializerBase.id_for_model(post)}")
+            end
           else
             []
           end

@@ -64,7 +64,7 @@ module Decidim
         end
 
         context "when the organization does not match" do
-          let(:other_organization) { create(:organization) }
+          let(:other_organization) { create(:organization, available_locales: ["en"]) }
           let(:context) { { current_organization: other_organization } }
 
           it { is_expected.not_to be_valid }

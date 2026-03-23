@@ -4,7 +4,7 @@ require "spec_helper"
 
 module Decidim::CommunityTemplates::Admin
   describe UpdateCommunityTemplateCommand do
-    let!(:organization) { create(:organization) }
+    let!(:organization) { create(:organization, available_locales: ["en"]) }
     let!(:user) { create(:user, :confirmed, :admin, organization:) }
     let!(:template) { build(:template_metadata) }
     let!(:template_source) { create(:community_template_source, organization:) }
