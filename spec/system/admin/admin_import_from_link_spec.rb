@@ -32,14 +32,12 @@ describe "Admin import template from link" do
       allow(Decidim::CommunityTemplates).to receive(:enabled?).and_return(false)
       switch_to_host(organization.host)
       login_as user, scope: :user
-      visit decidim_admin_participatory_processes.participatory_processes_path
-      click_on "Manage"
+      visit decidim_admin_participatory_processes.edit_participatory_process_path(participatory_process)
     end
 
     it "does not show the a import from direct link button" do
-      within("#processes-dropdown-menu-settings") do
-        expect(page).to have_no_css(".module-template-direct_link")
-      end
+      expect(page).to have_no_css(".module-template-direct_link")
+      expect(page).to have_no_link("Create from link")
     end
   end
 
@@ -48,14 +46,12 @@ describe "Admin import template from link" do
       allow(Decidim::CommunityTemplates).to receive(:enabled?).and_return(true)
       switch_to_host(organization.host)
       login_as user, scope: :user
-      visit decidim_admin_participatory_processes.participatory_processes_path
-      click_on "Manage"
+      visit decidim_admin_participatory_processes.edit_participatory_process_path(participatory_process)
     end
 
     it "shows the a import from direct link button" do
-      within("#processes-dropdown-menu-settings") do
-        expect(page).to have_css(".module-template-direct_link")
-      end
+      expect(page).to have_css(".module-template-direct_link")
+      expect(page).to have_link("Create from link")
     end
 
     context "when clicking on import link" do
@@ -80,7 +76,7 @@ describe "Admin import template from link" do
 
       it "displays error if data.json file is not found" do
         allow(Net::HTTP).to receive(:get_response).and_return(double(code: "404", body: ""))
-        fill_in "Link", with: "https://example.com"
+        fill_in "Template Link", with: "https://example.com"
         click_on "Go"
         within("#template-direct-link-modal-content .form-error.is-visible.template-direct-link__input") do
           expect(page).to have_content(/Manifest file not found/)
@@ -107,7 +103,7 @@ describe "Admin import template from link" do
         end
 
         it "reload the page" do
-          expect(page).to have_current_path(decidim_admin_participatory_processes.participatory_processes_path)
+          expect(page).to have_current_path(decidim_admin_participatory_processes.edit_participatory_process_path(participatory_process))
         end
       end
 
@@ -163,7 +159,7 @@ describe "Admin import template from link" do
           end
 
           it "reload the page" do
-            expect(page).to have_current_path(decidim_admin_participatory_processes.participatory_processes_path)
+            expect(page).to have_current_path(decidim_admin_participatory_processes.edit_participatory_process_path(participatory_process))
           end
         end
       end
