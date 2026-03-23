@@ -5,7 +5,7 @@ require "spec_helper"
 module Decidim
   module CommunityTemplates
     describe Catalog do
-      let(:organization) { create(:organization) }
+      let(:organization) { create(:organization, available_locales: ["en"]) }
       let(:catalog) { create(:catalog, templates: create_list(:template_metadata, 1, organization:)) }
 
       before do

@@ -29,7 +29,8 @@ module Decidim
       validates :description, presence: true
       validates :version, presence: true
       validates :author, presence: true
-      validates :@class, presence: true, inclusion: { in: Decidim::CommunityTemplates.serializers.map { |serializer| serializer[:model] } }
+      validates :@class, presence: true
+      validate :validate_class_has_importer
       validates :community_templates_version, presence: true
       validates :decidim_version, presence: true
       validates :created_at, presence: true
@@ -90,6 +91,18 @@ module Decidim
         rescue URI::InvalidURIError
           errors.add(:links, :bad_format)
         end
+      end
+
+      def validate_class_has_importer
+        return if @class.blank?
+
+        allowed_classes = Decidim::CommunityTemplates.serializers.map { |serializer| serializer[:model] }
+        return if allowed_classes.include?(@class)
+
+        importer_class_name = "Decidim::CommunityTemplates::Importers::#{@class.demodulize}"
+        return if importer_class_name.safe_constantize
+
+        errors.add(:@class, :inclusion, value: @class)
       end
 
       def to_json(*)

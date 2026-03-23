@@ -37,6 +37,8 @@ module Decidim
             import_pages!
           when "surveys"
             import_surveys!
+          when "blogs"
+            import_posts!
           end
         end
 
@@ -80,6 +82,21 @@ module Decidim
               i18n_vars: parser.i18n_vars
             )
             serializer = Decidim::CommunityTemplates::Importers::Survey.new(survey_parser, organization, user, parent: self, for_demo: demo?)
+            @after_import_serializers << serializer
+            serializer.import!
+          end
+        end
+
+        def import_posts!
+          (parser.attributes["resources"] || []).select { |resource| resource["@class"] == "Decidim::Blogs::Post" }.each do |post_data|
+            post_parser = TemplateParser.new(
+              data: post_data,
+              translations: parser.translations,
+              locales: parser.locales,
+              assets: parser.assets,
+              i18n_vars: parser.i18n_vars
+            )
+            serializer = Decidim::CommunityTemplates::Importers::Post.new(post_parser, organization, user, parent: self, for_demo: demo?)
             @after_import_serializers << serializer
             serializer.import!
           end

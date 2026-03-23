@@ -9,7 +9,7 @@ module Decidim
         routes { Decidim::CommunityTemplates::AdminEngine.routes }
 
         let(:user) { create(:user, :confirmed, :admin, organization:) }
-        let(:organization) { create(:organization) }
+        let(:organization) { create(:organization, available_locales: ["en"]) }
         let(:valid_template_id) { "00605f97-a5d6-4464-9c7e-5bc5d5840212" }
         let(:invalid_template_id) { "invalid_id" }
         let(:fixture_path) { Engine.root.join("spec/fixtures/catalog_test/valid") }

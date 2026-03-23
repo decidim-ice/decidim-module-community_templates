@@ -9,7 +9,7 @@ module Decidim
         routes { Decidim::CommunityTemplates::AdminEngine.routes }
 
         let(:user) { create(:user, :confirmed, :admin, organization:) }
-        let(:organization) { create(:organization) }
+        let(:organization) { create(:organization, available_locales: ["en"]) }
         let(:valid_uuid) { "00605f97-a5d6-4464-9c7e-5bc5d5840212" }
         let(:valid_link) { "https://example.com/#{valid_uuid}" }
         let(:invalid_link) { "http://example.com/invalid" }

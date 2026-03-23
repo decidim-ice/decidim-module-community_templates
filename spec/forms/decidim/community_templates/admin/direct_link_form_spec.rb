@@ -6,7 +6,7 @@ module Decidim
   module CommunityTemplates
     module Admin
       describe DirectLinkForm do
-        let(:organization) { create(:organization) }
+        let(:organization) { create(:organization, available_locales: ["en"]) }
         let(:user) { create(:user, organization: organization) }
         let(:form) { described_class.new }
         let(:valid_uuid) { "00605f97-a5d6-4464-9c7e-5bc5d5840212" }
